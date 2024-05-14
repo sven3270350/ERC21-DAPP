@@ -22,7 +22,7 @@ const ExecuteProject = () => {
   const Component = components[componentsIndex];
   return (
     <div className="w-full flex flex-col justify-center items-center p-8 ">
-      <div className="flex flex-col w-[490px] gap-4">
+      <div className="flex flex-col w-[580px] gap-4">
         <div className=" flex flex-col gap-8 p-6 rounded-xl border border-[#27272A] ">
           <h1 className="text-[22px] font-bold leading-7 text-center ">
             Execute Project
