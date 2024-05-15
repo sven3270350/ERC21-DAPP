@@ -41,10 +41,12 @@ const Header = () => {
         </Link>
 
         <div className="flex gap-4">
-          <button className="bg-[#F57C00] px-6 py-3 flex gap-2 items-center justify-center rounded-md text-[#000000] text-base font-bold leading-6 tracking-[0.032px] ">
-            <Image src={"/plus.svg"} alt="plus" width={20} height={20} />{" "}
-            <p>New Project</p>
-          </button>{" "}
+          <Link href="/newproject">
+            <button className="bg-[#F57C00] px-6 py-3 flex gap-2 items-center justify-center rounded-md text-[#000000] text-base font-bold leading-6 tracking-[0.032px]">
+              <Image src={"/plus.svg"} alt="plus" width={20} height={20} />
+              <p>New Project</p>
+            </button>
+          </Link>
           {isConnected ? (
             <DisconnectBtn />
           ) : (
