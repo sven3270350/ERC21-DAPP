@@ -2,13 +2,13 @@ import * as React from "react";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import { ProjectName } from "./ProjectName";
-import { CreateWallet } from "./CreateWallet";
-import { TokenDetails } from "./TokenDetails";
 import { BeneficiarieDetails } from "./BeneficiarieDetails";
-import { SetupPool } from "./SetupPool";
 import { TaskDone } from "./TaskDone";
-import { OverView } from "./OverView";
 import { DraftModal } from "./DraftModal";
+import { CreateWallet } from "./CreateWallet/CreateWallet";
+import SetupPool from "./SetupPool";
+import Overview from "./OverView";
+import TokenDetails from "./TokenDetails";
 
 interface Props { }
 
@@ -65,16 +65,14 @@ const MultipleSteppes: React.FC<Props> = () => {
             </div>
 
             <div className="border-[1px] border-[#18181B] rounded-lg p-4 w-[719px] m-auto ">
-                {/* Render appropriate step content based on current step and confirmation status */}
                 {step === 1 && <ProjectName />}
                 {step === 2 && <CreateWallet />}
                 {step === 3 && <TokenDetails />}
                 {step === 4 && <BeneficiarieDetails />}
                 {step === 5 && <SetupPool />}
-                {step === 6 && <OverView />}
+                {step === 6 && <Overview />}
                 {step === 7 && <TaskDone />}
 
-                {/* Render navigation buttons */}
                 {step === 7 ? "" : (
                     <div className="flex justify-between">
                         <DraftModal />
