@@ -14,6 +14,5 @@
   /* Checked state styles */
   .checkbox:checked {
     background-color: #F57C00; /* Set background color when checked */
-    color: black;
   }
   
