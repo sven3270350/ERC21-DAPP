@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { saveProjectData } from "@/app/utils/utils";
 
 export const ProjectName: React.FC<{ setIsValid: (isValid: boolean) => void; triggerValidation: boolean; }> = ({ setIsValid, triggerValidation }) => {
     const [projectName, setProjectName] = React.useState("");
@@ -24,10 +25,12 @@ export const ProjectName: React.FC<{ setIsValid: (isValid: boolean) => void; tri
         validate(value);
     };
 
-    // React to external trigger to validate
+    // React to external trigger to validate and save data
     React.useEffect(() => {
         if (triggerValidation) {
-            validate(projectName);
+            if (validate(projectName)) {
+                saveProjectData('projectName', projectName);
+            }
         }
     }, [triggerValidation]);
 
