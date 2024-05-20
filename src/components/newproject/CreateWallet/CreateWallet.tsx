@@ -1,9 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import WalletSection from './WalletSection';
 
-export const CreateWallet = () => {
+interface CreateWalletProps {
+    setIsValid: (isValid: boolean) => void;
+    showError: boolean;
+}
+
+export const CreateWallet: React.FC<CreateWalletProps> = ({ setIsValid, showError }) => {
     const [showFundingWalletContent, setShowFundingWalletContent] = useState(false);
     const [showControlWalletContent, setShowControlWalletContent] = useState(false);
+
+    useEffect(() => {
+        const isValid = showFundingWalletContent && showControlWalletContent;
+        setIsValid(isValid);
+    }, [showFundingWalletContent, showControlWalletContent, setIsValid]);
 
     const handleFundingWalletButtonClick = () => {
         setShowFundingWalletContent(true);
@@ -31,6 +41,7 @@ export const CreateWallet = () => {
                     onButtonClick={handleControlWalletButtonClick}
                 />
             </div>
+            {showError && <p className="text-red-500 text-sm mt-1">Please Create Wallets</p>}
         </div>
     );
 };
