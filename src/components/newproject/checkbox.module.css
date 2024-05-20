@@ -1,0 +1,18 @@
+.checkbox {
+    /* Hide the default checkbox */
+    appearance: initial;
+    border: 2px solid #F57C00; /* Set border color */
+    width: 20px; /* Set width */
+    height: 20px; /* Set height */
+    border-radius: 4px; /* Optional: Round corners */
+    outline: none; /* Remove focus outline */
+    cursor: pointer; /* Show pointer cursor on hover */
+    vertical-align: middle; /* Align vertically */
+    color: black;
+  }
+  
+  /* Checked state styles */
+  .checkbox:checked {
+    background-color: #F57C00; /* Set background color when checked */
+  }
+  
