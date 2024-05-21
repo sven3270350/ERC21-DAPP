@@ -8,12 +8,11 @@ interface WalletSectionProps {
     buttonText: string;
     showContent: boolean;
     onButtonClick: () => void;
+    publicKey: string;
+    privateKey: string;
 }
 
-const WalletSection: React.FC<WalletSectionProps> = ({ title, buttonText, showContent, onButtonClick }) => {
-    const [publicKey, setPublicKey] = useState('afdfd9c3d2095ef6 96594f6cedcae59 e72dcd697e2a7521b1578140422a4f890');
-    const [privateKey, setPrivateKey] = useState('');
-
+const WalletSection: React.FC<WalletSectionProps> = ({ title, buttonText, showContent, onButtonClick, publicKey, privateKey }) => {
     const handlePublicKeyCopy = () => {
         if (navigator.clipboard) {
             navigator.clipboard.writeText(publicKey)
@@ -27,7 +26,7 @@ const WalletSection: React.FC<WalletSectionProps> = ({ title, buttonText, showCo
             console.error('Clipboard API not available');
         }
     };
-    
+
     const handleDownloadClick = () => {
         const filename = 'wallet_keys.txt';
         const keysContent = `Public Key: ${publicKey}\nPrivate Key: ${privateKey}`;
@@ -84,7 +83,7 @@ const WalletSection: React.FC<WalletSectionProps> = ({ title, buttonText, showCo
                     <div className='mb-4'>
                         <h2 className="text-base font-semibold text-white text-center mb-2">Private Key</h2>
                         <div>
-                            <Input type='password' className='bg-[#09090B] border-0' placeholder='******************************************' value={privateKey} onChange={(e) => setPrivateKey(e.target.value)} />
+                            <Input type='password' className='bg-[#09090B] border-0 text-[#71717A] text-xs font-medium' value={privateKey} />
                             <div className='flex gap-2'>
                                 <Image
                                     src={"./Images/New Project/copy-01.svg"}

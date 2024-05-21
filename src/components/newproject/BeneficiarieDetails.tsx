@@ -4,6 +4,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import styles from "./checkbox.module.css";
+import { getProjectData } from "@/app/utils/utils"; // Assuming getProjectData retrieves data from localStorage
 
 interface Wallet {
     address: string;
@@ -13,15 +14,36 @@ interface Wallet {
 interface BeneficiarieDetailsProps {
     setIsValid: (isValid: boolean) => void;
     triggerValidation: boolean;
-    setWallets: (wallets: Wallet[]) => void;
+    setBeneficiaryDetails: (data: BeneficiaryDetailsData) => void;
 }
 
-export const BeneficiarieDetails: React.FC<BeneficiarieDetailsProps> = ({ setIsValid, triggerValidation, setWallets }) => {
+interface BeneficiaryDetailsData {
+    numWallets: number;
+    tokenAmount: string;
+    wallets: Wallet[];
+}
+
+export const BeneficiarieDetails: React.FC<BeneficiarieDetailsProps> = ({ setIsValid, triggerValidation, setBeneficiaryDetails }) => {
     const [numWallets, setNumWallets] = useState<number>(1);
     const [wallets, setLocalWallets] = useState<Wallet[]>([{ address: "", amount: "" }]);
     const [tokenAmount, setTokenAmount] = useState<string>("");
     const [applyToAll, setApplyToAll] = useState<boolean>(false);
     const [error, setError] = useState<string>("");
+
+    // Load beneficiary details from localStorage on mount
+    useEffect(() => {
+        const data = getProjectData();
+        if (data.beneficiaryDetails) {
+            const { numWallets, tokenAmount, wallets } = data.beneficiaryDetails;
+            setNumWallets(numWallets);
+            setTokenAmount(tokenAmount);
+            setLocalWallets(wallets);
+        }
+    }, []);
+
+    useEffect(() => {
+        setBeneficiaryDetails({ numWallets, tokenAmount, wallets });
+    }, [numWallets, tokenAmount, wallets]);
 
     useEffect(() => {
         if (triggerValidation) {
@@ -164,17 +186,17 @@ export const BeneficiarieDetails: React.FC<BeneficiarieDetailsProps> = ({ setIsV
             <div className="mt-4">
                 {wallets.map((wallet, index) => (
                     <div key={index} className="flex gap-2 mb-4 items-end">
-                        <div className="w-[396px]">
-                            <Label className="text-[#A1A1AA] text-sm">Wallet address</Label>
+                        <div className="w-2/3">
+                            <Label className="text-[#A1A1AA] text-sm">Wallet Address {index + 1}</Label>
                             <Input
                                 className="bg-[#18181B] border-[#27272A] mt-2 text-white"
-                                placeholder="0x6774Bcb..86a12DDD8b367"
+                                placeholder="Address"
                                 value={wallet.address}
                                 onChange={(e) => handleAddressChange(index, e.target.value)}
                             />
                         </div>
-                        <div className="w-[167px]">
-                            <Label className="text-[#A1A1AA] text-sm">Token amount</Label>
+                        <div className="w-1/3">
+                            <Label className="text-[#A1A1AA] text-sm">Token Amount</Label>
                             <Input
                                 className="bg-[#18181B] border-[#27272A] mt-2 text-white"
                                 placeholder="Amount"

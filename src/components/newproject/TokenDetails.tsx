@@ -3,14 +3,21 @@ import Image from "next/image";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import { getProjectData } from "@/app/utils/utils"; 
 
 interface TokenDetailsProps {
     setIsValid: (isValid: boolean) => void;
     triggerValidation: boolean;
-    allFieldsEntered: (entered: boolean) => void; // Callback to inform parent about all fields entered
+    allFieldsEntered: (entered: boolean) => void;
+    setTokenDetails: (details: {
+        tokenName: string;
+        tokenSymbol: string;
+        maxSupply: string;
+        initialSupply: string;
+    }) => void;
 }
 
-const TokenDetails: React.FC<TokenDetailsProps> = ({ setIsValid, triggerValidation, allFieldsEntered }) => {
+const TokenDetails: React.FC<TokenDetailsProps> = ({ setIsValid, triggerValidation, allFieldsEntered, setTokenDetails }) => {
     const [tokenName, setTokenName] = useState<string>('');
     const [tokenSymbol, setTokenSymbol] = useState<string>('');
     const [maxSupply, setMaxSupply] = useState<string>('');
@@ -24,10 +31,25 @@ const TokenDetails: React.FC<TokenDetailsProps> = ({ setIsValid, triggerValidati
     }, [triggerValidation]);
 
     useEffect(() => {
-        // Check if all fields are filled and inform parent
         const fieldsEntered = !!tokenName && !!tokenSymbol && !!maxSupply && !!initialSupply;
         allFieldsEntered(fieldsEntered);
     }, [tokenName, tokenSymbol, maxSupply, initialSupply]);
+
+    useEffect(() => {
+        setTokenDetails({ tokenName, tokenSymbol, maxSupply, initialSupply });
+    }, [tokenName, tokenSymbol, maxSupply, initialSupply, setTokenDetails]);
+
+    // Load token data from localStorage on mount
+    useEffect(() => {
+        const data = getProjectData();
+        if (data.tokenDetails) {
+            const { tokenName, tokenSymbol, maxSupply, initialSupply } = data.tokenDetails;
+            setTokenName(tokenName);
+            setTokenSymbol(tokenSymbol);
+            setMaxSupply(maxSupply);
+            setInitialSupply(initialSupply);
+        }
+    }, []);
 
     const handleTokenNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
