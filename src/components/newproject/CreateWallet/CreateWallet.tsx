@@ -1,25 +1,63 @@
 import React, { useState, useEffect } from 'react';
 import WalletSection from './WalletSection';
+import { saveProjectData } from "@/app/utils/utils"; // Removed getProjectData import
 
 interface CreateWalletProps {
     setIsValid: (isValid: boolean) => void;
     showError: boolean;
+    projectId: string;
+    fundingWalletData: any;
+    adminWalletData: any;
+    setFundingWalletData: (data: any) => void;
+    setAdminWalletData: (data: any) => void;
 }
 
-export const CreateWallet: React.FC<CreateWalletProps> = ({ setIsValid, showError }) => {
+const createRandomKey = (): string => {
+    const hexString = [...Array(64)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+    return `${hexString.substring(0, 16)} ${hexString.substring(16, 32)} ${hexString.substring(32, 48)} ${hexString.substring(48, 64)}`;
+};
+
+export const CreateWallet: React.FC<CreateWalletProps> = ({ setIsValid, showError, projectId, fundingWalletData, adminWalletData, setFundingWalletData, setAdminWalletData }) => {
     const [showFundingWalletContent, setShowFundingWalletContent] = useState(false);
     const [showControlWalletContent, setShowControlWalletContent] = useState(false);
+    const [fundingWalletPublicKey, setFundingWalletPublicKey] = useState('');
+    const [fundingWalletPrivateKey, setFundingWalletPrivateKey] = useState('');
+    const [controlWalletPublicKey, setControlWalletPublicKey] = useState('');
+    const [controlWalletPrivateKey, setControlWalletPrivateKey] = useState('');
 
     useEffect(() => {
         const isValid = showFundingWalletContent && showControlWalletContent;
         setIsValid(isValid);
     }, [showFundingWalletContent, showControlWalletContent, setIsValid]);
 
+    useEffect(() => {
+        if (fundingWalletData) {
+            setFundingWalletPublicKey(fundingWalletData.publicKey);
+            setFundingWalletPrivateKey(fundingWalletData.privateKey);
+            setShowFundingWalletContent(true);
+        }
+        if (adminWalletData) {
+            setControlWalletPublicKey(adminWalletData.publicKey);
+            setControlWalletPrivateKey(adminWalletData.privateKey);
+            setShowControlWalletContent(true);
+        }
+    }, [fundingWalletData, adminWalletData]);
+
     const handleFundingWalletButtonClick = () => {
+        const publicKey = createRandomKey();
+        const privateKey = createRandomKey();
+        setFundingWalletPublicKey(publicKey);
+        setFundingWalletPrivateKey(privateKey);
+        setFundingWalletData({ publicKey, privateKey });
         setShowFundingWalletContent(true);
     };
 
     const handleControlWalletButtonClick = () => {
+        const publicKey = createRandomKey();
+        const privateKey = createRandomKey();
+        setControlWalletPublicKey(publicKey);
+        setControlWalletPrivateKey(privateKey);
+        setAdminWalletData({ publicKey, privateKey });
         setShowControlWalletContent(true);
     };
 
@@ -33,12 +71,16 @@ export const CreateWallet: React.FC<CreateWalletProps> = ({ setIsValid, showErro
                     buttonText="Create"
                     showContent={showFundingWalletContent}
                     onButtonClick={handleFundingWalletButtonClick}
+                    publicKey={fundingWalletPublicKey}
+                    privateKey={fundingWalletPrivateKey}
                 />
                 <WalletSection
                     title="Admin Wallet"
                     buttonText="Create"
                     showContent={showControlWalletContent}
                     onButtonClick={handleControlWalletButtonClick}
+                    publicKey={controlWalletPublicKey}
+                    privateKey={controlWalletPrivateKey}
                 />
             </div>
             {showError && <p className="text-red-500 text-sm mt-1">Please Create Wallets</p>}

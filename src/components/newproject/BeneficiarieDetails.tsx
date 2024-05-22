@@ -13,15 +13,26 @@ interface Wallet {
 interface BeneficiarieDetailsProps {
     setIsValid: (isValid: boolean) => void;
     triggerValidation: boolean;
-    setWallets: (wallets: Wallet[]) => void;
+    setBeneficiaryDetails: (data: BeneficiaryDetailsData) => void;
+    BeneficiaryData: BeneficiaryDetailsData
 }
 
-export const BeneficiarieDetails: React.FC<BeneficiarieDetailsProps> = ({ setIsValid, triggerValidation, setWallets }) => {
-    const [numWallets, setNumWallets] = useState<number>(1);
-    const [wallets, setLocalWallets] = useState<Wallet[]>([{ address: "", amount: "" }]);
-    const [tokenAmount, setTokenAmount] = useState<string>("");
+interface BeneficiaryDetailsData {
+    numWallets: number;
+    tokenAmount: string;
+    wallets: Wallet[];
+}
+
+const BeneficiarieDetails: React.FC<BeneficiarieDetailsProps> = ({ setIsValid, triggerValidation, setBeneficiaryDetails, BeneficiaryData }) => {
+    const [numWallets, setNumWallets] = useState<number>(BeneficiaryData?.numWallets || 1);
+    const [wallets, setLocalWallets] = useState<Wallet[]>(BeneficiaryData?.wallets || [{ address: "", amount: "" }]);
+    const [tokenAmount, setTokenAmount] = useState<string>(BeneficiaryData?.tokenAmount || "");
     const [applyToAll, setApplyToAll] = useState<boolean>(false);
     const [error, setError] = useState<string>("");
+
+    useEffect(() => {
+        setBeneficiaryDetails({ numWallets, tokenAmount, wallets });
+    }, [numWallets, tokenAmount, wallets]);
 
     useEffect(() => {
         if (triggerValidation) {
@@ -164,17 +175,17 @@ export const BeneficiarieDetails: React.FC<BeneficiarieDetailsProps> = ({ setIsV
             <div className="mt-4">
                 {wallets.map((wallet, index) => (
                     <div key={index} className="flex gap-2 mb-4 items-end">
-                        <div className="w-[396px]">
-                            <Label className="text-[#A1A1AA] text-sm">Wallet address</Label>
+                        <div className="w-2/3">
+                            <Label className="text-[#A1A1AA] text-sm">Wallet Address {index + 1}</Label>
                             <Input
                                 className="bg-[#18181B] border-[#27272A] mt-2 text-white"
-                                placeholder="0x6774Bcb..86a12DDD8b367"
+                                placeholder="Address"
                                 value={wallet.address}
                                 onChange={(e) => handleAddressChange(index, e.target.value)}
                             />
                         </div>
-                        <div className="w-[167px]">
-                            <Label className="text-[#A1A1AA] text-sm">Token amount</Label>
+                        <div className="w-1/3">
+                            <Label className="text-[#A1A1AA] text-sm">Token Amount</Label>
                             <Input
                                 className="bg-[#18181B] border-[#27272A] mt-2 text-white"
                                 placeholder="Amount"
@@ -204,3 +215,6 @@ export const BeneficiarieDetails: React.FC<BeneficiarieDetailsProps> = ({ setIsV
         </div>
     );
 };
+
+export default BeneficiarieDetails;
+

@@ -1,27 +1,41 @@
 import Image from "next/image";
+import { Input } from "../ui/input";
 
-interface Wallet {
+interface AdminWallet {
     name: string;
     publicKey: string;
     privateKey: string;
 }
 
-const Overview: React.FC = () => {
-    const wallets: Wallet[] = [
+interface BeneficiaryWallet {
+    address: string;
+    amount: string;
+}
+
+interface OverviewProps {
+    projectName: string;
+    tokenDetails: any;
+    beneficiaryDetails: { wallets: BeneficiaryWallet[] };
+    fundingWalletData: AdminWallet;
+    adminWalletData: AdminWallet;
+}
+
+const Overview: React.FC<OverviewProps> = ({ projectName, tokenDetails, beneficiaryDetails, fundingWalletData, adminWalletData }) => {
+    const wallets: AdminWallet[] = [
         {
             name: 'Funding Wallet',
-            publicKey: "afdfd9c3d2095ef6 96594f6cedcae59 e72dcd697e2a7521b1578140422a4f890",
-            privateKey: "**************************************** ***************************************"
+            publicKey: fundingWalletData?.publicKey || '',
+            privateKey: fundingWalletData?.privateKey || ''
         },
         {
             name: 'Admin Wallet',
-            publicKey: "afdfd9c3d2095ef6 96594f6cedcae59 e72dcd697e2a7521b1578140422a4f890",
-            privateKey: "**************************************** ***************************************"
+            publicKey: adminWalletData?.publicKey || '',
+            privateKey: adminWalletData?.privateKey
         }
     ];
 
     const renderWallets = (): JSX.Element[] => {
-        return wallets.map((wallet: Wallet, index: number) => (
+        return wallets.map((wallet: AdminWallet, index: number) => (
             <div key={index} className='border-dashed border-[1px] border-[#27272A] px-6 py-4 w-[320px]'>
                 <h2 className="text-xl font-semibold text-white text-center mb-2">{wallet.name}</h2>
                 {renderKeys(wallet)}
@@ -29,7 +43,7 @@ const Overview: React.FC = () => {
         ));
     };
 
-    const renderKeys = (wallet: Wallet): JSX.Element => {
+    const renderKeys = (wallet: AdminWallet): JSX.Element => {
         return (
             <>
                 <div className='mb-4'>
@@ -39,7 +53,7 @@ const Overview: React.FC = () => {
                 </div>
                 <div className='mb-4'>
                     <h2 className="text-base font-semibold text-white text-center mb-2">Private Key</h2>
-                    <p className="text-[#71717A] text-xs font-medium text-start">{wallet.privateKey}</p>
+                    <Input type='password' className='bg-[#09090B] border-0 text-[#71717A] text-xs font-medium' value={wallet.privateKey} />
                     {renderKeyActions()}
                 </div>
             </>
@@ -50,14 +64,14 @@ const Overview: React.FC = () => {
         return (
             <div className='flex gap-2 '>
                 <Image
-                    src={"./Images/New Project/copy-01.svg"}
+                    src={"/Images/New Project/copy-01.svg"}
                     width={16}
                     height={16}
                     alt="logo"
                     className='cursor-pointer'
                 />
                 <Image
-                    src={"./Images/New Project/download-02.svg"}
+                    src={"/Images/New Project/download-02.svg"}
                     width={16}
                     height={16}
                     alt="logo"
@@ -69,38 +83,38 @@ const Overview: React.FC = () => {
 
     const array1 = [
         {
-            price: 'OpSec',
-            name: 'Name'
-        },
-        {
-            price: 'OpSec',
+            price: tokenDetails?.tokenName || 'N/A',
             name: 'Token Name'
         },
         {
-            price: '10,000,000',
+            price: tokenDetails?.tokenSymbol || 'N/A',
+            name: 'Token Symbol '
+        },
+        {
+            price: tokenDetails?.maxSupply || 'N/A',
             name: 'Max supply'
         },
         {
-            price: '10,000,000',
+            price: tokenDetails?.initialSupply || 'N/A',
             name: 'Initial supply'
         },
     ];
 
     const array2 = [
         {
-            price: '5,00,000',
+            price: tokenDetails?.liquidity || 'N/A',
             name: 'Liquidity'
         },
         {
-            price: '$0.020',
+            price: tokenDetails?.tradingPrice || 'N/A',
             name: 'Trading price'
         },
         {
-            price: '10,000,000',
+            price: tokenDetails?.maxSupply || 'N/A',
             name: 'Max supply'
         },
         {
-            price: '10,000,000',
+            price: tokenDetails?.initialSupply || 'N/A',
             name: 'Initial supply'
         },
     ];
@@ -109,7 +123,7 @@ const Overview: React.FC = () => {
         <section>
             <div className="mb-4">
                 <h2 className="text-xl font-semibold text-white text-center mb-2">Overview</h2>
-                <p className="text-[#71717A] text-sm font-medium text-center mb-4">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam</p>
+                <p className="text-white text-lg font-medium text-center mb-4">{projectName}</p>
                 <div className="grid grid-cols-4 justify-between mb-4">
                     {array1.map((item, index) => (
                         <div key={index}>
@@ -130,26 +144,18 @@ const Overview: React.FC = () => {
                     {renderWallets()}
                 </div>
                 <h2 className="text-xl font-semibold text-white text-start mb-2">Beneficiaries</h2>
-                <div className="flex justify-between mb-4">
-                    <div>
-                        <h4 className="font-medium text-[16px] text-white">0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367</h4>
-                        <p className="text-[#71717A] text-sm font-medium ">Wallet address</p>
+                {beneficiaryDetails?.wallets?.map((wallet: BeneficiaryWallet, index: number) => (
+                    <div className="flex justify-between mb-4" key={index}>
+                        <div>
+                            <h4 className="font-medium text-[16px] text-white">{wallet.address}</h4>
+                            <p className="text-[#71717A] text-sm font-medium ">Wallet address</p>
+                        </div>
+                        <div>
+                            <h4 className="font-medium text-[16px] text-white">{wallet.amount}</h4>
+                            <p className="text-[#71717A] text-sm font-medium ">Supply of token</p>
+                        </div>
                     </div>
-                    <div>
-                        <h4 className="font-medium text-[16px] text-white">150,000</h4>
-                        <p className="text-[#71717A] text-sm font-medium ">Supply of token</p>
-                    </div>
-                </div>
-                <div className="flex justify-between">
-                    <div>
-                        <h4 className="font-medium text-[16px] text-white">0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367</h4>
-                        <p className="text-[#71717A] text-sm font-medium ">Wallet address</p>
-                    </div>
-                    <div>
-                        <h4 className="font-medium text-[16px] text-white">150,000</h4>
-                        <p className="text-[#71717A] text-sm font-medium ">Supply of token</p>
-                    </div>
-                </div>
+                ))}
             </div>
         </section>
     );

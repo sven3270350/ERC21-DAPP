@@ -1,12 +1,19 @@
 import * as React from "react";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { saveProjectData } from "@/app/utils/utils";
 
-export const ProjectName: React.FC<{ setIsValid: (isValid: boolean) => void; triggerValidation: boolean; }> = ({ setIsValid, triggerValidation }) => {
-    const [projectName, setProjectName] = React.useState("");
-    const [error, setError] = React.useState("");
+interface ProjectNameProps {
+    setIsValid: (isValid: boolean) => void;
+    triggerValidation: boolean;
+    setProjectName: (name: string) => void;
+    projectName: string;
+}
 
-    const validate = (value: string) => {
+export const ProjectName: React.FC<ProjectNameProps> = ({ setIsValid, triggerValidation, setProjectName, projectName }) => {
+    const [error, setError] = React.useState<string>("");
+
+    const validate = (value: string): boolean => {
         if (value.trim() === "") {
             setError("Project name is required.");
             setIsValid(false);
@@ -18,13 +25,12 @@ export const ProjectName: React.FC<{ setIsValid: (isValid: boolean) => void; tri
         }
     };
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
         const value = e.target.value;
         setProjectName(value);
         validate(value);
     };
 
-    // React to external trigger to validate
     React.useEffect(() => {
         if (triggerValidation) {
             validate(projectName);
@@ -41,7 +47,7 @@ export const ProjectName: React.FC<{ setIsValid: (isValid: boolean) => void; tri
                 <Label className="text-[#A1A1AA] text-sm">Name</Label>
                 <Input
                     className="bg-[#18181B] border-[#27272A] mt-2 text-[#F57C00]"
-                    placeholder="Example..."
+                    placeholder="Project Name"
                     value={projectName}
                     onChange={handleInputChange}
                 />
