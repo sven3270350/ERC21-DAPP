@@ -4,7 +4,6 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import styles from "./checkbox.module.css";
-import { getProjectData } from "@/app/utils/utils"; // Assuming getProjectData retrieves data from localStorage
 
 interface Wallet {
     address: string;
@@ -15,6 +14,7 @@ interface BeneficiarieDetailsProps {
     setIsValid: (isValid: boolean) => void;
     triggerValidation: boolean;
     setBeneficiaryDetails: (data: BeneficiaryDetailsData) => void;
+    BeneficiaryData: BeneficiaryDetailsData
 }
 
 interface BeneficiaryDetailsData {
@@ -23,23 +23,12 @@ interface BeneficiaryDetailsData {
     wallets: Wallet[];
 }
 
-export const BeneficiarieDetails: React.FC<BeneficiarieDetailsProps> = ({ setIsValid, triggerValidation, setBeneficiaryDetails }) => {
-    const [numWallets, setNumWallets] = useState<number>(1);
-    const [wallets, setLocalWallets] = useState<Wallet[]>([{ address: "", amount: "" }]);
-    const [tokenAmount, setTokenAmount] = useState<string>("");
+const BeneficiarieDetails: React.FC<BeneficiarieDetailsProps> = ({ setIsValid, triggerValidation, setBeneficiaryDetails, BeneficiaryData }) => {
+    const [numWallets, setNumWallets] = useState<number>(BeneficiaryData?.numWallets || 1);
+    const [wallets, setLocalWallets] = useState<Wallet[]>(BeneficiaryData?.wallets || [{ address: "", amount: "" }]);
+    const [tokenAmount, setTokenAmount] = useState<string>(BeneficiaryData?.tokenAmount || "");
     const [applyToAll, setApplyToAll] = useState<boolean>(false);
     const [error, setError] = useState<string>("");
-
-    // Load beneficiary details from localStorage on mount
-    useEffect(() => {
-        const data = getProjectData();
-        if (data.beneficiaryDetails) {
-            const { numWallets, tokenAmount, wallets } = data.beneficiaryDetails;
-            setNumWallets(numWallets);
-            setTokenAmount(tokenAmount);
-            setLocalWallets(wallets);
-        }
-    }, []);
 
     useEffect(() => {
         setBeneficiaryDetails({ numWallets, tokenAmount, wallets });
@@ -226,3 +215,6 @@ export const BeneficiarieDetails: React.FC<BeneficiarieDetailsProps> = ({ setIsV
         </div>
     );
 };
+
+export default BeneficiarieDetails;
+

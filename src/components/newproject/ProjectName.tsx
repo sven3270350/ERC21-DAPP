@@ -1,19 +1,18 @@
 import * as React from "react";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { saveProjectData, getProjectData } from "@/app/utils/utils";
+import { saveProjectData } from "@/app/utils/utils";
 
 interface ProjectNameProps {
     setIsValid: (isValid: boolean) => void;
     triggerValidation: boolean;
     setProjectName: (name: string) => void;
+    projectName: string;
 }
 
-export const ProjectName: React.FC<ProjectNameProps> = ({ setIsValid, triggerValidation, setProjectName }) => {
-    const [projectName, setLocalProjectName] = React.useState<string>("");
+export const ProjectName: React.FC<ProjectNameProps> = ({ setIsValid, triggerValidation, setProjectName, projectName }) => {
     const [error, setError] = React.useState<string>("");
 
-    // Function to validate the project name
     const validate = (value: string): boolean => {
         if (value.trim() === "") {
             setError("Project name is required.");
@@ -26,28 +25,15 @@ export const ProjectName: React.FC<ProjectNameProps> = ({ setIsValid, triggerVal
         }
     };
 
-    // Handle input changes
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
         const value = e.target.value;
-        setLocalProjectName(value);
         setProjectName(value);
         validate(value);
     };
 
     React.useEffect(() => {
-        const data = getProjectData();
-        if (data.projectName) {
-            setLocalProjectName(data.projectName);
-            setProjectName(data.projectName);
-            setIsValid(true); 
-        }
-    }, []);
-
-    React.useEffect(() => {
         if (triggerValidation) {
-            if (validate(projectName)) {
-                saveProjectData('projectName', projectName);
-            }
+            validate(projectName);
         }
     }, [triggerValidation]);
 

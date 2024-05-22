@@ -3,7 +3,6 @@ import Image from "next/image";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
-import { getProjectData } from "@/app/utils/utils"; 
 
 interface TokenDetailsProps {
     setIsValid: (isValid: boolean) => void;
@@ -15,13 +14,20 @@ interface TokenDetailsProps {
         maxSupply: string;
         initialSupply: string;
     }) => void;
+    projectId: string;
+    tokenDetailsData?: {
+        tokenName: string;
+        tokenSymbol: string;
+        maxSupply: string;
+        initialSupply: string;
+    }; 
 }
 
-const TokenDetails: React.FC<TokenDetailsProps> = ({ setIsValid, triggerValidation, allFieldsEntered, setTokenDetails }) => {
-    const [tokenName, setTokenName] = useState<string>('');
-    const [tokenSymbol, setTokenSymbol] = useState<string>('');
-    const [maxSupply, setMaxSupply] = useState<string>('');
-    const [initialSupply, setInitialSupply] = useState<string>('');
+const TokenDetails: React.FC<TokenDetailsProps> = ({ setIsValid, triggerValidation, allFieldsEntered, setTokenDetails, projectId, tokenDetailsData }) => {
+    const [tokenName, setTokenName] = useState<string>(tokenDetailsData?.tokenName || '');
+    const [tokenSymbol, setTokenSymbol] = useState<string>(tokenDetailsData?.tokenSymbol || '');
+    const [maxSupply, setMaxSupply] = useState<string>(tokenDetailsData?.maxSupply || '');
+    const [initialSupply, setInitialSupply] = useState<string>(tokenDetailsData?.initialSupply || '');
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
@@ -38,18 +44,6 @@ const TokenDetails: React.FC<TokenDetailsProps> = ({ setIsValid, triggerValidati
     useEffect(() => {
         setTokenDetails({ tokenName, tokenSymbol, maxSupply, initialSupply });
     }, [tokenName, tokenSymbol, maxSupply, initialSupply, setTokenDetails]);
-
-    // Load token data from localStorage on mount
-    useEffect(() => {
-        const data = getProjectData();
-        if (data.tokenDetails) {
-            const { tokenName, tokenSymbol, maxSupply, initialSupply } = data.tokenDetails;
-            setTokenName(tokenName);
-            setTokenSymbol(tokenSymbol);
-            setMaxSupply(maxSupply);
-            setInitialSupply(initialSupply);
-        }
-    }, []);
 
     const handleTokenNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -83,6 +77,34 @@ const TokenDetails: React.FC<TokenDetailsProps> = ({ setIsValid, triggerValidati
         setErrors(errors);
         setIsValid(Object.keys(errors).length === 0);
     };
+
+    const saveTokenDetails = () => {
+        const tokenDetails = { tokenName, tokenSymbol, maxSupply, initialSupply };
+        // Save token details with the project ID
+        // Implement your save logic here, e.g., using localStorage or API calls
+        console.log(`Saving token details for project ${projectId}:`, tokenDetails);
+    };
+
+    function renderTooltip(text: string) {
+        return (
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Image
+                            src={"/Images/New Project/information-circle.svg"}
+                            width={14}
+                            height={14}
+                            alt="info"
+                            className="cursor-pointer"
+                        />
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-[#18181B] text-[#5a5a5a] border-[#27272A]">
+                        <p>{text}</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        );
+    }
 
     return (
         <div className="mb-4">
@@ -147,27 +169,7 @@ const TokenDetails: React.FC<TokenDetailsProps> = ({ setIsValid, triggerValidati
             </div>
         </div>
     );
-
-    function renderTooltip(text: string) {
-        return (
-            <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Image
-                            src={"/Images/New Project/information-circle.svg"}
-                            width={14}
-                            height={14}
-                            alt="info"
-                            className="cursor-pointer"
-                        />
-                    </TooltipTrigger>
-                    <TooltipContent className="bg-[#18181B] text-[#5a5a5a] border-[#27272A]">
-                        <p>{text}</p>
-                    </TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
-        );
-    }
 };
 
 export default TokenDetails;
+

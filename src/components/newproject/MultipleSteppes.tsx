@@ -1,15 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import { ProjectName } from "./ProjectName";
-import { BeneficiarieDetails } from "./BeneficiarieDetails";
 import { TaskDone } from "./TaskDone";
 import { DraftModal } from "./DraftModal";
-import { CreateWallet } from "./CreateWallet/CreateWallet";
 import SetupPool from "./SetupPool";
 import Overview from "./OverView";
+import { saveProjectData, getProjectData, generateUniqueId } from "@/app/utils/utils";
+import { useRouter } from 'next/navigation';
+import { CreateWallet } from "./CreateWallet/CreateWallet";
 import TokenDetails from "./TokenDetails";
-import { saveProjectData } from "@/app/utils/utils";
+import BeneficiarieDetails from "./BeneficiarieDetails";
 
 interface Props { }
 interface Wallet {
@@ -17,39 +18,55 @@ interface Wallet {
     amount: string;
 }
 
-
 const MultipleSteps: React.FC<Props> = () => {
     const [step, setStep] = useState<number>(1);
     const [isValid, setIsValid] = useState<boolean>(false);
     const [showError, setShowError] = useState<boolean>(false);
     const [triggerValidation, setTriggerValidation] = useState<boolean>(false);
     const [allFieldsEnteredInTokenDetails, setAllFieldsEnteredInTokenDetails] = useState<boolean>(false);
-    const [wallets, setWallets] = useState<{ address: string; amount: string }[]>([]);
-
     const [projectName, setProjectName] = useState<string>("");
     const [tokenDetails, setTokenDetails] = useState<any>(null);
     const [beneficiaryDetails, setBeneficiaryDetails] = useState<any>(null);
-    console.log("beneficiaryDetails", beneficiaryDetails);
+    const [projectId, setProjectId] = useState<string>(generateUniqueId());
+    const [fundingWalletData, setFundingWalletData] = useState<any>(null);
+    const [adminWalletData, setAdminWalletData] = useState<any>(null);
+
+    const router = useRouter();
+    const { queryProjectId } = router.query || {};
+
+    useEffect(() => {
+        if (queryProjectId) {
+            const data = getProjectData(queryProjectId as string);
+            if (data) {
+                setProjectId(queryProjectId as string);
+                setProjectName(data.projectName || '');
+                setTokenDetails(data.tokenDetails || {});
+                setBeneficiaryDetails(data.beneficiaryDetails || {});
+                setFundingWalletData(data.fundingWallet || null);
+                setAdminWalletData(data.adminWallet || null);
+            }
+        } else {
+            setProjectId(generateUniqueId());
+            setProjectName('');
+            setTokenDetails({});
+            setBeneficiaryDetails({});
+            setFundingWalletData(null);
+            setAdminWalletData(null);
+        }
+    }, [queryProjectId]);
 
     const handleNextClick = () => {
         setTriggerValidation(true);
         setTimeout(() => {
             if (isValid && (step !== 3 || allFieldsEnteredInTokenDetails)) {
-                switch (step) {
-                    case 1:
-                        saveProjectData('projectName', projectName);
-                        break;
-                    case 2:
-                        saveProjectData('wallets', wallets);
-                        break;
-                    case 3:
-                        saveProjectData('tokenDetails', tokenDetails);
-                        break;
-                    case 4:
-                        saveProjectData('beneficiaryDetails', beneficiaryDetails); 
-                        break;
-                    // Add more cases as needed for other steps
-                }
+                const currentData = {
+                    projectName,
+                    tokenDetails,
+                    beneficiaryDetails,
+                    fundingWallet: fundingWalletData,
+                    adminWallet: adminWalletData
+                };
+                saveProjectData(projectId, currentData);
                 setStep(step + 1);
                 setShowError(false);
                 setTriggerValidation(false);
@@ -117,25 +134,44 @@ const MultipleSteps: React.FC<Props> = () => {
             </div>
 
             <div className="border-[1px] border-[#18181B] rounded-lg p-4 w-[719px] m-auto">
-                {step === 1 && <ProjectName setIsValid={setIsValid} triggerValidation={triggerValidation} setProjectName={setProjectName} />}
-                {step === 2 && <CreateWallet setIsValid={setIsValid} showError={showError} />}
+                {step === 1 && <ProjectName setIsValid={setIsValid} triggerValidation={triggerValidation} setProjectName={setProjectName} projectName={projectName} />}
+                {step === 2 && (
+                    <CreateWallet
+                        setIsValid={setIsValid}
+                        showError={showError}
+                        projectId={projectId}
+                        fundingWalletData={fundingWalletData}
+                        adminWalletData={adminWalletData}
+                        setFundingWalletData={setFundingWalletData}
+                        setAdminWalletData={setAdminWalletData}
+                    />
+                )}
                 {step === 3 && (
                     <TokenDetails
                         setIsValid={setIsValid}
                         triggerValidation={triggerValidation}
                         allFieldsEntered={(entered) => setAllFieldsEnteredInTokenDetails(entered)}
                         setTokenDetails={setTokenDetails}
+                        projectId={projectId}
+                        tokenDetailsData={tokenDetails}
                     />
                 )}
                 {step === 4 && (
                     <BeneficiarieDetails
                         setIsValid={setIsValid}
                         triggerValidation={triggerValidation}
-                        setBeneficiaryDetails={setBeneficiaryDetails} 
+                        setBeneficiaryDetails={setBeneficiaryDetails}
+                        BeneficiaryData={beneficiaryDetails}
                     />
                 )}
                 {step === 5 && <SetupPool />}
-                {step === 6 && <Overview />}
+                {step === 6 && <Overview
+                    projectName={projectName}
+                    tokenDetails={tokenDetails}
+                    beneficiaryDetails={beneficiaryDetails}
+                    fundingWalletData={fundingWalletData}
+                    adminWalletData={adminWalletData}
+                />}
                 {step === 7 && <TaskDone />}
 
                 {step !== 7 && (

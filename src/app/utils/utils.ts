@@ -1,22 +1,23 @@
-// utils.ts
 type ProjectData = {
-    [key: string]: any;
+    id: string;
+    data: any;
 };
 
-export const saveProjectData = (key: string, value: any): void => {
+export const saveProjectData = (projectId: string, projectData: any): void => {
     const existingData = localStorage.getItem('projectData');
-    const parsedData = existingData ? JSON.parse(existingData) : {};
+    const parsedData: Record<string, any> = existingData ? JSON.parse(existingData) : {};
 
-    parsedData[key] = value;
+    parsedData[projectId] = projectData;
 
     localStorage.setItem('projectData', JSON.stringify(parsedData));
 };
 
+export const getProjectData = (projectId: string): any => {
+    const data = localStorage.getItem('projectData');
+    const parsedData: Record<string, any> = data ? JSON.parse(data) : {};
+    return parsedData[projectId] || null;
+};
 
-export const getProjectData = (): ProjectData => {
-    if (typeof window !== 'undefined') {
-        const data = localStorage.getItem('projectData');
-        return data ? JSON.parse(data) : {};
-    }
-    return {};
+export const generateUniqueId = (): string => {
+    return 'project-' + Date.now().toString();
 };
