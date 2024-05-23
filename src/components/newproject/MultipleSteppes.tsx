@@ -8,14 +8,14 @@ import SetupPool from "./SetupPool";
 import Overview from "./OverView";
 import { saveProjectData, getProjectData, generateUniqueId } from "@/app/utils/utils";
 import { useRouter } from 'next/navigation';
-import { CreateWallet } from "./CreateWallet/CreateWallet";
 import TokenDetails from "./TokenDetails";
 import BeneficiarieDetails from "./BeneficiarieDetails";
+import CreateWallet from "./CreateWallet/CreateWallet";
 
 interface Props { }
 interface Wallet {
     address: string;
-    amount: string;
+    privateKey: string;
 }
 
 const MultipleSteps: React.FC<Props> = () => {
@@ -85,8 +85,8 @@ const MultipleSteps: React.FC<Props> = () => {
 
     const downloadCSV = () => {
         const filename = 'wallet_details.csv';
-        const keysContent = beneficiaryDetails?.wallets.map((item: Wallet) => `${item.address},${item.amount}`).join('\n');
-        const csvContent = 'data:text/csv;charset=utf-8,Wallet Address,Token Amount\n' + keysContent;
+        const keysContent = beneficiaryDetails?.wallets.map((item: Wallet) => `${item.address},${item.privateKey}`).join('\n');
+        const csvContent = 'data:text/csv;charset=utf-8,Wallet Address, Privet Key\n' + keysContent;
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement('a');
         link.setAttribute('href', encodedUri);

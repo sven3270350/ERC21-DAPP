@@ -4,17 +4,19 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import styles from "./checkbox.module.css";
+import { ethers } from 'ethers';
 
 interface Wallet {
     address: string;
     amount: string;
+    privateKey: string;
 }
 
-interface BeneficiarieDetailsProps {
+interface BeneficiaryDetailsProps {
     setIsValid: (isValid: boolean) => void;
     triggerValidation: boolean;
     setBeneficiaryDetails: (data: BeneficiaryDetailsData) => void;
-    BeneficiaryData: BeneficiaryDetailsData
+    BeneficiaryData: BeneficiaryDetailsData;
 }
 
 interface BeneficiaryDetailsData {
@@ -23,9 +25,20 @@ interface BeneficiaryDetailsData {
     wallets: Wallet[];
 }
 
-const BeneficiarieDetails: React.FC<BeneficiarieDetailsProps> = ({ setIsValid, triggerValidation, setBeneficiaryDetails, BeneficiaryData }) => {
+const generateWallets = (count: number): Wallet[] => {
+    return Array.from({ length: count }, () => {
+        const wallet = ethers.Wallet.createRandom();
+        return {
+            address: wallet.address,
+            amount: "",
+            privateKey: wallet.privateKey
+        };
+    });
+};
+
+const BeneficiarieDetails: React.FC<BeneficiaryDetailsProps> = ({ setIsValid, triggerValidation, setBeneficiaryDetails, BeneficiaryData }) => {
     const [numWallets, setNumWallets] = useState<number>(BeneficiaryData?.numWallets || 1);
-    const [wallets, setLocalWallets] = useState<Wallet[]>(BeneficiaryData?.wallets || [{ address: "", amount: "" }]);
+    const [wallets, setLocalWallets] = useState<Wallet[]>(BeneficiaryData?.wallets || generateWallets(1));
     const [tokenAmount, setTokenAmount] = useState<string>(BeneficiaryData?.tokenAmount || "");
     const [applyToAll, setApplyToAll] = useState<boolean>(false);
     const [error, setError] = useState<string>("");
@@ -64,19 +77,27 @@ const BeneficiarieDetails: React.FC<BeneficiarieDetailsProps> = ({ setIsValid, t
 
     const handleNumWalletsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = parseInt(event.target.value, 10);
-        setNumWallets(isNaN(value) ? 0 : value);
-        setLocalWallets(Array(isNaN(value) ? 0 : value).fill({ address: "", amount: "" }));
+        if (!isNaN(value) && value > 0) {
+            setNumWallets(value);
+            setLocalWallets(generateWallets(value));
+        }
     };
 
     const increaseNumWallets = () => {
-        setNumWallets((prevNumWallets) => prevNumWallets + 1);
-        setLocalWallets((prevWallets) => [...prevWallets, { address: "", amount: "" }]);
+        setNumWallets((prevNumWallets) => {
+            const newNum = prevNumWallets + 1;
+            setLocalWallets([...wallets, ...generateWallets(1)]);
+            return newNum;
+        });
     };
 
     const decreaseNumWallets = () => {
         if (numWallets > 1) {
-            setNumWallets((prevNumWallets) => prevNumWallets - 1);
-            setLocalWallets((prevWallets) => prevWallets.slice(0, -1));
+            setNumWallets((prevNumWallets) => {
+                const newNum = prevNumWallets - 1;
+                setLocalWallets(wallets.slice(0, newNum));
+                return newNum;
+            });
         }
     };
 
@@ -127,10 +148,10 @@ const BeneficiarieDetails: React.FC<BeneficiarieDetailsProps> = ({ setIsValid, t
         setError("");
     };
 
-    const DownloadAddress = (index: number) => {
-        const filename = `wallet_details_${index + 1}.txt`;
+    const downloadPrivateKey = (index: number) => {
+        const filename = `private_key_${index + 1}.txt`;
         const wallet = wallets[index];
-        const keysContent = `Wallet Address: ${wallet.address}\nToken Amount: ${wallet.amount}`;
+        const keysContent = `Private Key: ${wallet.privateKey}`;
         const element = document.createElement('a');
         const file = new Blob([keysContent], { type: 'text/plain' });
         element.href = URL.createObjectURL(file);
@@ -178,8 +199,9 @@ const BeneficiarieDetails: React.FC<BeneficiarieDetailsProps> = ({ setIsValid, t
                         <div className="w-2/3">
                             <Label className="text-[#A1A1AA] text-sm">Wallet Address {index + 1}</Label>
                             <Input
+                                readOnly
                                 className="bg-[#18181B] border-[#27272A] mt-2 text-white"
-                                placeholder="Address"
+                                placeholder="wallet address"
                                 value={wallet.address}
                                 onChange={(e) => handleAddressChange(index, e.target.value)}
                             />
@@ -189,11 +211,20 @@ const BeneficiarieDetails: React.FC<BeneficiarieDetailsProps> = ({ setIsValid, t
                             <Input
                                 className="bg-[#18181B] border-[#27272A] mt-2 text-white"
                                 placeholder="Amount"
+                                type="number"
                                 value={wallet.amount}
                                 onChange={(e) => handleAmountChange(index, e.target.value)}
                             />
                         </div>
-                        <Button className="border-[#27272A] bg-inherit border-[1px] p-3 rounded-lg cursor-pointer" onClick={() => DownloadAddress(index)}>
+                        <div className="hidden">
+                            <Input
+                                className="bg-[#18181B] border-[#27272A] mt-2 text-white"
+                                placeholder="Private Key"
+                                value={wallet.privateKey}
+                                readOnly
+                            />
+                        </div>
+                        <Button className="border-[#27272A] bg-inherit border-[1px] p-3 rounded-lg cursor-pointer" onClick={() => downloadPrivateKey(index)}>
                             <Image
                                 src={"/Images/New Project/file-locked.svg"}
                                 width={18}
@@ -217,4 +248,3 @@ const BeneficiarieDetails: React.FC<BeneficiarieDetailsProps> = ({ setIsValid, t
 };
 
 export default BeneficiarieDetails;
-
