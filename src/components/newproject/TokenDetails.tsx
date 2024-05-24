@@ -78,13 +78,6 @@ const TokenDetails: React.FC<TokenDetailsProps> = ({ setIsValid, triggerValidati
         setIsValid(Object.keys(errors).length === 0);
     };
 
-    const saveTokenDetails = () => {
-        const tokenDetails = { tokenName, tokenSymbol, maxSupply, initialSupply };
-        // Save token details with the project ID
-        // Implement your save logic here, e.g., using localStorage or API calls
-        console.log(`Saving token details for project ${projectId}:`, tokenDetails);
-    };
-
     function renderTooltip(text: string) {
         return (
             <TooltipProvider>

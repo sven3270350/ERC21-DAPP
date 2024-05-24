@@ -20,9 +20,10 @@ interface OverviewProps {
     beneficiaryDetails: { wallets: BeneficiaryWallet[] };
     fundingWalletData: AdminWallet;
     adminWalletData: AdminWallet;
+    poolData:any
 }
 
-const Overview: React.FC<OverviewProps> = ({ projectName, tokenDetails, beneficiaryDetails, fundingWalletData, adminWalletData }) => {
+const Overview: React.FC<OverviewProps> = ({ projectName, tokenDetails, beneficiaryDetails, fundingWalletData, adminWalletData, poolData}) => {
     const wallets: AdminWallet[] = [
         {
             name: 'Funding Wallet',
@@ -65,13 +66,13 @@ const Overview: React.FC<OverviewProps> = ({ projectName, tokenDetails, benefici
     const renderKeys = (wallet: AdminWallet): JSX.Element => {
         return (
             <>
-                <div className='mb-4'>
+                <div className='mb-3'>
                     <h2 className="text-base font-semibold text-white text-center mb-2">Public Key</h2>
-                    <p className="text-[#71717A] text-xs font-medium text-start">{wallet.publicKey}</p>
+                    <p className="text-[#71717A] text-xs font-medium text-start break-words mb-1">{wallet.publicKey}</p>
                     {renderKeyActions(wallet.publicKey, `${wallet.name}_public_key.txt`, 'Public key')}
                 </div>
                 <div className='mb-4'>
-                    <h2 className="text-base font-semibold text-white text-center mb-2">Private Key</h2>
+                    <h2 className="text-base font-semibold text-white text-center ">Private Key</h2>
                     <Input type='password' className='bg-[#09090B] border-0 text-[#71717A] text-xs font-medium' value={wallet.privateKey} readOnly />
                     {renderKeyActions(wallet.privateKey, `${wallet.name}_private_key.txt`, 'Private key')}
                 </div>
@@ -125,20 +126,12 @@ const Overview: React.FC<OverviewProps> = ({ projectName, tokenDetails, benefici
 
     const array2 = [
         {
-            price: tokenDetails?.liquidity || 'N/A',
-            name: 'Liquidity'
+            price: poolData?.liquidityToken || 'N/A',
+            name: 'Liquidity Token'
         },
         {
-            price: tokenDetails?.tradingPrice || 'N/A',
-            name: 'Trading price'
-        },
-        {
-            price: tokenDetails?.maxSupply || 'N/A',
-            name: 'Max supply'
-        },
-        {
-            price: tokenDetails?.initialSupply || 'N/A',
-            name: 'Initial supply'
+            price: poolData?.liquidityAmount || 'N/A',
+            name: 'Liquidity Amount'
         },
     ];
 

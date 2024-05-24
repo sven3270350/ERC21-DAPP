@@ -30,6 +30,10 @@ const MultipleSteps: React.FC<Props> = () => {
     const [projectId, setProjectId] = useState<string>(generateUniqueId());
     const [fundingWalletData, setFundingWalletData] = useState<any>(null);
     const [adminWalletData, setAdminWalletData] = useState<any>(null);
+    const [poolData, setPoolData] = useState<{ liquidityToken: string; liquidityAmount: string }>({
+        liquidityToken: "",
+        liquidityAmount: ""
+    });
 
     const router = useRouter();
     const { queryProjectId } = router.query || {};
@@ -44,6 +48,10 @@ const MultipleSteps: React.FC<Props> = () => {
                 setBeneficiaryDetails(data.beneficiaryDetails || {});
                 setFundingWalletData(data.fundingWallet || null);
                 setAdminWalletData(data.adminWallet || null);
+                setPoolData({
+                    liquidityToken: data.poolData?.liquidityToken || "",
+                    liquidityAmount: data.poolData?.liquidityAmount || ""
+                });
             }
         } else {
             setProjectId(generateUniqueId());
@@ -52,11 +60,15 @@ const MultipleSteps: React.FC<Props> = () => {
             setBeneficiaryDetails({});
             setFundingWalletData(null);
             setAdminWalletData(null);
+            setPoolData({
+                liquidityToken: "",
+                liquidityAmount: ""
+            });
         }
     }, [queryProjectId]);
 
     const handleNextClick = () => {
-        setTriggerValidation(true);
+        setTriggerValidation(true); 
         setTimeout(() => {
             if (isValid && (step !== 3 || allFieldsEnteredInTokenDetails)) {
                 const currentData = {
@@ -64,18 +76,19 @@ const MultipleSteps: React.FC<Props> = () => {
                     tokenDetails,
                     beneficiaryDetails,
                     fundingWallet: fundingWalletData,
-                    adminWallet: adminWalletData
+                    adminWallet: adminWalletData,
+                    poolData 
                 };
                 saveProjectData(projectId, currentData);
                 setStep(step + 1);
                 setShowError(false);
-                setTriggerValidation(false);
             } else {
                 setShowError(true);
             }
-        }, 0);
+            setTriggerValidation(false); 
+        }, 100);
     };
-
+    
     const handleBackClick = () => {
         if (step > 1) {
             setStep(step - 1);
@@ -91,7 +104,7 @@ const MultipleSteps: React.FC<Props> = () => {
         const link = document.createElement('a');
         link.setAttribute('href', encodedUri);
         link.setAttribute('download', filename);
-        document.body.appendChild(link); // Required for Firefox
+        document.body.appendChild(link); 
         link.click();
         document.body.removeChild(link);
     };
@@ -164,14 +177,24 @@ const MultipleSteps: React.FC<Props> = () => {
                         BeneficiaryData={beneficiaryDetails}
                     />
                 )}
-                {step === 5 && <SetupPool />}
-                {step === 6 && <Overview
-                    projectName={projectName}
-                    tokenDetails={tokenDetails}
-                    beneficiaryDetails={beneficiaryDetails}
-                    fundingWalletData={fundingWalletData}
-                    adminWalletData={adminWalletData}
-                />}
+                {step === 5 && (
+                    <SetupPool
+                        poolData={poolData}
+                        setPoolData={setPoolData}
+                        setIsValid={setIsValid}
+                        triggerValidation={triggerValidation}
+                    />
+                )}
+                {step === 6 && (
+                    <Overview
+                        projectName={projectName}
+                        tokenDetails={tokenDetails}
+                        beneficiaryDetails={beneficiaryDetails}
+                        fundingWalletData={fundingWalletData}
+                        adminWalletData={adminWalletData}
+                        poolData={poolData}
+                    />
+                )}
                 {step === 7 && <TaskDone />}
 
                 {step !== 7 && (
