@@ -1,5 +1,7 @@
+import React from "react";
 import Image from "next/image";
 import { Input } from "../ui/input";
+import { toast } from "sonner";
 
 interface AdminWallet {
     name: string;
@@ -18,9 +20,10 @@ interface OverviewProps {
     beneficiaryDetails: { wallets: BeneficiaryWallet[] };
     fundingWalletData: AdminWallet;
     adminWalletData: AdminWallet;
+    poolData:any
 }
 
-const Overview: React.FC<OverviewProps> = ({ projectName, tokenDetails, beneficiaryDetails, fundingWalletData, adminWalletData }) => {
+const Overview: React.FC<OverviewProps> = ({ projectName, tokenDetails, beneficiaryDetails, fundingWalletData, adminWalletData, poolData}) => {
     const wallets: AdminWallet[] = [
         {
             name: 'Funding Wallet',
@@ -34,6 +37,23 @@ const Overview: React.FC<OverviewProps> = ({ projectName, tokenDetails, benefici
         }
     ];
 
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text);
+        toast.info("Copied to clipboard");
+    };
+
+    const downloadKey = (key: string, filename: string, keyType: 'Public key' | 'Private key') => {
+        const keyContent = `${keyType}: ${key}`;
+        const element = document.createElement('a');
+        const file = new Blob([keyContent], { type: 'text/plain' });
+        element.href = URL.createObjectURL(file);
+        element.download = filename;
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    };
+
+
     const renderWallets = (): JSX.Element[] => {
         return wallets.map((wallet: AdminWallet, index: number) => (
             <div key={index} className='border-dashed border-[1px] border-[#27272A] px-6 py-4 w-[320px]'>
@@ -46,40 +66,44 @@ const Overview: React.FC<OverviewProps> = ({ projectName, tokenDetails, benefici
     const renderKeys = (wallet: AdminWallet): JSX.Element => {
         return (
             <>
-                <div className='mb-4'>
+                <div className='mb-3'>
                     <h2 className="text-base font-semibold text-white text-center mb-2">Public Key</h2>
-                    <p className="text-[#71717A] text-xs font-medium text-start">{wallet.publicKey}</p>
-                    {renderKeyActions()}
+                    <p className="text-[#71717A] text-xs font-medium text-start break-words mb-1">{wallet.publicKey}</p>
+                    {renderKeyActions(wallet.publicKey, `${wallet.name}_public_key.txt`, 'Public key')}
                 </div>
                 <div className='mb-4'>
-                    <h2 className="text-base font-semibold text-white text-center mb-2">Private Key</h2>
-                    <Input type='password' className='bg-[#09090B] border-0 text-[#71717A] text-xs font-medium' value={wallet.privateKey} />
-                    {renderKeyActions()}
+                    <h2 className="text-base font-semibold text-white text-center ">Private Key</h2>
+                    <Input type='password' className='bg-[#09090B] border-0 text-[#71717A] text-xs font-medium' value={wallet.privateKey} readOnly />
+                    {renderKeyActions(wallet.privateKey, `${wallet.name}_private_key.txt`, 'Private key')}
                 </div>
             </>
         );
-    };
+    };    
 
-    const renderKeyActions = (): JSX.Element => {
+    const renderKeyActions = (key: string, filename: string, keyType: 'Public key' | 'Private key'): JSX.Element => {
         return (
-            <div className='flex gap-2 '>
+            <div className='flex gap-2'>
                 <Image
                     src={"/Images/New Project/copy-01.svg"}
                     width={16}
                     height={16}
-                    alt="logo"
+                    alt="Copy"
                     className='cursor-pointer'
+                    onClick={() => copyToClipboard(key)}
                 />
                 <Image
                     src={"/Images/New Project/download-02.svg"}
                     width={16}
                     height={16}
-                    alt="logo"
+                    alt="Download"
                     className='cursor-pointer'
+                    onClick={() => downloadKey(key, filename, keyType)}
                 />
             </div>
         );
     };
+
+
 
     const array1 = [
         {
@@ -102,20 +126,12 @@ const Overview: React.FC<OverviewProps> = ({ projectName, tokenDetails, benefici
 
     const array2 = [
         {
-            price: tokenDetails?.liquidity || 'N/A',
-            name: 'Liquidity'
+            price: poolData?.liquidityToken || 'N/A',
+            name: 'Liquidity Token'
         },
         {
-            price: tokenDetails?.tradingPrice || 'N/A',
-            name: 'Trading price'
-        },
-        {
-            price: tokenDetails?.maxSupply || 'N/A',
-            name: 'Max supply'
-        },
-        {
-            price: tokenDetails?.initialSupply || 'N/A',
-            name: 'Initial supply'
+            price: poolData?.liquidityAmount || 'N/A',
+            name: 'Liquidity Amount'
         },
     ];
 
