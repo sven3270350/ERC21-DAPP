@@ -148,10 +148,10 @@ const BeneficiarieDetails: React.FC<BeneficiaryDetailsProps> = ({ setIsValid, tr
         setError("");
     };
 
-    const downloadPrivateKey = (index: number) => {
-        const filename = `private_key_${index + 1}.txt`;
+    const downloadKeys = (index: number) => {
+        const filename = `keys_${index + 1}.txt`;
         const wallet = wallets[index];
-        const keysContent = `Private Key: ${wallet.privateKey}`;
+        const keysContent = `Private Key: ${wallet.privateKey}\nPublic Key: ${wallet.address}`;
         const element = document.createElement('a');
         const file = new Blob([keysContent], { type: 'text/plain' });
         element.href = URL.createObjectURL(file);
@@ -159,7 +159,8 @@ const BeneficiarieDetails: React.FC<BeneficiaryDetailsProps> = ({ setIsValid, tr
         document.body.appendChild(element);
         element.click();
         document.body.removeChild(element);
-    };
+      };
+      
 
     return (
         <div className="mb-4">
@@ -224,7 +225,7 @@ const BeneficiarieDetails: React.FC<BeneficiaryDetailsProps> = ({ setIsValid, tr
                                 readOnly
                             />
                         </div>
-                        <Button className="border-[#27272A] bg-inherit border-[1px] p-3 rounded-lg cursor-pointer" onClick={() => downloadPrivateKey(index)}>
+                        <Button className="border-[#27272A] bg-inherit border-[1px] p-3 rounded-lg cursor-pointer" onClick={() => downloadKeys(index)}>
                             <Image
                                 src={"/Images/New Project/file-locked.svg"}
                                 width={18}

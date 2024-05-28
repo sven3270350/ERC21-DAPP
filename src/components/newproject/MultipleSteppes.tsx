@@ -79,7 +79,8 @@ const MultipleSteps: React.FC<Props> = () => {
                     adminWallet: adminWalletData,
                     poolData 
                 };
-                saveProjectData(projectId, currentData);
+                const status = step === 1 ? "Created" : "In Progress";
+                saveProjectData(projectId, { ...currentData, status });
                 setStep(step + 1);
                 setShowError(false);
             } else {
@@ -88,7 +89,7 @@ const MultipleSteps: React.FC<Props> = () => {
             setTriggerValidation(false); 
         }, 100);
     };
-    
+
     const handleBackClick = () => {
         if (step > 1) {
             setStep(step - 1);

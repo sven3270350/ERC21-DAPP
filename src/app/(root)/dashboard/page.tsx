@@ -2,15 +2,18 @@
 
 import Projects from "@/components/ProjectsList";
 import NoProject from "@/components/dashboard/no-projects";
-import projectData from "../../../constants/projects.json";
 import React, { useEffect, useState } from "react";
 import { Project } from "@/types/project";
 
-const Page = () => {
+const Page: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
 
   useEffect(() => {
-    setProjects(projectData);
+    const data = localStorage.getItem('projectData');
+    const parsedData: Record<string, any> = data ? JSON.parse(data) : {};
+    const projectsArray = Object.values(parsedData) as Project[]; 
+    console.log("projectsArray", projectsArray);
+    setProjects(projectsArray);
   }, []);
 
   return (
