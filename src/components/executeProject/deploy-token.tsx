@@ -8,12 +8,14 @@ interface DeployTokenProps {
   tokenName: string;
   tokenSymbol: string;
   maxSupply: string;
+  initialSupply: string;
 }
 
 export const DeployToken = ({
   tokenName,
   tokenSymbol,
   maxSupply,
+  initialSupply,
 }: DeployTokenProps) => {
   const [isDeploying, setIsDeploying] = useState(false);
   const [deployState, setDeployState] = useState(false);
@@ -27,7 +29,12 @@ export const DeployToken = ({
       const wallet = new ethers.Wallet(privateKey, provider);
 
       const factory = new ethers.ContractFactory(abi, bytecode, wallet);
-      const contract = await factory.deploy(tokenName, tokenSymbol, maxSupply);
+      const contract = await factory.deploy(
+        tokenName,
+        tokenSymbol,
+        maxSupply,
+        initialSupply
+      );
       await contract.deployed();
 
       console.log("Contract deployed at address:", contract.address);
