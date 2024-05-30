@@ -1,8 +1,18 @@
 export interface Project {
-  title: string;
-  fundingWallet: string;
-  teamWallet: string;
-  maxSupply: number;
+  projectName: string;
+  adminWallet: {
+    publicKey: string;
+  };
+  fundingWallet: {
+    publicKey: string;
+  };
+  tokenDetails: {
+    maxSupply: number;
+  };
   status: string;
-  wallets: number;
+  beneficiaryDetails: {
+    amount: string;
+    wallets: { address: string; amount: string; privateKey: string }[];
+  };
+  [key: string]: any;
 }

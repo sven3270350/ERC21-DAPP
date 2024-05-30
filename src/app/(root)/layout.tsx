@@ -1,14 +1,17 @@
-import Header from "@/components/Header";
+import dynamic from 'next/dynamic';
+const Header = dynamic(() => import('@/components/Header'), { ssr: false });
 
-export default function dashLayout({
-  children,
-}: {
+type DashLayoutProps = {
   children: React.ReactNode;
-}) {
+};
+
+const DashLayout: React.FC<DashLayoutProps> = ({ children }) => {
   return (
     <>
       <Header />
       {children}
     </>
   );
-}
+};
+
+export default DashLayout;
