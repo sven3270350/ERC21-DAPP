@@ -31,7 +31,7 @@ const WalletSection: React.FC<WalletSectionProps> = ({ title, buttonText, showCo
         const file = new Blob([keyContent], { type: 'text/plain' });
         element.href = URL.createObjectURL(file);
         element.download = filename;
-        document.body.appendChild(element); // Required for Firefox
+        document.body.appendChild(element); 
         element.click();
         document.body.removeChild(element);
     };

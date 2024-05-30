@@ -6,6 +6,7 @@ import { prisma } from "../../prisma"
 import { html, text } from "@/app/utils/emailTemplate"
 
 export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     EmailProvider({
       server: {
@@ -21,7 +22,7 @@ export const authOptions: NextAuthOptions = {
       sendVerificationRequest: async (params: SendVerificationRequestParams) => {
         const { identifier, url, provider } = params
         const { host } = new URL(url)
-        // NOTE: You are not required to use `nodemailer`, use whatever you want.
+     
         const transport = createTransport(provider.server)
         const result = await transport.sendMail({
           to: identifier,
@@ -40,16 +41,16 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   pages: {
     signIn: '/login',
-    verifyRequest: '/auth/verify-request',
-    error: '/auth/error',
+    verifyRequest: '/login/verified',
+    error: '/login/error',
   },
   callbacks: {
     async session({ session, token, user }) {
-      // Add custom properties to the session object
+      
       if (session.user) {
-        let res = await prisma.User.findUnique({
+        let res = await prisma.user.findUnique({
           where: {
-            id: user.id
+            id: Number(user.id)
           }
         });
       }
@@ -59,6 +60,5 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account, profile, email, credentials }) {
       return true;
     },
-  },
-  secret: process.env.NEXTAUTH_SECRET,
+  }
 }
