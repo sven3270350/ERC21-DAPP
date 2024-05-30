@@ -17,7 +17,6 @@ export default async function LoginPage() {
     <section className="bg-black h-screen flex items-center justify-center">
       <div className="w-[600px]">
         <LoginForm />
-        {/* <WalletAuth /> */}
       </div>
     </section>
   );

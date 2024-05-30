@@ -83,7 +83,7 @@ const SetupPool: React.FC<SetupPoolProps> = ({ poolData, setPoolData, setIsValid
                 Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam
             </p>
             <div className="grid grid-cols-2 gap-5">
-                {/* Liquidity Token Field */}
+                
                 <div>
                     <Label className="text-[#A1A1AA] text-sm flex gap-2 items-center">
                         Liquidity Token
@@ -102,7 +102,7 @@ const SetupPool: React.FC<SetupPoolProps> = ({ poolData, setPoolData, setIsValid
                     {error.liquidityToken && <p className="text-red-500 text-sm mt-1">{error.liquidityToken}</p>}
                 </div>
 
-                {/* Liquidity Amount Field */}
+                
                 <div>
                     <Label className="text-[#A1A1AA] text-sm flex gap-2 items-center">
                         Liquidity Amount

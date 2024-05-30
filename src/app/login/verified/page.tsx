@@ -6,11 +6,6 @@ import { redirect } from "next/navigation";
 export default async function LoginPage() {
   const session = await getServerSession(authOptions);
   
-  if (session) {
-    console.log()
-    // redirect("/dashboard");
-  }
-
   return (
     <section className="bg-black h-screen flex items-center justify-center">
       <div className="w-[600px] text-bold">

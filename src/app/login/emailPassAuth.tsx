@@ -50,7 +50,7 @@ export default function LoginForm() {
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-      // Process response here
+
       console.log("Login Successful", response);
       toast({ title: "Login Successful" });
     } catch (error: any) {
@@ -77,7 +77,7 @@ export default function LoginForm() {
           <Form {...form} >
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              
+
             >
               <FormField
                 control={form.control}
@@ -96,29 +96,12 @@ export default function LoginForm() {
                   </FormItem>
                 )}
               />
-              {/* <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Provide Password</FormLabel>
-                <FormControl>
-                  <Input
-                    className="text-black"
-                    placeholder="Hasło"
-                    {...field}
-                    type="password"
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          /> */}
               <Button
                 type="submit"
                 className="bg-[#F57C00] w-full mt-4 px-6 py-3 rounded-md text-[#000000] text-base font-bold leading-6 tracking-[0.032px] hover:bg-[#f8a24c]"
                 disabled={form.formState.isSubmitting}
               >
-                {form.formState.isSubmitting ? "Opening...." : "Send"}
+                {form.formState.isSubmitting ? "Sending Email...." : "Send"}
               </Button>
             </form>
           </Form>

@@ -22,7 +22,7 @@ export const authOptions: NextAuthOptions = {
       sendVerificationRequest: async (params: SendVerificationRequestParams) => {
         const { identifier, url, provider } = params
         const { host } = new URL(url)
-        // NOTE: You are not required to use `nodemailer`, use whatever you want.
+     
         const transport = createTransport(provider.server)
         const result = await transport.sendMail({
           to: identifier,
@@ -46,7 +46,7 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async session({ session, token, user }) {
-      // Add custom properties to the session object
+      
       if (session.user) {
         let res = await prisma.user.findUnique({
           where: {

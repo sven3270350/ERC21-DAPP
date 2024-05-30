@@ -21,13 +21,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // <SessionWrapper>
+   
     <html lang="en">
       <body className={`${myFont.className} bg-[#09090B] text-white `}>
         <Providers>{children}</Providers>
         <Toaster richColors theme="system" />
       </body>
     </html>
-    // </SessionWrapper>
+
   );
 }
