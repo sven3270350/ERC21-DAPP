@@ -115,7 +115,7 @@ export default function LoginForm() {
           /> */}
               <Button
                 type="submit"
-                className="bg-[#F57C00] w-full mt-4 px-6 py-3 flex gap-2 items-center justify-center rounded-md text-[#000000] text-base font-bold leading-6 tracking-[0.032px] "
+                className="bg-[#F57C00] w-full mt-4 px-6 py-3 rounded-md text-[#000000] text-base font-bold leading-6 tracking-[0.032px] hover:bg-[#f8a24c]"
                 disabled={form.formState.isSubmitting}
               >
                 {form.formState.isSubmitting ? "Opening...." : "Send"}
