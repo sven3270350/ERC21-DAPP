@@ -10,13 +10,13 @@ const ConnectWallet = () => {
   const { isConnected, address } = useAccount();
   const session = useSession();
   const isAllowed = isConnected;
-  useEffect(() => {
-    if (session.status !== "authenticated") return;
-    if (isAllowed) {
-      router.push("/dashboard");
-      toast.success("Wallet connected successfully");
-    }
-  }, [isConnected, router, address, session]);
+  // useEffect(() => {
+  //   if (session.status !== "authenticated") return;
+  //   if (isAllowed) {
+  //     router.push("/dashboard");
+  //     toast.success("Wallet connected successfully");
+  //   }
+  // }, [isConnected, router, address, session]);
 
   return (
     <div className=" w-full h-screen w- text-white overflow-auto flex justify-center items-center ">

@@ -14,17 +14,17 @@ const Header: React.FC = () => {
   const { isConnected, address } = useAccount();
   const router = useRouter();
 
-  useEffect(() => {
-    if (isConnected) {
-      toast.success("Wallet connected successfully");
-    } else {
-      router.push("/");
-    }
+  // useEffect(() => {
+  //   if (isConnected) {
+  //     toast.success("Wallet connected successfully");
+  //   } else {
+  //     router.push("/");
+  //   }
 
-    if (!address) {
-      toast.error("Wallet not connected");
-    }
-  }, [isConnected, address, router]);
+  //   if (!address) {
+  //     toast.error("Wallet not connected");
+  //   }
+  // }, [isConnected, address, router]);
 
   const handleNewProjectClick = () => {
     const newProjectId = uuidv4();
