@@ -17,7 +17,7 @@ const Page: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex w-full h-full items-center overflow-auto justify-center">
+    <div className="flex w-full h-full items-start overflow-auto justify-center">
       {projects.length === 0 ? (
         <NoProject />
       ) : (
