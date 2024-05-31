@@ -39,6 +39,8 @@ export const DeployToken = ({
 
       console.log("Contract deployed at address:", contract.address);
 
+      localStorage.setItem("tokenAddress", contract.address);
+
       setIsDeploying(false);
       setDeployState(true);
     } catch (error) {
