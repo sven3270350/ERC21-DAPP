@@ -1,22 +1,14 @@
 import { Button } from "../ui/button";
 import { ethers } from "ethers";
 import { abi, bytecode } from "@/constants/tokenABI.json";
-import CircleLoader from "react-spinners/CircleLoader";
+import PuffLoader from "react-spinners/PuffLoader";
 import { useState } from "react";
 
 interface DeployTokenProps {
-  tokenName: string;
-  tokenSymbol: string;
-  maxSupply: string;
-  initialSupply: string;
+  projectId: string;
 }
 
-export const DeployToken = ({
-  tokenName,
-  tokenSymbol,
-  maxSupply,
-  initialSupply,
-}: DeployTokenProps) => {
+export const DeployToken = ({ projectId }: DeployTokenProps) => {
   const [isDeploying, setIsDeploying] = useState(false);
   const [deployState, setDeployState] = useState(false);
   const handleDeployment = async () => {
@@ -29,17 +21,29 @@ export const DeployToken = ({
       const wallet = new ethers.Wallet(privateKey, provider);
 
       const factory = new ethers.ContractFactory(abi, bytecode, wallet);
+      const existingData = localStorage.getItem("projectData");
+
+      const parsedData: Record<string, any> = existingData
+        ? JSON.parse(existingData)
+        : {};
+      const tokenData = parsedData[projectId].tokenDetails;
+
       const contract = await factory.deploy(
-        tokenName,
-        tokenSymbol,
-        maxSupply,
-        initialSupply
+        tokenData.tokenName,
+        tokenData.tokenSymbol,
+        tokenData.maxSupply,
+        tokenData.initialSupply,
+        {
+          gasLimit: 1500000, // or any other value you deem appropriate
+        }
       );
       await contract.deployed();
 
       console.log("Contract deployed at address:", contract.address);
-
-      localStorage.setItem("tokenAddress", contract.address);
+      tokenData.contractAddress = contract.address;
+      parsedData[projectId].tokenDetails = tokenData;
+      console.log(parsedData);
+      localStorage.setItem("projectData", JSON.stringify(parsedData));
 
       setIsDeploying(false);
       setDeployState(true);
@@ -52,7 +56,7 @@ export const DeployToken = ({
   return (
     <div>
       {isDeploying ? (
-        <CircleLoader />
+        <PuffLoader color="white" />
       ) : deployState ? (
         <Button onClick={handleDeployment} disabled={true}>
           Deployed
