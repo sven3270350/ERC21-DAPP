@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/polling/cronjob",
+      "schedule": "0 * * * *"
+    }
+  ]
+}
