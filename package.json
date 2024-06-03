@@ -29,6 +29,7 @@
     "@types/nodemailer": "^6.4.15",
     "@types/uuid": "^9.0.8",
     "class-variance-authority": "^0.7.0",
+    "classnames": "^2.5.1",
     "clsx": "^2.1.0",
     "drizzle-kit": "^0.20.14",
     "drizzle-orm": "^0.30.5",
