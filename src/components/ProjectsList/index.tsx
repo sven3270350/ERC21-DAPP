@@ -33,7 +33,7 @@ const Projects: React.FC<ProjectsProps> = ({ projectData }) => {
           ))}
         </div>
       </div>
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap gap-2">
         {filteredProjects.map((project, index) => (
           <ProjectCard
             key={index}

@@ -1,35 +1,38 @@
-"use client";
-
 import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { MdOutlineDashboard } from "react-icons/md";
 import { GoProjectRoadmap } from "react-icons/go";
 import Sidebarheader from "./sidebar-header";
 import Image from "next/image";
+import { Project } from "@/types/project";
+import { useRouter } from "next/navigation";
 
 interface SidebarWrapperProps {
     children: React.ReactNode;
+    onSelectProject: (project: Project | null) => void;
 }
 
 export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
     children,
-}: SidebarWrapperProps) => {
-    const [selectedProject, setSelectedProject] = useState<string | null>(null);
+    onSelectProject,
+}) => {
+    const [selectedProject, setSelectedProject] = useState<Project | null>(null);
     const [isRenderable, setIsRenderable] = useState<boolean>(false);
     const [collapse, setCollapse] = useState<boolean>(false);
     const [toggleState, setToggleState] = useState<boolean>(false);
     const [isMdBreakpoint, setIsMdBreakpoint] = useState<boolean>(false);
     const [activeMenu, setActiveMenu] = useState<string>("Dashboard");
     const router = useRouter();
+    const [projects, setProjects] = useState<Project[]>([]);
+console.log("selectedProject", selectedProject);
+    useEffect(() => {
+        const data = localStorage.getItem('projectData');
+        const parsedData: Record<string, any> = data ? JSON.parse(data) : {};
+        const projectsArray = Object.values(parsedData) as Project[];
+        setProjects(projectsArray);
+    }, []);
 
-    const projects = [
-        { id: "project1", name: "Project 1" },
-        { id: "project2", name: "Project 2" },
-        { id: "project3", name: "Project 3" },
-    ];
-
-    const handleMenuItemClick = (selectedPage: string, param: string | null = "") => {
+    const handleMenuItemClick = (selectedPage: string, project: Project | null = null) => {
         let routePath = "/";
 
         switch (selectedPage) {
@@ -37,18 +40,20 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
                 routePath = "/dashboard";
                 break;
             case "Projects":
-                setSelectedProject(param);
+                setSelectedProject(project?.id === selectedProject?.id ? project : null);
+                onSelectProject(project?.id === selectedProject?.id ? project : null);
                 break;
             default:
                 routePath = "/";
                 break;
         }
-
         setActiveMenu(selectedPage);
+
         if (routePath !== "/") {
-            const routeWithQuery = param ? `${routePath}/${encodeURIComponent(param)}` : routePath;
+            const routeWithQuery = project ? `${routePath}/${encodeURIComponent(project.id)}` : routePath;
             router.push(routeWithQuery);
         }
+
         setToggleState(false);
     };
 
@@ -80,7 +85,7 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
     };
 
     return (
-        <div className="flex justify-between w-full">
+        <div className="flex justify-between w-full h-screen">
             <div className="flex h-full">
                 {isRenderable && (
                     <Sidebar
@@ -94,7 +99,8 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
                         <div className="flex flex-col h-full">
                             <Sidebarheader />
                             <div className="flex flex-1 p-4 md:p-0 justify-center">
-                                <Menu className="mt-12 w-3/4"
+                                <Menu
+                                    className="mt-12 w-3/4"
                                     menuItemStyles={{
                                         button: {
                                             height: "40px",
@@ -141,14 +147,14 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
                                         {projects.map((project, index) => (
                                             <MenuItem
                                                 key={index}
-                                                active={isSelectedMenuItem("Projects") && project.id === selectedProject}
-                                                onClick={() => handleMenuItemClick("Projects", project.id)}
-                                                className={`ml-3 ${isSelectedMenuItem("Projects") && project.id === selectedProject ? "text-[#F57C00]" : "text-white"}`}
+                                                active={isSelectedMenuItem("Projects") && project.projectName === selectedProject?.projectName}
+                                                onClick={() => handleMenuItemClick("Projects", project)}
+                                                className={`ml-3 ${isSelectedMenuItem("Projects") && project.projectName === selectedProject?.projectName ? "text-[#F57C00]" : "text-white"}`}
                                                 style={{ height: "40px" }}
                                             >
                                                 <div className="flex items-end gap-1">
-                                                    <Image src={"/Rectangle.svg"} alt="logo" width={30} height={30} />
-                                                    <span >{project.name}</span>
+                                                    <Image src={"/Rectangle.svg"} alt="logo" width={35} height={30} />
+                                                    <span>{project.projectName}</span>
                                                 </div>
                                             </MenuItem>
                                         ))}
@@ -159,7 +165,7 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
                     </Sidebar>
                 )}
             </div>
-            <div className="bg-[#09090B] text-white w-full">
+            <div className="bg-[#09090B] text-white w-full h-full overflow-auto pt-24 scrollbar-hide">
                 {children}
             </div>
         </div>

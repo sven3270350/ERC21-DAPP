@@ -12,7 +12,6 @@ const Page: React.FC = () => {
     const data = localStorage.getItem('projectData');
     const parsedData: Record<string, any> = data ? JSON.parse(data) : {};
     const projectsArray = Object.values(parsedData) as Project[]; 
-    console.log("projectsArray", projectsArray);
     setProjects(projectsArray);
   }, []);
 
