@@ -1,4 +1,6 @@
 import dynamic from 'next/dynamic';
+import { SidebarWrapper } from '@/components/Sidebar/sidebar-wrapper';
+
 const Header = dynamic(() => import('@/components/Header'), { ssr: false });
 
 type DashLayoutProps = {
@@ -8,8 +10,12 @@ type DashLayoutProps = {
 const DashLayout: React.FC<DashLayoutProps> = ({ children }) => {
   return (
     <>
-      <Header />
-      {children}
+      <div className="flex h-screen justify-between">
+        <SidebarWrapper>
+          <Header />
+          {children}
+        </SidebarWrapper>
+      </div>
     </>
   );
 };

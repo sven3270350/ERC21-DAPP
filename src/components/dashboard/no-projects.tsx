@@ -8,7 +8,7 @@ const NoProject = () => {
     window.location.href = `/newproject?projectId=${newProjectId}`;
   };
   return (
-    <div className="p-8 mt-24 flex flex-col max-w-[357px] border border-[#71717A] rounded-xl gap-4 items-center  ">
+    <div className="p-8 mt-2 flex flex-col max-w-[357px] border border-[#71717A] rounded-xl gap-4 items-center  ">
       <Image
         src={"/connection-lost 1.svg"}
         alt="default image"
