@@ -21,7 +21,8 @@ model User {
   updatedAt     DateTime             @updatedAt
   accounts      Account[]
   Session       Session[]
-  userRequest   TransactionRequest[]
+  userRequests  TransactionRequest[]
+  projects      Project[]
 }
 
 model Account {
@@ -76,4 +77,15 @@ model TransactionRequest {
   createAt        DateTime      @default(now()) @map("created_at") @db.Timestamptz
 
   @@map("transaction_requests")
+}
+
+model Project {
+  id              Int           @id @default(autoincrement())
+  projectId       String        @map("project_id")
+  projectData     String        @map("project_data")
+  userId          Int           @map("user_id")  
+  user            User          @relation(fields: [userId], references: [id])
+  createAt        DateTime      @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("projects")
 }
