@@ -14,13 +14,15 @@ datasource db {
 }
 
 model User {
-  id            Int       @id @default(autoincrement())
-  email         String    @unique
+  id            Int                  @id @default(autoincrement())
+  email         String               @unique
   emailVerified DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
   accounts      Account[]
   Session       Session[]
+  userRequests  TransactionRequest[]
+  projects      Project[]
 }
 
 model Account {
@@ -57,4 +59,33 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+enum RequestStatus {
+  PENDING
+  COMPLETE
+  FAILED
+}
+
+model TransactionRequest {
+  id              Int           @id @default(autoincrement())
+  userId          Int           @map("user_id")
+  user            User          @relation(fields: [userId], references: [id])
+  transactionHash String        @map("transaction_hash") @unique
+  transactionType String
+  status          RequestStatus @default(PENDING)
+  createAt        DateTime      @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("transaction_requests")
+}
+
+model Project {
+  id              Int           @id @default(autoincrement())
+  projectId       String        @map("project_id")
+  projectData     String        @map("project_data")
+  userId          Int           @map("user_id")  
+  user            User          @relation(fields: [userId], references: [id])
+  createAt        DateTime      @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("projects")
 }

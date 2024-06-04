@@ -53,6 +53,10 @@ export const authOptions: NextAuthOptions = {
             id: Number(user.id)
           }
         });
+        session.user = {
+          id: res?.id,
+          email: res?.email
+        };
       }
 
       return session;
