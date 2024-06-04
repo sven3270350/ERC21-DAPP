@@ -11,23 +11,50 @@ import classNames from "classnames";
 type Props = {};
 
 const formSchema = z.object({
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
-  }),
+  tokenName: z.string().min(1, { message: "Required*" }),
+  tokenSymbol: z.string().min(1, { message: "Required*" }),
+  maxSupply: z.string().min(1, { message: "Required*" }),
+  initialSupply: z.string().min(1, { message: "Required*" }),
+  devBuyTax: z.string().min(1, { message: "Required*" }),
+  devSellTax: z.string().min(1, { message: "Required*" }),
+  devWallet: z.string().min(1, { message: "Required*" }),
+  marketingBuyTax: z.string().min(1, { message: "Required*" }),
+  marketingSellTax: z.string().min(1, { message: "Required*" }),
+  marketingWallet: z.string().min(1, { message: "Required*" }),
+  liquidity: z.string().min(1, { message: "Required*" }),
 });
 
 const ProjectForm = (props: Props) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      tokenName: "",
+      tokenSymbol: "",
+      maxSupply: "",
+      initialSupply: "",
+      devBuyTax: "",
+      devSellTax: "",
+      devWallet: "",
+      marketingBuyTax: "",
+      marketingSellTax: "",
+      marketingWallet: "",
+      liquidity: "",
     },
   });
+
+  function cancel() {
+    form.reset();
+    form.setValue("maxSupply", "");
+    form.setValue("initialSupply", "");
+    form.setValue("liquidity", "");
+  }
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     console.log(values);
   }
+  let arr: number[] = [1, 2];
   return (
     <main className="flex flex-col justify-center items-center gap-6 py-14">
       <div className="flex flex-col gap-6 border-[#18181B] p-6 border rounded-[12px]">
@@ -49,25 +76,27 @@ const ProjectForm = (props: Props) => {
             <div className="gap-6 border-[#27272A] grid grid-cols-4 pb-6 border-b">
               <InputField
                 form={form}
-                name="username"
+                name="tokenName"
                 label="Token name"
                 placeholder="Example..."
               />
               <InputField
                 form={form}
-                name="username"
+                name="tokenSymbol"
                 label="Token Symbol"
                 placeholder="Example..."
               />
               <InputField
                 form={form}
-                name="username"
+                name="maxSupply"
+                type="number"
                 label="Max supply"
                 placeholder="Enter number"
               />
               <InputField
                 form={form}
-                name="username"
+                name="initialSupply"
+                type="number"
                 label="Initial supply"
                 placeholder="Enter number"
               />
@@ -93,40 +122,40 @@ const ProjectForm = (props: Props) => {
             <div className="gap-6 border-[#27272A] grid grid-cols-5 pb-6 border-b">
               <InputField
                 form={form}
-                name="username"
+                name="devBuyTax"
                 label="Dev buy tax"
                 placeholder="e.g 10%"
               />
               <InputField
                 form={form}
-                name="username"
+                name="devSellTax"
                 label="Dev sell tax"
                 placeholder="e.g 10%"
               />
               <div className="col-span-3">
                 <InputField
                   form={form}
-                  name="username"
+                  name="devWallet"
                   label="Dev wallet"
                   placeholder="0x...."
                 />
               </div>
               <InputField
                 form={form}
-                name="username"
+                name="marketingBuyTax"
                 label="Marketing buy tax"
                 placeholder="e.g 10%"
               />
               <InputField
                 form={form}
-                name="username"
+                name="marketingSellTax"
                 label="Marketing sell tax"
                 placeholder="e.g 10%"
               />
               <div className="col-span-3">
                 <InputField
                   form={form}
-                  name="username"
+                  name="marketingWallet"
                   label="Marketing wallet"
                   placeholder="0x...."
                 />
@@ -143,7 +172,8 @@ const ProjectForm = (props: Props) => {
               <div className="col-span-3">
                 <InputField
                   form={form}
-                  name="username"
+                  name="liquidity"
+                  type="number"
                   label="Liquidity"
                   placeholder="Enter number"
                 />
@@ -152,11 +182,12 @@ const ProjectForm = (props: Props) => {
             <div className="flex justify-between items-center">
               <button
                 type="button"
+                onClick={cancel}
                 className="font-bold text-[#F57C00] text-sm leading-5"
               >
                 Cancel
               </button>
-              <Button className="flex items-center gap-[3px] bg-[#F57C00] px-8 py-2 rounded-[6px] font-bold text-black text-sm leading-5">
+              <Button className="flex items-center gap-[3px] bg-[#F57C00] hover:bg-[#F57C00] px-8 py-2 rounded-[6px] font-bold text-black text-sm leading-5">
                 <Image
                   src="/rocket-black.svg"
                   width={20}
@@ -169,18 +200,28 @@ const ProjectForm = (props: Props) => {
           </form>
         </Form>
       </div>
-      <div className="relative flex flex-col border-[#3f3f46] bg-[#18181B] px-6 pt-10 border rounded-[12px] w-[719px]">
+      <div
+        className={classNames(
+          {
+            "py-6": arr.length == 0,
+          },
+          "relative flex flex-col border-[#3f3f46] bg-[#18181B] px-6 pt-10 border rounded-[12px] w-[719px]"
+        )}
+      >
         <div className="top-0 left-0 absolute bg-[#27272A] px-8 py-2 rounded-[63px] -translate-y-1/2 translate-x-[16px]">
           <p className="font-bold text-sm text-white leading-5">
             Transaction Logs
           </p>
         </div>
-        {[1, 2]?.map((_, index) => (
+        {arr?.map((_, index) => (
           <div
             key={index}
-            className={classNames({
-                "border-b border-[#27272A]" : index !== 1 // remove border bottom for last element
-            },"flex justify-start items-center gap-2 text-left py-6")}
+            className={classNames(
+              {
+                "border-b border-[#27272A]": index !== arr.length - 1, // remove border bottom for last element
+              },
+              "flex justify-start items-center gap-2 text-left py-6"
+            )}
           >
             <p className="font-[400] text-[#71717A] text-sm leading-5">
               May 14, 18:58 UTC

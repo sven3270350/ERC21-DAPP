@@ -11,9 +11,10 @@ type Props = {
   name: string;
   label: string;
   placeholder: string;
+  type?: string;
 };
 
-const InputField = ({ form, name, label, placeholder }: Props) => {
+const InputField = ({ form, name, label, placeholder, type }: Props) => {
   return (
     <FormField
       control={form.control}
@@ -25,6 +26,7 @@ const InputField = ({ form, name, label, placeholder }: Props) => {
           </FormLabel>
           <FormControl>
             <Input
+              type={type ? "number" : "text"}
               className="border-[#27272A] bg-[#18181B] border rounded-[6px] placeholder:text-[#71717A]"
               placeholder={placeholder}
               {...field}
