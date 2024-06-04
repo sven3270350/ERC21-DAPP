@@ -1,12 +1,26 @@
-import { Form } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
+import classNames from "classnames";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "../ui/button";
 import { InputField } from "./input-field";
 import { Title } from "./title";
-import classNames from "classnames";
 
 type Props = {};
 
@@ -22,6 +36,7 @@ const formSchema = z.object({
   marketingSellTax: z.string().min(1, { message: "Required*" }),
   marketingWallet: z.string().min(1, { message: "Required*" }),
   liquidity: z.string().min(1, { message: "Required*" }),
+  token: z.string({ required_error: "Required*." }),
 });
 
 const ProjectForm = (props: Props) => {
@@ -39,6 +54,7 @@ const ProjectForm = (props: Props) => {
       marketingSellTax: "",
       marketingWallet: "",
       liquidity: "",
+      token: "",
     },
   });
 
@@ -176,6 +192,32 @@ const ProjectForm = (props: Props) => {
                   type="number"
                   label="Liquidity"
                   placeholder="Enter number"
+                />
+              </div>
+              <div>
+                <FormField
+                  control={form.control}
+                  name="token"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Token</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="border-[#27272A] bg-[#18181B] border rounded-[6px] text-[#71717A] placeholder:text-[#71717A]">
+                            <SelectValue placeholder="Select" className="placeholder:text-[#71717A]" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="m@example.com">ETH</SelectItem>
+                          <SelectItem value="m@google.com">BTC</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
             </div>
