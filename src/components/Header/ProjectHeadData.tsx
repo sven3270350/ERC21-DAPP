@@ -1,14 +1,19 @@
 import React from 'react';
 import Image from 'next/image';
+import { toast } from 'sonner';
 
 export const ProjectHeadData: React.FC<{ project: any }> = ({ project }) => {
-    const totalAmount = project?.beneficiaryDetails?.wallets.reduce(
+    const totalAmount = project?.beneficiaryDetails?.wallets?.reduce(
         (total: number, wallet: { amount?: string }) => {
             const parsedAmount = parseFloat(wallet?.amount || "0");
             return total + parsedAmount;
         },
         0
     );
+    const handlePublicKeyCopy = () => {
+        navigator.clipboard.writeText(project?.tokenDetails?.contractAddress);
+        toast.info("Public Key copied to clipboard");
+    };
     return (
         <div>
             <div className="flex items-center gap-4">
@@ -22,6 +27,7 @@ export const ProjectHeadData: React.FC<{ project: any }> = ({ project }) => {
                         height={14}
                         alt="Copy"
                         className='cursor-pointer'
+                        onClick={handlePublicKeyCopy}
                     />
                 </div>
                 <div className="text-center">
@@ -30,7 +36,7 @@ export const ProjectHeadData: React.FC<{ project: any }> = ({ project }) => {
                             src={"/coins-01.svg"}
                             width={14}
                             height={14}
-                            alt="Copy"
+                            alt="Maxsupply"
                             className='cursor-pointer'
                         />
                         <span className="text-white text-sm">{project?.tokenDetails?.maxSupply}</span>

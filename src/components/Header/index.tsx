@@ -7,7 +7,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { DisconnectBtn } from "./disconnect";
 import Link from "next/link";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { v4 as uuidv4 } from 'uuid';
 import { ProjectHeadData } from "./ProjectHeadData";
 import { useSession } from "next-auth/react";
@@ -15,7 +15,9 @@ import { useSession } from "next-auth/react";
 const Header: React.FC<{ project: any }> = ({ project }) => {
   // const { isConnected, address } = useAccount();
   const router = useRouter();
-  const { data: session, } = useSession();
+  const pathname = usePathname();
+  const { data: session } = useSession();
+  const isDashboardRoute = pathname === "/dashboard";
   // useEffect(() => {
   //   if (isConnected) {
   //     toast.success("Wallet connected successfully");
@@ -35,13 +37,13 @@ const Header: React.FC<{ project: any }> = ({ project }) => {
 
 
   return (
-    <div className="px-6 pt-4 rounded-t-lg w-full border-[#3F3F46] flex flex-col items-start bg-[#0F0F11] top-0 z-50 fixed">
-      <div className="flex gap-36 items-center self-stretch pb-3">
-        <ProjectHeadData project={project} />
-        <div className="flex gap-4">
+    <div className="px-6 pt-4 border-[#3F3F46] bg-[#0F0F11] top-0 z-50 fixed w-full">
+      <div className="flex justify-between items-center self-stretch pb-3 w-[1050px]">
+      {!isDashboardRoute && <ProjectHeadData project={project} />}
+        <div className="flex gap-4 ml-auto">
           <button
             type="button"
-            className="flex px-6 py-3 text-[#F57C00] text-center text-base font-bold leading-6 items-center gap-2 rounded-md border border-[#F57C00]"
+            className="flex px-4 py-2  text-[#F57C00] text-center text-sm font-bold leading-6 items-center gap-2 rounded-md border border-[#F57C00]"
           >
             <Image src={"/user.svg"} alt="wallet" width={20} height={20} />
             {session?.user?.email}
@@ -49,7 +51,7 @@ const Header: React.FC<{ project: any }> = ({ project }) => {
           </button>
           <button
             onClick={handleNewProjectClick}
-            className="bg-[#F57C00] px-6 py-3 flex gap-2 items-center justify-center rounded-md text-[#000000] text-base font-bold leading-6 tracking-[0.032px]"
+            className="bg-[#F57C00] px-4 py-2 flex gap-2 items-center justify-center rounded-md text-[#000000] text-sm font-bold leading-6 tracking-[0.032px]"
           >
             <Image src={"/plus.svg"} alt="plus" width={20} height={20} />
             <p>New Project</p>

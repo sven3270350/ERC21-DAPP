@@ -1,0 +1,107 @@
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import React from 'react';
+import styles from '../../newproject/checkbox.module.css';
+import { Input } from '@/components/ui/input';
+import Image from 'next/image';
+
+export const TransferTable = () => {
+    const invoices = [
+        {
+            Number: "1",
+            Address: "0x1f9090aaE28b....28e676c326 ",
+            EthBalance: "0.00036",
+            TokenBalance: "0.00036",
+        },
+        {
+            Number: "2",
+            Address: "0x1f9090aaE28b....28e676c326 ",
+            EthBalance: "0.00036",
+            TokenBalance: "0.00036",
+        },
+        {
+            Number: "2",
+            Address: "0x1f9090aaE28b....28e676c326 ",
+            EthBalance: "0.00036",
+            TokenBalance: "0.00036",
+        }
+    ];
+
+    return (
+        <div>
+            <Table className='border-[1px] border-[#18181B] rounded-md'>
+                <TableHeader className='bg-[#18181B]'>
+                    <TableRow className='hover:bg-none border-none'>
+                        <TableHead>
+                            <input type="checkbox" className={styles.checkbox} />
+                        </TableHead>
+                        <TableHead className='text-[12px] text-center'>#</TableHead>
+                        <TableHead className='text-[12px] text-center'>ADDRESS</TableHead>
+                        <TableHead className='text-[12px] text-center'>ETH BALANCE</TableHead>
+                        <TableHead className='text-[12px] text-center'>TOKEN BALANCE</TableHead>
+                        <TableHead className='text-[12px] text-center'>ADDRESS TO TRANSFER</TableHead>
+                        <TableHead className='text-[12px] text-center'>TOKEN</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {invoices.map((invoice, index) => (
+                        <TableRow key={invoice.Number} className={`hover:bg-none py-0 border-none ${index % 2 === 1 ? 'bg-[#18181B]' : ''}`}>
+                            <TableCell className='py-0'>
+                                <input type="checkbox" className={styles.checkbox} />
+                            </TableCell>
+                            <TableCell className='text-[#A1A1AA] text-[12px]'>{invoice.Number}</TableCell>
+                            <TableCell className='py-0'>
+                                <div className='text-[#71717A] flex gap-1 items-center text-[12px]'>
+                                    {invoice.Address}
+                                    <Image
+                                        src={"/copy-01.svg"}
+                                        width={15}
+                                        height={15}
+                                        alt="Copy"
+                                    />
+                                </div>
+                            </TableCell>
+                            <TableCell className='py-0'>
+                                <div className='text-[#F57C00] flex gap-1 items-center text-[12px]'>
+                                    <Image
+                                        src={"/Vector.svg"}
+                                        width={15}
+                                        height={15}
+                                        alt="ETH"
+                                    />
+                                    {invoice.EthBalance}
+                                </div>
+                            </TableCell>
+                            <TableCell className='py-0'>
+                                <div className='text-[#A1A1AA] flex gap-1 items-center text-[12px]'>
+                                    <Image
+                                        src={"/coins-01.svg"}
+                                        width={15}
+                                        height={15}
+                                        alt="Token"
+                                    />
+                                    {invoice.TokenBalance}
+                                </div>
+                            </TableCell>
+                            <TableCell className='w-[300px] py-0'>
+                                <Input
+                                    className="bg-[#18181B] h-8 border-[#27272A] mt-2 text-white text-center text-[12px]"
+                                    placeholder="Enter Address"
+                                    type="text"
+                                    required
+                                />
+                            </TableCell>
+                            <TableCell className='w-[150px] py-0'>
+                                <Input
+                                    className="bg-[#18181B] h-8 border-[#27272A] mt-2 text-white text-center text-[12px]"
+                                    placeholder="Amount"
+                                    type="number"
+                                    required
+                                />
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
+    );
+};

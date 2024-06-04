@@ -24,7 +24,7 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
     const [activeMenu, setActiveMenu] = useState<string>("Dashboard");
     const router = useRouter();
     const [projects, setProjects] = useState<Project[]>([]);
-console.log("selectedProject", selectedProject);
+
     useEffect(() => {
         const data = localStorage.getItem('projectData');
         const parsedData: Record<string, any> = data ? JSON.parse(data) : {};
@@ -40,8 +40,15 @@ console.log("selectedProject", selectedProject);
                 routePath = "/dashboard";
                 break;
             case "Projects":
-                setSelectedProject(project?.id === selectedProject?.id ? project : null);
-                onSelectProject(project?.id === selectedProject?.id ? project : null);
+                if (project) {
+                    setSelectedProject(project);
+                    onSelectProject(project);
+                    routePath = `/projects`;
+                } else {
+                    setSelectedProject(null);
+                    onSelectProject(null);
+                    routePath = "/projects";
+                }
                 break;
             default:
                 routePath = "/";
@@ -50,8 +57,7 @@ console.log("selectedProject", selectedProject);
         setActiveMenu(selectedPage);
 
         if (routePath !== "/") {
-            const routeWithQuery = project ? `${routePath}/${encodeURIComponent(project.id)}` : routePath;
-            router.push(routeWithQuery);
+            router.push(routePath);
         }
 
         setToggleState(false);
@@ -165,7 +171,7 @@ console.log("selectedProject", selectedProject);
                     </Sidebar>
                 )}
             </div>
-            <div className="bg-[#09090B] text-white w-full h-full overflow-auto pt-24 scrollbar-hide">
+            <div className="bg-[#09090B] text-white w-full h-full overflow-auto pt-[90px] scrollbar-hide">
                 {children}
             </div>
         </div>
