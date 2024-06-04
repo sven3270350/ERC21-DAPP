@@ -1,9 +1,8 @@
 import Image from "next/image";
 import React from "react";
-import { ethers } from "ethers";
-import { writeContract, prepareWriteContract, readContract } from "@wagmi/core";
-import { parseEther, parseUnits } from "viem";
-import { abi } from "@/constants/routerABI.json";
+import { writeContract, prepareWriteContract } from "@wagmi/core";
+import { Address, parseEther, parseUnits } from "viem";
+import { abi, routerAddress } from "@/constants/routerABI.json";
 import { useAccount } from "wagmi";
 interface CreatePoolProps {
   onPrev?: () => void;
@@ -27,7 +26,7 @@ const CreatePool: React.FC<CreatePoolProps> = ({ onPrev, projectId }) => {
     try {
       const { request } = await prepareWriteContract({
         abi,
-        address: "0xC532a74256D3Db42D0Bf7a0400fEFDbad7694008",
+        address: routerAddress as Address,
         functionName: "addLiquidityETH",
         args: [
           tokenAddress,
