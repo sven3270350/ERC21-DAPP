@@ -14,7 +14,7 @@ const ProjectCard = ({}) => {
   let status = "Created";
 
   return (
-    <div className="flex flex-col gap-4 bg-[#18181B] px-4 py-3 rounded-xl w-[32.5%]">
+    <div className="flex flex-col gap-4 col-span-1 bg-[#18181B] px-4 py-3 rounded-xl">
       <div className="flex justify-between items-center border-[#27272A] mb-3 pb-3 border-b">
         <h1 className="font-semibold text-[18px] leading-7">OpSec</h1>
       </div>
