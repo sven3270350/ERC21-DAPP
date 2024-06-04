@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { zodResolver } from "@hookform/resolvers/zod";
 import classNames from "classnames";
 import Image from "next/image";
@@ -21,6 +22,8 @@ import { z } from "zod";
 import { Button } from "../ui/button";
 import { InputField } from "./input-field";
 import { Title } from "./title";
+import { DisconnectBtn } from "../Header/disconnect";
+import { useAccount } from "wagmi";
 
 type Props = {};
 
@@ -64,6 +67,7 @@ const ProjectForm = (props: Props) => {
     form.setValue("initialSupply", "");
     form.setValue("liquidity", "");
   }
+  const { isConnected, address } = useAccount();
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
@@ -128,12 +132,99 @@ const ProjectForm = (props: Props) => {
               <h1 className="font-semibold text-lg leading-7">
                 Deployer Wallet
               </h1>
-              <div className="flex justify-center items-center gap-2 bg-[#F57C00] px-8 py-2 rounded-[6px] w-fit">
-                <Image src="/unlink.svg" width={20} height={20} alt="unlink" />
-                <p className="font-bold text-base text-black leading-6">
-                  Connect Wallet
-                </p>
-              </div>
+              {isConnected ? (
+                <DisconnectBtn width />
+              ) : (
+                <ConnectButton.Custom>
+                  {({
+                    account,
+                    chain,
+                    openAccountModal,
+                    openChainModal,
+                    openConnectModal,
+                    mounted,
+                  }) => {
+                    return (
+                      <div
+                        {...(!mounted && {
+                          "aria-hidden": true,
+                          style: {
+                            opacity: 0,
+                            pointerEvents: "none",
+                            userSelect: "none",
+                          },
+                        })}
+                      >
+                        {(() => {
+                          if (!mounted || !account || !chain) {
+                            return (
+                              <button type="button" onClick={openConnectModal} className="flex justify-center items-center gap-2 bg-[#F57C00] px-8 py-2 rounded-[6px] w-fit cursor-pointer">
+                                <Image
+                                  src="/unlink.svg"
+                                  width={20}
+                                  height={20}
+                                  alt="unlink"
+                                />
+                                <p className="font-bold text-base text-black leading-6">
+                                  Connect Wallet
+                                </p>
+                              </button>
+                            );
+                          }
+
+                          if (chain.unsupported) {
+                            return (
+                              <button onClick={openChainModal} type="button">
+                                Wrong network
+                              </button>
+                            );
+                          }
+
+                          return (
+                            <div style={{ display: "flex", gap: 12 }}>
+                              <button
+                                className="flex items-center gap-3 border-[#F57C00] px-6 py-2 border rounded-full font-bold text-[#F57C00] text-base text-center leading-6"
+                                onClick={openChainModal}
+                                type="button"
+                              >
+                                {chain.hasIcon && (
+                                  <div
+                                    style={{
+                                      background: chain.iconBackground,
+                                      width: 12,
+                                      height: 12,
+                                      borderRadius: 999,
+                                      overflow: "hidden",
+                                      marginRight: 4,
+                                    }}
+                                  >
+                                    {chain.iconUrl && (
+                                      <Image
+                                        alt={chain.name ?? "Chain icon"}
+                                        src={chain.iconUrl}
+                                        width={12}
+                                        height={12}
+                                      />
+                                    )}
+                                  </div>
+                                )}
+                                {chain.name}
+                              </button>
+
+                              <button onClick={openAccountModal} type="button">
+                                {account.displayName}
+                                {account.displayBalance
+                                  ? ` (${account.displayBalance})`
+                                  : ""}
+                              </button>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    );
+                  }}
+                </ConnectButton.Custom>
+              )}
             </div>
             <div className="gap-6 border-[#27272A] grid grid-cols-5 pb-6 border-b">
               <InputField
@@ -207,7 +298,10 @@ const ProjectForm = (props: Props) => {
                       >
                         <FormControl>
                           <SelectTrigger className="border-[#27272A] bg-[#18181B] border rounded-[6px] text-[#71717A] placeholder:text-[#71717A]">
-                            <SelectValue placeholder="Select" className="placeholder:text-[#71717A]" />
+                            <SelectValue
+                              placeholder="Select"
+                              className="placeholder:text-[#71717A]"
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
