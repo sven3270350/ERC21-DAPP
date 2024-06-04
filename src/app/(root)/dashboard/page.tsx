@@ -1,28 +1,13 @@
-"use client";
-
 import Projects from "@/components/ProjectsList";
 import NoProject from "@/components/dashboard/no-projects";
-import React, { useEffect, useState } from "react";
-import { Project } from "@/types/project";
+import React from "react";
 
 const Page: React.FC = () => {
-  const [projects, setProjects] = useState<Project[]>([]);
-
-  useEffect(() => {
-    const data = localStorage.getItem("projectData");
-    const parsedData: Record<string, any> = data ? JSON.parse(data) : {};
-    const projectsArray = Object.values(parsedData) as Project[];
-    console.log("projectsArray", projectsArray);
-    setProjects(projectsArray);
-  }, []);
-
+  let projects = [1, 2, 3];
+  // TODO: Fetch projects from the server (API asynchronous call)
   return (
-    <div className="flex w-full h-full items-start overflow-auto justify-center">
-      {projects.length === 0 ? (
-        <NoProject />
-      ) : (
-        <Projects projectData={projects} />
-      )}
+    <div className="flex justify-center items-start w-full h-full overflow-auto">
+      {projects.length === 0 ? <NoProject /> : <Projects />}
     </div>
   );
 };
