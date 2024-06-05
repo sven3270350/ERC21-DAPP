@@ -1,6 +1,7 @@
 "use client";
 import Projects from "@/components/ProjectsList";
 import NoProject from "@/components/dashboard/no-projects";
+import { Project } from "@/types/project";
 import {useEffect, useState} from "react";
 
 const Page: React.FC = () => {
