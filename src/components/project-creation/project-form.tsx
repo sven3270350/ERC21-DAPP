@@ -229,12 +229,14 @@ const ProjectForm = (props: Props) => {
             <div className="gap-6 border-[#27272A] grid grid-cols-5 pb-6 border-b">
               <InputField
                 form={form}
+                type="number"
                 name="devBuyTax"
                 label="Dev buy tax"
                 placeholder="e.g 10%"
               />
               <InputField
                 form={form}
+                type="number"
                 name="devSellTax"
                 label="Dev sell tax"
                 placeholder="e.g 10%"
@@ -249,12 +251,14 @@ const ProjectForm = (props: Props) => {
               </div>
               <InputField
                 form={form}
+                type="number"
                 name="marketingBuyTax"
                 label="Marketing buy tax"
                 placeholder="e.g 10%"
               />
               <InputField
                 form={form}
+                type="number"
                 name="marketingSellTax"
                 label="Marketing sell tax"
                 placeholder="e.g 10%"
