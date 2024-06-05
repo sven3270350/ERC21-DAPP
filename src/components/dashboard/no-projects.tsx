@@ -1,12 +1,15 @@
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { v4 as uuidv4 } from 'uuid';
 
 const NoProject = () => {
+  const router = useRouter();
   const handleNewProjectClick = () => {
     const newProjectId = uuidv4();
-    window.location.href = `/newproject?projectId=${newProjectId}`;
+    router.push(`/newproject?projectId=${newProjectId}`);
   };
+
   return (
     <div className="p-8 mt-2 flex flex-col max-w-[357px] border border-[#71717A] rounded-xl gap-4 items-center  ">
       <Image
