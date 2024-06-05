@@ -1,9 +1,10 @@
-import { NextAuthOptions } from "next-auth"
+import { NextAuthOptions, Session } from "next-auth"
 import EmailProvider, { SendVerificationRequestParams } from "next-auth/providers/email"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { createTransport } from "nodemailer"
 import { prisma } from "../../prisma"
 import { html, text } from "@/app/utils/emailTemplate"
+import { ExtendedUser } from "@/types/user"
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -53,10 +54,12 @@ export const authOptions: NextAuthOptions = {
             id: Number(user.id)
           }
         });
-        session.user = {
-          id: res?.id,
-          email: res?.email
-        };
+        
+        session.user = res as ExtendedUser;
+        //? Access id using extended user type to avoid undefined error
+        // console.log(res, session.user, "res", "session.user");
+        // console.log((session?.user as ExtendedUser)?.id); 
+        
       }
 
       return session;
