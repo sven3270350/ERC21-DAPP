@@ -9,7 +9,9 @@ import { toast } from "sonner";
 import { signOut } from "next-auth/react";
 import Image from "next/image";
 
-type Props = {};
+type Props = {
+  width?: boolean;
+};
 
 export const DisconnectBtn = (props: Props) => {
   const { address, isDisconnected } = useAccount();
@@ -20,39 +22,43 @@ export const DisconnectBtn = (props: Props) => {
   }
 
   return (
-    <div>
-      <Popover>
-        <PopoverTrigger asChild>
-          <button className="flex  px-6 py-2 text-[#F57C00] text-center text-base font-bold leading-6 tracking-[0.032px] items-center gap-2 rounded-md border border-[#F57C00]">
+    // <div className={`${props.width ? "w-full" : ""}`}>
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          className={`${props.width ? "w-full" : ""} flex items-center justify-between gap-2 border-[#F57C00] px-6 py-2 border rounded-md font-bold text-[#F57C00] text-base text-center leading-6 tracking-[0.032px]`}
+        >
+          <div className="flex items-center gap-2">
             <Image src={"/wallet-01.svg"} alt="wallet" width={20} height={20} />
             <p>
               {address?.substring(0, 3) +
                 "...." +
                 address?.substring(address.length - 4)}
             </p>
-            <Image
-              src={"/more-horizontal-circle-01.svg"}
-              className="ml-2"
-              alt="menu"
-              width={20}
-              height={20}
-            />
-          </button>
-        </PopoverTrigger>
+          </div>
+          <Image
+            src={"/more-horizontal-circle-01.svg"}
+            className="ml-2"
+            alt="menu"
+            width={20}
+            height={20}
+          />
+        </button>
+      </PopoverTrigger>
 
-        <PopoverContent className="  bg-opacity-10 hover:bg-opacity-20 w-[197px] text-white bg-[#F44336] rounded-md p-3 mt-3 ">
-          <button
-            type="button"
-            onClick={() => {
-              disconnect();
-            }}
-            className="   w-full font-[700] text-[#F44336] text-[16px] flex justify-center gap-2 items-center "
-          >
-            <Image src={"/unlink-03.svg"} alt="unlink" width={20} height={20} />
-            <p>Disconnect</p>
-          </button>
-        </PopoverContent>
-      </Popover>
-    </div>
+      <PopoverContent className="bg-[#F44336] bg-opacity-10 hover:bg-opacity-20 mt-3 p-3 rounded-md w-[197px] text-white">
+        <button
+          type="button"
+          onClick={() => {
+            disconnect();
+          }}
+          className="flex justify-center items-center gap-2 w-full font-[700] text-[#F44336] text-[16px]"
+        >
+          <Image src={"/unlink-03.svg"} alt="unlink" width={20} height={20} />
+          <p>Disconnect</p>
+        </button>
+      </PopoverContent>
+    </Popover>
+    // </div>
   );
 };

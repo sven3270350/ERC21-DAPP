@@ -1,9 +1,7 @@
 "use client";
-
 import Projects from "@/components/ProjectsList";
 import NoProject from "@/components/dashboard/no-projects";
-import React, { useEffect, useState } from "react";
-import { Project } from "@/types/project";
+import {useEffect, useState} from "react";
 
 const Page: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -15,13 +13,10 @@ const Page: React.FC = () => {
     setProjects(projectsArray);
   }, []);
 
+  // TODO: Fetch projects from the server (API asynchronous call)
   return (
-    <div className="flex w-full h-full items-start overflow-auto justify-center">
-      {projects.length === 0 ? (
-        <NoProject />
-      ) : (
-        <Projects projectData={projects} />
-      )}
+    <div className="flex justify-center items-start w-full h-full overflow-auto">
+      {projects.length === 0 ? <NoProject /> : <Projects />}
     </div>
   );
 };
