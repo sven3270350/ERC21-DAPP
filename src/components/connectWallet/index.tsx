@@ -6,10 +6,9 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 const ConnectWallet = () => {
-  const router = useRouter();
-  const { isConnected, address } = useAccount();
-  const session = useSession();
-  const isAllowed = isConnected;
+  // const router = useRouter();
+  // const { isConnected, address } = useAccount();
+  // const isAllowed = isConnected;
   // useEffect(() => {
   //   if (session.status !== "authenticated") return;
   //   if (isAllowed) {
@@ -17,6 +16,10 @@ const ConnectWallet = () => {
   //     toast.success("Wallet connected successfully");
   //   }
   // }, [isConnected, router, address, session]);
+  const handlePublicKeyCopy = () => {
+    navigator.clipboard.writeText("0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367");
+    toast.info("Public Key copied to clipboard");
+};
 
   return (
     <div className=" w-full text-white overflow-auto flex justify-between items-start ">
@@ -28,7 +31,8 @@ const ConnectWallet = () => {
               src={"/copy-01.svg"}
               width={20}
               height={20}
-              alt="Download"
+              alt="copy"
+              onClick={handlePublicKeyCopy}
             /></span>
         </p>
         <p className="text-[#71717A] text-sm font-medium text-start mb-4">Connect your deployer wallet to interact with this page</p>

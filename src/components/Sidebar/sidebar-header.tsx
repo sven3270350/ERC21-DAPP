@@ -4,7 +4,7 @@ import React from 'react'
 
 function Sidebarheader() {
     return (
-        <div>
+        <div className='border-r border-[#27272A] pb-[13px] '>
             <Link href={"/"} className="flex items-center gap-2 max-sm:gap-2 mt-6 ml-5">
                 <Image src={"/box.svg"} alt="logo" width={30} height={35} className="max-sm:w-[30px] max-sm:h-[30px]" />
                 <h1 className="text-[18px] font-semibold leading-7">ERC21 Bot</h1>

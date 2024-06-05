@@ -87,12 +87,12 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
     };
 
     const getMenuItemSelectedColor = (type: string) => {
-        return isSelectedMenuItem(type) ? "#F57C00" : "#FFFFFF";
+        return isSelectedMenuItem(type) ? "#F57C00" : "#52525B";
     };
 
     return (
         <div className="flex justify-between w-full h-screen">
-            <div className="flex h-full">
+            <div className="flex h-full border-r border-[#27272A]">
                 {isRenderable && (
                     <Sidebar
                         className="!z-10 !border-0 h-full text-sm"
@@ -109,14 +109,13 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
                                     className="mt-12 w-3/4"
                                     menuItemStyles={{
                                         button: {
-                                            height: "40px",
                                             '&:hover': {
                                                 backgroundColor: "#0F0F11",
                                             }
                                         },
                                     }}
                                 >
-                                    <div className="flex flex-col space-y-2">
+                                    <div className="flex flex-col">
                                         <MenuItem
                                             active={isSelectedMenuItem("Dashboard")}
                                             onClick={() => handleMenuItemClick("Dashboard")}
@@ -126,7 +125,7 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
                                                     size={24}
                                                 />
                                             }
-                                            className={isSelectedMenuItem("Dashboard") ? "border-[1px] border-[#F57C00] rounded-md bg-[rgba(245, 124, 0, 0.10)] text-[#F57C00]" : ""}
+                                            className={`hover:bg-none ${isSelectedMenuItem("Dashboard") ? "border-[1px] border-[#F57C00] rounded-md bg-[rgba(245, 124, 0, 0.10)] text-[#F57C00]" : "text-[#52525B] font-semibold"}`}
                                             style={{
                                                 backgroundColor: isSelectedMenuItem("Dashboard") ? "rgb(245, 124, 0, 0.10)" : undefined,
                                                 borderRadius: isSelectedMenuItem("Dashboard") ? "0.375rem" : undefined,
@@ -136,8 +135,7 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
                                             Dashboard
                                         </MenuItem>
                                         <div
-                                            className={`flex items-center gap-3 p-2 pl-7 cursor-pointer ${isSelectedMenuItem("Projects") ? "border-[1px] border-[#F57C00] rounded-md bg-[rgba(245, 124, 0, 0.10)] text-[#F57C00] font-bold" : "text-white"}`}
-                                            onClick={() => handleMenuItemClick("Projects")}
+                                            className={`flex items-center gap-3 mt-3 p-2 pl-6 cursor-pointer ${isSelectedMenuItem("Projects") ? "border-[1px] border-[#F57C00] rounded-md bg-[rgba(245, 124, 0, 0.10)] text-[#F57C00] font-bold" : "text-[#52525B] font-semibold"}`}
                                             style={{
                                                 backgroundColor: isSelectedMenuItem("Projects") ? "rgb(245, 124, 0, 0.10)" : undefined,
                                                 borderRadius: isSelectedMenuItem("Projects") ? "0.375rem" : undefined,
@@ -153,15 +151,20 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
                                         {projects.map((project, index) => (
                                             <MenuItem
                                                 key={index}
-                                                active={isSelectedMenuItem("Projects") && project.projectName === selectedProject?.projectName}
+                                                active={isSelectedMenuItem("Projects") && project?.projectName === selectedProject?.projectName}
                                                 onClick={() => handleMenuItemClick("Projects", project)}
-                                                className={`ml-3 ${isSelectedMenuItem("Projects") && project.projectName === selectedProject?.projectName ? "text-[#F57C00]" : "text-white"}`}
-                                                style={{ height: "40px" }}
+                                                className={`ml-3 relative font-semibold ${isSelectedMenuItem("Projects") && project?.projectName === selectedProject?.projectName ? "text-white" : "text-[#52525B]"}`}
                                             >
-                                                <div className="flex items-end gap-1">
-                                                    <Image src={"/Rectangle.svg"} alt="logo" width={35} height={30} />
-                                                    <span>{project.projectName}</span>
+                                                <div className="flex gap-[2px] items-center  h-[50px] ">
+                                                    <Image src={"/Rectangle.svg"} alt="logo" width={37} height={37} />
+                                                    <div className="flex items-end -bottom-2 left-[60px] z-50 absolute">
+                                                        <p className="text-sm font-bold ">{project?.projectName}</p>
+                                                    </div>
                                                 </div>
+                                                {/* <div className="relative flex items-end gap-1 ">
+                                                    <Image src={"/Rectangle.svg"} alt="logo" width={30} height={30} />
+                                                    <p className="text-sm font-bold absolute z-50 -bottom-[6px] left-[30px] ">{project?.projectName}</p>
+                                                </div> */}
                                             </MenuItem>
                                         ))}
                                     </div>

@@ -1,11 +1,18 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import React from 'react';
-import styles from '../../newproject/checkbox.module.css';
-import { Input } from '@/components/ui/input';
+import React, { useState, ChangeEvent } from 'react';
 import Image from 'next/image';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
+import styles from '../../newproject/checkbox.module.css';
 
-export const TransferTable = () => {
-    const invoices = [
+interface Invoice {
+    Number: string;
+    Address: string;
+    EthBalance: string;
+    TokenBalance: string;
+}
+
+export const TransferTable: React.FC = () => {
+    const invoices: Invoice[] = [
         {
             Number: "1",
             Address: "0x1f9090aaE28b....28e676c326 ",
@@ -19,20 +26,45 @@ export const TransferTable = () => {
             TokenBalance: "0.00036",
         },
         {
-            Number: "2",
+            Number: "3",
             Address: "0x1f9090aaE28b....28e676c326 ",
             EthBalance: "0.00036",
             TokenBalance: "0.00036",
-        }
+        },
     ];
+
+    const [selectedInvoices, setSelectedInvoices] = useState<string[]>([]);
+
+    const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
+        if (event.target.checked) {
+            setSelectedInvoices(invoices.map(invoice => invoice.Number));
+        } else {
+            setSelectedInvoices([]);
+        }
+    };
+
+    const handleSelectOne = (event: ChangeEvent<HTMLInputElement>, invoiceNumber: string) => {
+        if (event.target.checked) {
+            setSelectedInvoices(prev => [...prev, invoiceNumber]);
+        } else {
+            setSelectedInvoices(prev => prev.filter(number => number !== invoiceNumber));
+        }
+    };
+
+    const isSelected = (invoiceNumber: string) => selectedInvoices.includes(invoiceNumber);
 
     return (
         <div>
             <Table className='border-[1px] border-[#18181B] rounded-md'>
                 <TableHeader className='bg-[#18181B]'>
-                    <TableRow className='hover:bg-none border-none'>
+                    <TableRow className='hover:bg-inherit border-none'>
                         <TableHead>
-                            <input type="checkbox" className={styles.checkbox} />
+                            <input
+                                type="checkbox"
+                                className={styles.checkbox}
+                                onChange={handleSelectAll}
+                                checked={selectedInvoices.length === invoices.length}
+                            />
                         </TableHead>
                         <TableHead className='text-[12px] text-center'>#</TableHead>
                         <TableHead className='text-[12px] text-center'>ADDRESS</TableHead>
@@ -44,9 +76,14 @@ export const TransferTable = () => {
                 </TableHeader>
                 <TableBody>
                     {invoices.map((invoice, index) => (
-                        <TableRow key={invoice.Number} className={`hover:bg-none py-0 border-none ${index % 2 === 1 ? 'bg-[#18181B]' : ''}`}>
+                        <TableRow key={invoice.Number} className={`hover:bg-inherit py-0 border-none ${index % 2 === 1 ? 'bg-[#18181B]' : ''}`}>
                             <TableCell className='py-0'>
-                                <input type="checkbox" className={styles.checkbox} />
+                                <input
+                                    type="checkbox"
+                                    className={styles.checkbox}
+                                    checked={isSelected(invoice.Number)}
+                                    onChange={(event) => handleSelectOne(event, invoice.Number)}
+                                />
                             </TableCell>
                             <TableCell className='text-[#A1A1AA] text-[12px]'>{invoice.Number}</TableCell>
                             <TableCell className='py-0'>
