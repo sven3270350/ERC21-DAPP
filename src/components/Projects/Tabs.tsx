@@ -1,9 +1,7 @@
 import Image from 'next/image'
 import React, { useState } from 'react'
 
-export const Tabs = () => {
-  const [status, setStatus] = useState("Buy");
-
+export const Tabs = ({ setStatus, status }) => {
   const getImageSrc = (state: string) => {
     switch (state) {
       case "Buy":
