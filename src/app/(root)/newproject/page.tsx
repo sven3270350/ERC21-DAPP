@@ -1,14 +1,12 @@
-"use client"
-import MultipleSteppes from "@/components/newproject/MultipleSteppes";
-import { ScrollArea } from "@/components/ui/scroll-area";
+"use client";
+// import MultipleSteps from "@/components/newproject/MultipleSteppes";
+import { ProjectForm } from "@/components/project-creation";
 
 export default function newprojecthome() {
-
-    return (
-        // <ScrollArea className="w-full h-full overflow-x-auto overflow-y-auto ">
-            <div className="w-full bg-[#09090B]">
-                <MultipleSteppes />
-            </div>
-        // </ScrollArea>
-    );
+  return (
+    <div className="bg-[#09090B] w-full">
+      <ProjectForm />
+      {/* <MultipleSteps /> */}
+    </div>
+  );
 }
