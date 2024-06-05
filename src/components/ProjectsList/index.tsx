@@ -6,23 +6,9 @@ const Projects = ({}) => {
       <div className="flex justify-between">
         <div className="font-bold text-[22px] leading-7">Your Projects</div>
       </div>
-      <div className="flex flex-wrap gap-2">
-        {filteredProjects.map((project, index) => (
-          <ProjectCard
-            key={index}
-            title={project?.projectName}
-            fundingWallet={project?.fundingWallet?.publicKey}
-            maxSupply={project?.tokenDetails?.maxSupply}
-            status={project?.status}
-            adminWallet={project?.adminWallet?.publicKey}
-            wallets={
-              project?.beneficiaryDetails?.wallets ?
-                project?.beneficiaryDetails?.wallets.reduce(
-                  (total, wallet) => total + parseFloat(wallet?.amount),
-                  0
-                ) : 0
-            }
-          />
+      <div className="gap-4 grid grid-cols-3">
+        {[1, 2, 3].map((_, index) => (
+          <ProjectCard key={index} />
         ))}
       </div>
     </div>
