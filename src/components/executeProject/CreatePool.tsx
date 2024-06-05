@@ -4,9 +4,10 @@ import { writeContract, prepareWriteContract } from "@wagmi/core";
 import { Address, parseEther, parseUnits } from "viem";
 import { abi, routerAddress } from "@/constants/routerABI.json";
 import { useAccount } from "wagmi";
+import { toast } from "sonner";
 interface CreatePoolProps {
   onPrev?: () => void;
-  projectId: string;
+  projectId?: string;
 }
 const CreatePool: React.FC<CreatePoolProps> = ({ onPrev, projectId }) => {
   const { address } = useAccount();
@@ -16,8 +17,12 @@ const CreatePool: React.FC<CreatePoolProps> = ({ onPrev, projectId }) => {
     const parsedData: Record<string, any> = existingData
       ? JSON.parse(existingData)
       : {};
-    const tokenData = parsedData[projectId].tokenDetails;
-    const poolData = parsedData[projectId].poolData;
+    if (!projectId) {
+      toast.error("Project Id not found");
+      return;
+    }
+    const tokenData = parsedData[projectId]?.tokenDetails;
+    const poolData = parsedData[projectId]?.poolData;
     const tokenAddress = tokenData?.contractAddress;
     const amountTokenDesired = poolData.tokenLiquidityAmount;
     const amountETHDesired = poolData.ethLiquidityAmount;
@@ -48,20 +53,20 @@ const CreatePool: React.FC<CreatePoolProps> = ({ onPrev, projectId }) => {
   };
 
   return (
-    <div className="p-6 flex flex-col items-center gap-6 border border-[#18181B] rounded-xl ">
+    <div className="flex flex-col items-center gap-6 border-[#18181B] p-6 border rounded-xl">
       <div className="flex flex-col items-center gap-2">
-        <h1 className="text-xl font-bold leading-8">Create Pool</h1>
-        <p className="text-[#71717A] text-sm font-medium leading-5 ">
+        <h1 className="font-bold text-xl leading-8">Create Pool</h1>
+        <p className="font-medium text-[#71717A] text-sm leading-5">
           Stop trading is active
         </p>
       </div>
-      <div className="flex justify-between w-full ">
-        <button className="py-2 flex justify-center items-center text-[#F57C00] text-sm font-bold ">
+      <div className="flex justify-between w-full">
+        <button className="flex justify-center items-center py-2 font-bold text-[#F57C00] text-sm">
           Cancel
         </button>
         <div className="flex gap-2 tracking-[0.07px]">
           <button
-            className="py-2 px-8 flex justify-center gap-2 items-center text-[#F57C00] text-sm font-bold "
+            className="flex justify-center items-center gap-2 px-8 py-2 font-bold text-[#F57C00] text-sm"
             onClick={onPrev}
           >
             <Image
@@ -74,7 +79,7 @@ const CreatePool: React.FC<CreatePoolProps> = ({ onPrev, projectId }) => {
           </button>
           <button
             onClick={handlePoolCreation}
-            className="bg-[#F57C00] text-black px-8 py-2 text-sm font-bold  rounded-md "
+            className="bg-[#F57C00] px-8 py-2 rounded-md font-bold text-black text-sm"
           >
             Execute
           </button>
