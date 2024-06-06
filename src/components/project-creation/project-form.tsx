@@ -25,7 +25,38 @@ import { Title } from "./title";
 import { DisconnectBtn } from "../Header/disconnect";
 import { useAccount } from "wagmi";
 
-type Props = {};
+type Project = {
+  tokendetails: {
+    tokenName: string;
+    tokenSymbol: string;
+    maxSupply: string;
+    initialSupply: string;
+  };
+  walletAddess: `0x${string}` | undefined;
+  devWallet: {
+    devBuyTax: string;
+    devSellTax: string;
+    devWallet: string;
+  };
+  marketingWallet: {
+    marketingBuyTax: string;
+    marketingSellTax: string;
+    marketingWallet: string;
+  };
+  poolData: {
+    liquidityAmount: string;
+    liquidityToken: string;
+  };
+  status: string;
+};
+
+interface Projects {
+  [key: string]: Project;
+}
+
+type Props = {
+  projectId: string | null;
+};
 
 const formSchema = z.object({
   tokenName: z.string().min(1, { message: "Required*" }),
@@ -42,7 +73,7 @@ const formSchema = z.object({
   token: z.string({ required_error: "Required*." }),
 });
 
-const ProjectForm = (props: Props) => {
+const ProjectForm = ({ projectId }: Props) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -75,7 +106,11 @@ const ProjectForm = (props: Props) => {
       console.log("Connect your wallet");
       return;
     }
-    console.log(values);
+    if (!projectId) {
+      console.log("Project Id is missing");
+      return;
+    }
+    // console.log(values);
     const data = {
       tokendetails: {
         tokenName: values.tokenName,
@@ -100,8 +135,15 @@ const ProjectForm = (props: Props) => {
       },
       status: "In Progress",
     };
-    console.log(data);
+    const projects: Projects = {};
+
+    // Create the key with the desired format
+    const projectKey = `project-${projectId}`;
+
+    projects[projectKey] = data;
+    console.log(projects);
   }
+
   let arr: number[] = [1, 2];
   return (
     <main className="flex flex-col justify-center items-center gap-6 py-[100px]">
