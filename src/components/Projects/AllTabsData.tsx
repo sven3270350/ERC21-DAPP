@@ -5,6 +5,7 @@ import { Button } from '../ui/button';
 import { Transfer } from './Transfer/Transfer';
 import { Sell } from './Sell/Sell';
 import { BuyPage } from './Buy/page';
+import { GrTest } from "react-icons/gr";
 
 interface AllTabsDataProps {
     selectedTab: string;
@@ -14,7 +15,7 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab }) => {
     const TabButton = () => {
         switch (selectedTab) {
             case 'Buy':
-                return 'Buy';
+                return 'Enable & Buy';
             case 'Sell':
                 return 'Sell';
             case 'Transfer':
@@ -77,8 +78,18 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab }) => {
                     />
                     Collect All ETH
                 </Button>
+                {selectedTab === "Buy" &&
+                    <button
+                        className="bg-[#27272A] cursor-pointer px-4 py-2 text-[12px] flex gap-2 items-center justify-center rounded-md text-[#000000] text-sm font-bold leading-6 tracking-[0.032px]"
+                        disabled={true}
+                    >
+                        <GrTest className='text-black h-[18px] w-[18px]' />
+                        <p>Simulate</p>
+                    </button>
+                }
+
                 <button
-                    className="bg-[#F57C00] px-4 py-2 text-[12px] flex gap-2 items-center justify-center rounded-md text-[#000000] text-sm font-bold leading-6 tracking-[0.032px]"
+                    className="bg-[#27272A] px-4 py-2 text-[12px] flex gap-2 items-center justify-center rounded-md text-[#000000] text-sm font-bold leading-6 tracking-[0.032px]"
                 >
                     <Image
                         src={"/arrow-data-transfer.svg"}

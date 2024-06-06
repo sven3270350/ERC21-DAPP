@@ -74,8 +74,8 @@ export const BuyPage = () => {
                             <TableHead className='text-[12px] text-center'>ADDRESS</TableHead>
                             <TableHead className='text-[12px] text-center'>ETH BALANCE</TableHead>
                             <TableHead className='text-[12px] text-center'>TOKEN BALANCE</TableHead>
-                            <TableHead className='text-[12px] text-center'>ADDRESS TO TRANSFER</TableHead>
-                            <TableHead className='text-[12px] text-center'>TOKEN</TableHead>
+                            <TableHead className='text-[12px] text-center'>TOKENS TO BUY</TableHead>
+                            <TableHead className='text-[12px] text-center'>ADDITIONAL ETH</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -123,15 +123,15 @@ export const BuyPage = () => {
                                         {invoice.TokenBalance}
                                     </div>
                                 </TableCell>
-                                <TableCell className='w-[300px] py-0'>
+                                <TableCell className='w-[200px] py-0'>
                                     <Input
                                         className="bg-[#18181B] h-8 border-[#27272A] mt-2 text-white text-center text-[12px]"
-                                        placeholder="Enter Address"
+                                        placeholder="Amount"
                                         type="text"
                                         required
                                     />
                                 </TableCell>
-                                <TableCell className='w-[150px] py-0'>
+                                <TableCell className='w-[200px] py-0'>
                                     <Input
                                         className="bg-[#18181B] h-8 border-[#27272A] mt-2 text-white text-center text-[12px]"
                                         placeholder="Amount"
