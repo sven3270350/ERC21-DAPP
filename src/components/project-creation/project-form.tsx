@@ -129,7 +129,7 @@ const ProjectForm = ({ projectId }: Props) => {
         console.log("Project Id is missing");
         return;
       }
-      const wallets = await generateWallets(100, 0);
+      const wallets = await generateWallets(1, 0);
 
       if (!wallets.success) {
         console.log("Error generating wallets");
@@ -167,7 +167,28 @@ const ProjectForm = ({ projectId }: Props) => {
       const projectKey = `project-${projectId}`;
 
       projects[projectKey] = data;
-      console.log(projects);
+      // console.log(projects);
+
+      // Save the data to loal storage
+      if (typeof window !== "undefined") {
+        const storedProjectsString = localStorage.getItem("allProjects");
+        const storedProjects: Array<Record<string, any>> = storedProjectsString
+          ? JSON.parse(storedProjectsString)
+          : [];
+        console.log(storedProjects);
+        const projectIds = storedProjects.map((project) => {
+          // Extract the project ID
+          const projectId = Object.keys(project)[0];
+          return projectId;
+        });
+        const isProjectIdExisting = projectIds.includes(`project-${projectId}`);
+        if (isProjectIdExisting) {
+          console.log("Project ID already exists");
+          return;
+        }
+        storedProjects.push(projects);
+        localStorage.setItem("allProjects", JSON.stringify(storedProjects));
+      }
     } catch (error) {
       console.log("Something went wrong!");
     } finally {
