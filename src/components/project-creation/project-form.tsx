@@ -70,13 +70,41 @@ const ProjectForm = (props: Props) => {
   const { isConnected, address } = useAccount();
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
     // ✅ This will be type-safe and validated.
+    if (!isConnected) {
+      console.log("Connect your wallet");
+      return;
+    }
     console.log(values);
+    const data = {
+      tokendetails: {
+        tokenName: values.tokenName,
+        tokenSymbol: values.tokenSymbol,
+        maxSupply: values.maxSupply,
+        initialSupply: values.initialSupply,
+      },
+      walletAddess: address,
+      devWallet: {
+        devBuyTax: values.devBuyTax,
+        devSellTax: values.devSellTax,
+        devWallet: values.devWallet,
+      },
+      marketingWallet: {
+        marketingBuyTax: values.marketingBuyTax,
+        marketingSellTax: values.marketingSellTax,
+        marketingWallet: values.marketingWallet,
+      },
+      poolData: {
+        liquidityAmount: values.liquidity,
+        liquidityToken: values.token,
+      },
+      status: "In Progress",
+    };
+    console.log(data);
   }
   let arr: number[] = [1, 2];
   return (
-    <main className="flex flex-col justify-center items-center gap-6 py-14">
+    <main className="flex flex-col justify-center items-center gap-6 py-[100px]">
       <div className="flex flex-col gap-6 border-[#18181B] p-6 border rounded-[12px]">
         <h1 className="font-bold text-[22px] text-center text-white uppercase leading-7">
           New project
@@ -158,7 +186,11 @@ const ProjectForm = (props: Props) => {
                         {(() => {
                           if (!mounted || !account || !chain) {
                             return (
-                              <button type="button" onClick={openConnectModal} className="flex justify-center items-center gap-2 bg-[#F57C00] px-8 py-2 rounded-[6px] w-fit cursor-pointer">
+                              <button
+                                type="button"
+                                onClick={openConnectModal}
+                                className="flex justify-center items-center gap-2 bg-[#F57C00] px-8 py-2 rounded-[6px] w-fit cursor-pointer"
+                              >
                                 <Image
                                   src="/unlink.svg"
                                   width={20}

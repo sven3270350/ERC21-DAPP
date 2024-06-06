@@ -92,7 +92,7 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
 
     return (
         <div className="flex justify-between w-full h-screen">
-            <div className="flex h-full border-r border-[#27272A]">
+            <div className="flex border-[#27272A] border-r h-full">
                 {isRenderable && (
                     <Sidebar
                         className="!z-10 !border-0 h-full text-sm"
@@ -104,7 +104,7 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
                     >
                         <div className="flex flex-col h-full">
                             <Sidebarheader />
-                            <div className="flex flex-1 p-4 md:p-0 justify-center">
+                            <div className="flex flex-1 justify-center p-4 md:p-0">
                                 <Menu
                                     className="mt-12 w-3/4"
                                     menuItemStyles={{
@@ -155,15 +155,15 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
                                                 onClick={() => handleMenuItemClick("Projects", project)}
                                                 className={`ml-3 relative font-semibold ${isSelectedMenuItem("Projects") && project?.projectName === selectedProject?.projectName ? "text-white" : "text-[#52525B]"}`}
                                             >
-                                                <div className="flex gap-[2px] items-center  h-[50px] ">
+                                                <div className="flex items-center gap-[2px] h-[50px]">
                                                     <Image src={"/Rectangle.svg"} alt="logo" width={37} height={37} />
-                                                    <div className="flex items-end -bottom-2 left-[60px] z-50 absolute">
-                                                        <p className="text-sm font-bold ">{project?.projectName}</p>
+                                                    <div className="-bottom-2 left-[60px] z-50 absolute flex items-end">
+                                                        <p className="font-bold text-sm">{project?.projectName}</p>
                                                     </div>
                                                 </div>
-                                                {/* <div className="relative flex items-end gap-1 ">
+                                                {/* <div className="relative flex items-end gap-1">
                                                     <Image src={"/Rectangle.svg"} alt="logo" width={30} height={30} />
-                                                    <p className="text-sm font-bold absolute z-50 -bottom-[6px] left-[30px] ">{project?.projectName}</p>
+                                                    <p className="-bottom-[6px] left-[30px] z-50 absolute font-bold text-sm">{project?.projectName}</p>
                                                 </div> */}
                                             </MenuItem>
                                         ))}
@@ -174,7 +174,7 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
                     </Sidebar>
                 )}
             </div>
-            <div className="bg-[#09090B] text-white w-full h-full overflow-auto pt-[90px] scrollbar-hide">
+            <div className="bg-[#09090B] w-full h-full text-white overflow-auto scrollbar-hide">
                 {children}
             </div>
         </div>
