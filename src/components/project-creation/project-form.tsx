@@ -24,6 +24,10 @@ import { InputField } from "./input-field";
 import { Title } from "./title";
 import { DisconnectBtn } from "../Header/disconnect";
 import { useAccount } from "wagmi";
+import { generateBeneficiaryDetails } from "@/utils/generate-wallet";
+import { useState } from "react";
+import axios from "axios";
+import ClipLoader from "react-spinners/ClipLoader";
 
 type Project = {
   tokendetails: {
@@ -91,6 +95,8 @@ const ProjectForm = ({ projectId }: Props) => {
       token: "",
     },
   });
+  const { isConnected, address } = useAccount();
+  const [submitting, setSubmitting] = useState(false);
 
   function cancel() {
     form.reset();
@@ -98,50 +104,75 @@ const ProjectForm = ({ projectId }: Props) => {
     form.setValue("initialSupply", "");
     form.setValue("liquidity", "");
   }
-  const { isConnected, address } = useAccount();
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // ✅ This will be type-safe and validated.
-    if (!isConnected) {
-      console.log("Connect your wallet");
-      return;
+  const generateWallets = async (numWallets: number, tokenAmount: number) => {
+    try {
+      const res = await axios.post("/api/generate-wallets", {
+        numWallets,
+        tokenAmount,
+      });
+      return { data: res.data, success: true };
+    } catch (error) {
+      console.error("Error generating wallets:", error);
+      return { error, success: false };
     }
-    if (!projectId) {
-      console.log("Project Id is missing");
-      return;
+  };
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setSubmitting(true);
+    try {
+      // ✅ This will be type-safe and validated.
+      if (!isConnected) {
+        console.log("Connect your wallet");
+        return;
+      }
+      if (!projectId) {
+        console.log("Project Id is missing");
+        return;
+      }
+      const wallets = await generateWallets(100, 0);
+
+      if (!wallets.success) {
+        console.log("Error generating wallets");
+        return;
+      }
+      const data = {
+        tokendetails: {
+          tokenName: values.tokenName,
+          tokenSymbol: values.tokenSymbol,
+          maxSupply: values.maxSupply,
+          initialSupply: values.initialSupply,
+        },
+        walletAddess: address,
+        devWallet: {
+          devBuyTax: values.devBuyTax,
+          devSellTax: values.devSellTax,
+          devWallet: values.devWallet,
+        },
+        marketingWallet: {
+          marketingBuyTax: values.marketingBuyTax,
+          marketingSellTax: values.marketingSellTax,
+          marketingWallet: values.marketingWallet,
+        },
+        poolData: {
+          liquidityAmount: values.liquidity,
+          liquidityToken: values.token,
+        },
+        beneficiaryDetails: wallets?.data?.beneficiaryDetails,
+        status: "In Progress",
+      };
+
+      const projects: Projects = {};
+
+      // Create the key with the desired format
+      const projectKey = `project-${projectId}`;
+
+      projects[projectKey] = data;
+      console.log(projects);
+    } catch (error) {
+      console.log("Something went wrong!");
+    } finally {
+      setSubmitting(false);
     }
-    // console.log(values);
-    const data = {
-      tokendetails: {
-        tokenName: values.tokenName,
-        tokenSymbol: values.tokenSymbol,
-        maxSupply: values.maxSupply,
-        initialSupply: values.initialSupply,
-      },
-      walletAddess: address,
-      devWallet: {
-        devBuyTax: values.devBuyTax,
-        devSellTax: values.devSellTax,
-        devWallet: values.devWallet,
-      },
-      marketingWallet: {
-        marketingBuyTax: values.marketingBuyTax,
-        marketingSellTax: values.marketingSellTax,
-        marketingWallet: values.marketingWallet,
-      },
-      poolData: {
-        liquidityAmount: values.liquidity,
-        liquidityToken: values.token,
-      },
-      status: "In Progress",
-    };
-    const projects: Projects = {};
-
-    // Create the key with the desired format
-    const projectKey = `project-${projectId}`;
-
-    projects[projectKey] = data;
-    console.log(projects);
   }
 
   let arr: number[] = [1, 2];
@@ -401,14 +432,18 @@ const ProjectForm = ({ projectId }: Props) => {
               >
                 Cancel
               </button>
-              <Button className="flex items-center gap-[3px] bg-[#F57C00] hover:bg-[#F57C00] px-8 py-2 rounded-[6px] font-bold text-black text-sm leading-5">
-                <Image
-                  src="/rocket-black.svg"
-                  width={20}
-                  height={20}
-                  alt="deploy"
-                />
-                Deploy Token
+              <Button
+                disabled={submitting}
+                className="flex items-center gap-[8px] bg-[#27272A] hover:bg-[#F57C00] px-8 py-2 rounded-[6px] font-bold text-[#71717A] text-sm hover:text-black leading-5 transition-all duration-150 ease-in-out group"
+              >
+                Save Project
+                {submitting && (
+                  <ClipLoader
+                    color="#fff"
+                    className="color-[black]"
+                    size="16px"
+                  />
+                )}
               </Button>
             </div>
           </form>
