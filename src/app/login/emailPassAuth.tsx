@@ -53,6 +53,7 @@ export default function LoginForm() {
 
       console.log("Login Successful", response);
       toast({ title: "Login Successful" });
+      router.push("/login/verified");
     } catch (error: any) {
       console.error("Login Failed:", error);
       toast({ title: "Login Failed", description: error.message });

@@ -24,6 +24,8 @@ import { InputField } from "./input-field";
 import { Title } from "./title";
 import { DisconnectBtn } from "../Header/disconnect";
 import { useAccount } from "wagmi";
+import { useParams } from "next/navigation";
+import { DeployToken } from "../executeProject/deploy-token";
 
 type Props = {};
 
@@ -43,6 +45,8 @@ const formSchema = z.object({
 });
 
 const ProjectForm = (props: Props) => {
+  const {params} = useParams()
+  console.log(params);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -229,12 +233,14 @@ const ProjectForm = (props: Props) => {
             <div className="gap-6 border-[#27272A] grid grid-cols-5 pb-6 border-b">
               <InputField
                 form={form}
+                type="number"
                 name="devBuyTax"
                 label="Dev buy tax"
                 placeholder="e.g 10%"
               />
               <InputField
                 form={form}
+                type="number"
                 name="devSellTax"
                 label="Dev sell tax"
                 placeholder="e.g 10%"
@@ -249,12 +255,14 @@ const ProjectForm = (props: Props) => {
               </div>
               <InputField
                 form={form}
+                type="number"
                 name="marketingBuyTax"
                 label="Marketing buy tax"
                 placeholder="e.g 10%"
               />
               <InputField
                 form={form}
+                type="number"
                 name="marketingSellTax"
                 label="Marketing sell tax"
                 placeholder="e.g 10%"
@@ -323,15 +331,7 @@ const ProjectForm = (props: Props) => {
               >
                 Cancel
               </button>
-              <Button className="flex items-center gap-[3px] bg-[#F57C00] hover:bg-[#F57C00] px-8 py-2 rounded-[6px] font-bold text-black text-sm leading-5">
-                <Image
-                  src="/rocket-black.svg"
-                  width={20}
-                  height={20}
-                  alt="deploy"
-                />
-                Deploy Token
-              </Button>
+           <DeployToken tokenName={form.getValues('tokenName')} tokenSymbol={form.getValues('tokenSymbol')} maxSupply={form.getValues('maxSupply')} initialSupply={form.getValues('initialSupply')}/>
             </div>
           </form>
         </Form>

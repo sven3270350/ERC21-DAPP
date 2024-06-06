@@ -1,6 +1,5 @@
 import Projects from "@/components/ProjectsList";
 import NoProject from "@/components/dashboard/no-projects";
-import React from "react";
 
 const Page: React.FC = () => {
   let projects = [1, 2, 3];
