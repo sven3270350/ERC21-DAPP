@@ -92,7 +92,7 @@ export const Sell: React.FC = () => {
                             </TableCell>
                             <TableCell className='text-[#A1A1AA] text-[12px]'>{invoice?.Number}</TableCell>
                             <TableCell className='py-0'>
-                                <div className='text-[#71717A] flex gap-1 items-center text-[12px]'>
+                                <div className='text-[#71717A] flex gap-1 items-center justify-center text-[12px]'>
                                     {invoice.Address}
                                     <Image
                                         src={"/copy-01.svg"}
@@ -103,7 +103,7 @@ export const Sell: React.FC = () => {
                                 </div>
                             </TableCell>
                             <TableCell className='py-0'>
-                                <div className='text-[#F57C00] flex gap-1 items-center text-[12px]'>
+                                <div className='text-[#F57C00] flex gap-1 items-center justify-center text-[12px]'>
                                     <Image
                                         src={"/Vector.svg"}
                                         width={15}
@@ -114,7 +114,7 @@ export const Sell: React.FC = () => {
                                 </div>
                             </TableCell>
                             <TableCell className='py-0'>
-                                <div className='text-[#A1A1AA] flex gap-1 items-center text-[12px]'>
+                                <div className='text-[#A1A1AA] flex items-center justify-center text-[12px]'>
                                     <Image
                                         src={"/coins-01.svg"}
                                         width={15}
@@ -126,7 +126,7 @@ export const Sell: React.FC = () => {
                             </TableCell>
                             <TableCell className='w-[150px] py-0'>
                                 <Input
-                                    className="bg-[#18181B] h-8 border-[#27272A] mt-2 text-white text-center text-[12px]"
+                                    className="bg-[#18181B] h-8 border-[#27272A] mt-2 text-white justify-center text-center text-[12px]"
                                     placeholder="Amount"
                                     type="number"
                                     required

@@ -4,6 +4,7 @@ import ConnectWallet from '../connectWallet';
 import { Button } from '../ui/button';
 import { Transfer } from './Transfer/Transfer';
 import { Sell } from './Sell/Sell';
+import { BuyPage } from './Buy/page';
 
 interface AllTabsDataProps {
     selectedTab: string;
@@ -59,7 +60,7 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab }) => {
                 </div>
             </div>
 
-            {selectedTab === "Buy" && "BuyTab"}
+            {selectedTab === "Buy" && <BuyPage />}
             {selectedTab === "Sell" && <Sell />}
             {selectedTab === "Transfer" && <Transfer />}
 
