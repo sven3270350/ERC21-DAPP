@@ -58,32 +58,40 @@ const useBulkAction = () => {
         return "Insufficient token balance.";
       }
 
-      if (tokenAllowance <= BigInt(totalAmount) * BigInt(10 ** tokenDecimals)) {
+      try {
+        if (
+          tokenAllowance <=
+          BigInt(totalAmount) * BigInt(10 ** tokenDecimals)
+        ) {
+          const { request } = await prepareWriteContract({
+            abi: erc20ABI,
+            address: tokenAddress,
+            functionName: "approve",
+            args: [bulkContract as `0x${string}`, tokenBalance],
+          });
+
+          await writeContract(request);
+        }
+
         const { request } = await prepareWriteContract({
-          abi: erc20ABI,
-          address: tokenAddress,
-          functionName: "approve",
-          args: [bulkContract as `0x${string}`, tokenBalance],
+          abi: bulksendABI,
+          address: bulkContract,
+          functionName: "bulkSendToken",
+          args: [
+            tokenAddress as `0x${string}`,
+            wallets,
+            amount.map((value) => BigInt(value) * BigInt(10 ** tokenDecimals)),
+          ],
         });
 
-        await writeContract(request);
+        const sendHash = await writeContract(request);
+
+        setIsLoading(false);
+        return sendHash;
+      } catch {
+        setIsLoading(false);
+        return "User rejected the request.";
       }
-
-      const { request } = await prepareWriteContract({
-        abi: bulksendABI,
-        address: bulkContract,
-        functionName: "bulkSendToken",
-        args: [
-          tokenAddress as `0x${string}`,
-          wallets,
-          amount.map((value) => BigInt(value) * BigInt(10 ** tokenDecimals)),
-        ],
-      });
-
-      const sendHash = await writeContract(request);
-
-      setIsLoading(false);
-      return sendHash;
     } else {
       setIsLoading(false);
       return "Error while fetching onchain Data.";
