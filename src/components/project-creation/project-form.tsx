@@ -28,6 +28,8 @@ import { generateBeneficiaryDetails } from "@/utils/generate-wallet";
 import { useState } from "react";
 import axios from "axios";
 import ClipLoader from "react-spinners/ClipLoader";
+import { useSession } from "next-auth/react";
+import { ExtendedUser } from "@/types/user";
 
 type Project = {
   tokendetails: {
@@ -78,6 +80,9 @@ const formSchema = z.object({
 });
 
 const ProjectForm = ({ projectId }: Props) => {
+  const session = useSession();
+  const userId = (session?.data?.user as ExtendedUser)?.id;
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -118,8 +123,12 @@ const ProjectForm = ({ projectId }: Props) => {
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setSubmitting(true);
+    if (!userId) {
+      console.log("User ID is missing");
+      return;
+    }
     try {
+      setSubmitting(true);
       // ✅ This will be type-safe and validated.
       if (!isConnected) {
         console.log("Connect your wallet");
@@ -168,6 +177,16 @@ const ProjectForm = ({ projectId }: Props) => {
 
       projects[projectKey] = data;
       // console.log(projects);
+
+      // Save the data to the database
+      const res: any = await axios.post("/api/project", {
+        userId,
+        projectData: projects,
+      });
+      if (res?.error){
+        console.log("Error saving project data");
+        return;
+      }
 
       // Save the data to loal storage
       if (typeof window !== "undefined") {
