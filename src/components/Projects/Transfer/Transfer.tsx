@@ -5,6 +5,15 @@ import Image from 'next/image'
 import { TransferTable } from './TransferTable'
 
 export const Transfer = () => {
+    const headerData:any = [
+        "#",
+        "ADDRESS",
+        "ETH BALANCE",
+        "TOKEN BALANCE",
+        "ADDRESS TO TRANSFER",
+        "TOKEN",
+    ]
+
     return (
         <div className='border-[1px] border-[#18181B] p-4 rounded-sm '>
             <ConnectWallet />
@@ -26,7 +35,7 @@ export const Transfer = () => {
                     Download wallets
                 </Button>
             </div>
-            <TransferTable />
+             <TransferTable headerData={headerData} />
             <p className='border-b-[1px] border-[#27272A] mt-4 mb-4'>
             </p>
             <div className='flex justify-end items-center'>
