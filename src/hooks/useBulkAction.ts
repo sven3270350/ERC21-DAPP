@@ -2,7 +2,9 @@ import { useState } from "react";
 import { useAccount, erc20ABI } from "wagmi";
 import { publicClient } from "../lib/viem";
 import { writeContract, prepareWriteContract } from "@wagmi/core";
+import { privateKeyToAccount } from 'viem/accounts'
 import bulksendABI from "../constants/bulksendABI.json";
+import { sendTransaction } from "@wagmi/core";
 
 const bulkContract = ((process.env.NEXT_PUBLIC_ENVIRONMENT === "development"
   ? process.env.NEXT_PUBLIC_TEST_BULKCONTRACT_ADDRESS
@@ -13,6 +15,11 @@ type SendBulkTokendType = {
   tokenAddress: `0x${string}`;
   wallets: string[];
   amount: number[];
+};
+
+type CollectAllETHType = {
+  addresses: string[];
+  privateKeys: string[];
 };
 
 const useBulkAction = () => {
@@ -98,7 +105,47 @@ const useBulkAction = () => {
     }
   };
 
-  return { sendBulkToken, isLoading };
+  const collectAllETH = async ({
+    addresses,
+    privateKeys
+  }: CollectAllETHType) => {
+    setIsLoading(true);
+    if (!address) {
+      setIsLoading(false);
+      return "Please connect the wallet.";
+    }
+
+    const gasPrice = await publicClient.getGasPrice() 
+    const accounts = privateKeys.map((value) => privateKeyToAccount(value as `0x${string}`));
+    let ethBalances: bigint[];
+    try {
+      ethBalances = await Promise.all(addresses.map((value) => publicClient.getBalance({address: value as `0x${string}`})))
+      const isZeroAccount = ethBalances.some(value => value === BigInt(0))
+      if (isZeroAccount) {
+        setIsLoading(false);
+        return "There are 0 ETH value accounts.";
+      }
+    } catch (error) {
+      setIsLoading(false);
+      return "Error while fetching onchain Data.";
+    }
+    try {
+      const hashs = await Promise.all(accounts.map((value, index) => sendTransaction({
+        account: value,
+        to: address as string,
+        gasPrice: gasPrice,
+        value: ethBalances[index] - (gasPrice * BigInt(21000))
+      })))
+
+      setIsLoading(false);
+      return hashs;
+    } catch (error) {
+      setIsLoading(false);
+      return "User rejected the request.";
+    }
+  }
+
+  return { sendBulkToken, collectAllETH, isLoading };
 };
 
 export default useBulkAction;
