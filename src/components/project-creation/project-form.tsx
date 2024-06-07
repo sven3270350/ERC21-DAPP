@@ -260,18 +260,21 @@ const ProjectForm = ({ projectId, data }: Props) => {
             </div>
             <div className="gap-6 border-[#27272A] grid grid-cols-4 pb-6 border-b">
               <InputField
+                disabled={data?.status === "In Progress"}
                 form={form}
                 name="tokenName"
                 label="Token name"
                 placeholder="Example..."
               />
               <InputField
+                disabled={data?.status === "In Progress"}
                 form={form}
                 name="tokenSymbol"
                 label="Token Symbol"
                 placeholder="Example..."
               />
               <InputField
+                disabled={data?.status === "In Progress"}
                 form={form}
                 name="maxSupply"
                 type="number"
@@ -279,6 +282,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
                 placeholder="Enter number"
               />
               <InputField
+                disabled={data?.status === "In Progress"}
                 form={form}
                 name="initialSupply"
                 type="number"
@@ -397,6 +401,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
             </div>
             <div className="gap-6 border-[#27272A] grid grid-cols-5 pb-6 border-b">
               <InputField
+                disabled={data?.status === "In Progress"}
                 form={form}
                 type="number"
                 name="devBuyTax"
@@ -404,6 +409,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
                 placeholder="e.g 10%"
               />
               <InputField
+                disabled={data?.status === "In Progress"}
                 form={form}
                 type="number"
                 name="devSellTax"
@@ -412,6 +418,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
               />
               <div className="col-span-3">
                 <InputField
+                  disabled={data?.status === "In Progress"}
                   form={form}
                   name="devWallet"
                   label="Dev wallet"
@@ -419,6 +426,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
                 />
               </div>
               <InputField
+                disabled={data?.status === "In Progress"}
                 form={form}
                 type="number"
                 name="marketingBuyTax"
@@ -426,6 +434,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
                 placeholder="e.g 10%"
               />
               <InputField
+                disabled={data?.status === "In Progress"}
                 form={form}
                 type="number"
                 name="marketingSellTax"
@@ -434,6 +443,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
               />
               <div className="col-span-3">
                 <InputField
+                  disabled={data?.status === "In Progress"}
                   form={form}
                   name="marketingWallet"
                   label="Marketing wallet"
@@ -451,6 +461,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
             <div className="gap-6 border-[#27272A] grid grid-cols-4 pb-6 border-b">
               <div className="col-span-3">
                 <InputField
+                  disabled={data?.status === "In Progress"}
                   form={form}
                   name="liquidity"
                   type="number"
@@ -466,13 +477,14 @@ const ProjectForm = ({ projectId, data }: Props) => {
                     <FormItem>
                       <FormLabel>Token</FormLabel>
                       <Select
+                        disabled={data?.status === "In Progress"}
                         onValueChange={field.onChange}
                         defaultValue={
                           data ? data.poolData.liquidityToken : field.value
                         }
                       >
                         <FormControl>
-                          <SelectTrigger className="border-[#27272A] bg-[#18181B] border rounded-[6px] text-[#71717A] placeholder:text-[#71717A]">
+                          <SelectTrigger className="border-[#27272A] bg-[#18181B] border rounded-[6px] text-[#bcbcca] placeholder:text-[#71717A]">
                             <SelectValue
                               placeholder="Select"
                               className="placeholder:text-[#71717A]"
@@ -493,13 +505,19 @@ const ProjectForm = ({ projectId, data }: Props) => {
             <div className="flex justify-between items-center">
               <button
                 type="button"
+                disabled={data?.status === "In Progress"}
                 onClick={cancel}
                 className="font-bold text-[#F57C00] text-sm leading-5"
               >
                 Cancel
               </button>
               {data && data?.status === "In Progress" ? (
-                 <DeployToken tokenName={form.getValues('tokenName')} tokenSymbol={form.getValues('tokenSymbol')} maxSupply={form.getValues('maxSupply')} initialSupply={form.getValues('initialSupply')}/>
+                <DeployToken
+                  tokenName={form.getValues("tokenName")}
+                  tokenSymbol={form.getValues("tokenSymbol")}
+                  maxSupply={form.getValues("maxSupply")}
+                  initialSupply={form.getValues("initialSupply")}
+                />
               ) : (
                 <Button
                   disabled={submitting}
