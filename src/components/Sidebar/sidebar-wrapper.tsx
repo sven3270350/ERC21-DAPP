@@ -174,10 +174,10 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
                         active={
                           isSelectedMenuItem("Projects") &&
                           project?.tokendetails?.tokenName ===
-                            selectedProject?.projectName
+                          selectedProject?.tokendetails?.tokenName
                         }
                         onClick={() => handleMenuItemClick("Projects", project)}
-                        className={`ml-3 relative font-semibold ${isSelectedMenuItem("Projects") && project?.tokendetails?.tokenName === selectedProject?.projectName ? "text-white" : "text-[#52525B]"}`}
+                        className={`ml-3 relative font-semibold ${isSelectedMenuItem("Projects") && project?.tokendetails?.tokenName === selectedProject?.tokendetails?.tokenName ? "text-white" : "text-[#52525B]"}`}
                       >
                         <div className="flex items-center gap-[2px] h-[50px]">
                           <Image
@@ -192,10 +192,6 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
                             </p>
                           </div>
                         </div>
-                        {/* <div className="relative flex items-end gap-1">
-                                                    <Image src={"/Rectangle.svg"} alt="logo" width={30} height={30} />
-                                                    <p className="-bottom-[6px] left-[30px] z-50 absolute font-bold text-sm">{project?.projectName}</p>
-                                                </div> */}
                       </MenuItem>
                     ))}
                   </div>

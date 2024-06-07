@@ -1,7 +1,7 @@
 // types.ts
 
 export interface Project {
-  tokenDetails: {
+  tokendetails: {
     tokenName: string;
     tokenSymbol: string;
     maxSupply: number;
