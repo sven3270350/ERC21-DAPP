@@ -12,9 +12,20 @@ interface DeployTokenProps {
   tokenSymbol: string,
   maxSupply: string,
   initialSupply: string
+  devBuyTax: string,
+  devSellTax: string,
+  marketingBuyTax: string,
+  marketingSellTax: string,
+  devWallet: string,
+  marketingWallet: string,
 }
 
-export const DeployToken = ({ tokenName, tokenSymbol, maxSupply, initialSupply }: DeployTokenProps) => {
+export const DeployToken = ({ tokenName, tokenSymbol, maxSupply, initialSupply,devBuyTax,
+  devSellTax,
+  marketingBuyTax,
+  marketingSellTax,
+  devWallet,
+  marketingWallet }: DeployTokenProps) => {
   const [isDeploying, setIsDeploying] = useState(false);
   const [deployState, setDeployState] = useState(false);
 
@@ -30,7 +41,13 @@ export const DeployToken = ({ tokenName, tokenSymbol, maxSupply, initialSupply }
         args: [  tokenName,
           tokenSymbol,
           maxSupply,
-          initialSupply],
+          initialSupply,
+          devBuyTax,
+          devSellTax,
+          marketingBuyTax,
+          marketingSellTax,
+          devWallet,
+          marketingWallet],
       });
 
       const transaction = await waitForTransaction({

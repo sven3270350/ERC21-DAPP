@@ -17,10 +17,10 @@ export const ProjectHeadData: React.FC<{ project: any }> = ({ project }) => {
     return (
         <div>
             <div className="flex items-center gap-4">
-                <p className="text-[#F57C00] font-semibold">{project?.tokenDetails?.tokenName}</p>
+                <p className="text-[#F57C00] font-semibold">{project?.tokendetails?.tokenName}</p>
                 <span className="text-[#71717A]">|</span>
                 <div className="flex gap-1 items-center">
-                    <p className="text-[12px] text-[#71717A]">{project?.tokenDetails?.contractAddress}</p>
+                    <p className="text-[12px] text-[#71717A]">{project?.tokendetails?.contractAddress}</p>
                     <Image
                         src={"/Images/New Project/copy-01.svg"}
                         width={14}
@@ -39,7 +39,7 @@ export const ProjectHeadData: React.FC<{ project: any }> = ({ project }) => {
                             alt="Maxsupply"
                             className='cursor-pointer'
                         />
-                        <span className="text-white text-sm">{project?.tokenDetails?.maxSupply}</span>
+                        <span className="text-white text-sm">{project?.tokendetails?.maxSupply}</span>
                     </div>
                     <span className="text-sm text-[#71717A] mt-1">MaxSupply</span>
                 </div>

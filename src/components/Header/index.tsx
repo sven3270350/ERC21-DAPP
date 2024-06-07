@@ -17,7 +17,7 @@ const Header: React.FC<{ project: any }> = ({ project }) => {
   const router = useRouter();
   const pathname = usePathname();
   const { data: session } = useSession();
-  const isDashboardRoute = pathname === "/dashboard";
+  const isDashboardRoute = pathname === "/dashboard" || pathname === "/newproject";
    const handleNewProjectClick = () => {
     const newProjectId = uuidv4();
     router.push(`/newproject?projectId=${newProjectId}`);

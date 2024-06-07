@@ -81,8 +81,10 @@ const formSchema = z.object({
   marketingBuyTax: z.string().min(1, { message: "Required*" }),
   marketingSellTax: z.string().min(1, { message: "Required*" }),
   marketingWallet: z.string().min(1, { message: "Required*" }),
-  liquidity: z.string().min(1, { message: "Required*" }),
-  token: z.string({ required_error: "Required*." }),
+  tokenAmountA: z.string().min(1, { message: "Required*" }),
+  tokenAmountB: z.string().min(1, { message: "Required*" }),
+  tokenA: z.string({ required_error: "Required*." }),
+  tokenB: z.string({ required_error: "Required*." }),
 });
 
 const ProjectForm = ({ projectId, data }: Props) => {
@@ -102,18 +104,22 @@ const ProjectForm = ({ projectId, data }: Props) => {
       marketingBuyTax: "",
       marketingSellTax: "",
       marketingWallet: "",
-      liquidity: "",
-      token: "",
+      tokenAmountA: "",
+      tokenAmountB: "",
+      tokenA: "",
+      tokenB: "",
     },
   });
   const { isConnected, address } = useAccount();
   const [submitting, setSubmitting] = useState(false);
+  const [price, setPrice] = useState(0)
 
   function cancel() {
     form.reset();
     form.setValue("maxSupply", "");
     form.setValue("initialSupply", "");
-    form.setValue("liquidity", "");
+    form.setValue("tokenAmountA", "");
+    form.setValue("tokenAmountB", "");
   }
   const generateWallets = async (numWallets: number, tokenAmount: number) => {
     try {
@@ -222,6 +228,27 @@ const ProjectForm = ({ projectId, data }: Props) => {
     }
   }
 
+  const tokenAmountA = form.watch('tokenAmountA');
+  const tokenAmountB = form.watch('tokenAmountB');
+
+
+  useEffect(() => {
+    function calculateTokenPrice() {
+      const tokenAamount = parseFloat(form.getValues('tokenAmountA'));
+      const tokenBamount = parseFloat(form.getValues('tokenAmountB'));
+
+      if (!isNaN(tokenAamount) && !isNaN(tokenBamount) && tokenAamount > 0) {
+        setPrice(tokenBamount / tokenAamount);
+        console.log(tokenBamount / tokenAamount);
+      }
+
+    }
+
+    calculateTokenPrice()
+  }, [tokenAmountA, tokenAmountB])
+
+
+
   let arr: number[] = [1, 2];
 
   useEffect(() => {
@@ -236,8 +263,8 @@ const ProjectForm = ({ projectId, data }: Props) => {
     form.setValue("marketingBuyTax", data.marketingWallet.marketingBuyTax);
     form.setValue("marketingSellTax", data.marketingWallet.marketingSellTax);
     form.setValue("marketingWallet", data.marketingWallet.marketingWallet);
-    form.setValue("liquidity", data.poolData.liquidityAmount);
-    form.setValue("token", data.poolData.liquidityToken);
+    form.setValue("tokenAmountB", data.poolData.liquidityAmount);
+    form.setValue("tokenB", data.poolData.liquidityToken);
   }, []);
 
   return (
@@ -407,6 +434,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
                 name="devBuyTax"
                 label="Dev buy tax"
                 placeholder="e.g 10%"
+
               />
               <InputField
                 disabled={data?.status === "In Progress"}
@@ -463,16 +491,33 @@ const ProjectForm = ({ projectId, data }: Props) => {
                 <InputField
                   disabled={data?.status === "In Progress"}
                   form={form}
-                  name="liquidity"
+                  name="tokenAmountA"
                   type="number"
-                  label="Liquidity"
+                  label="LiquidityA"
                   placeholder="Enter number"
+
+
+                />
+              </div>
+              <div className="text-white">
+                <div>Your Token</div>
+                {form.getValues('tokenSymbol') == '' ? <div className="pt-4"> Enter Token Details </div> : <div className="pt-4 text-[#F57C00]">{form.getValues('tokenSymbol')} </div>}
+               
+              </div>
+              <div className="col-span-3">
+                <InputField
+                  form={form}
+                  name="tokenAmountB"
+                  type="number"
+                  label="LiquidityB"
+                  placeholder="Enter number"
+
                 />
               </div>
               <div>
                 <FormField
                   control={form.control}
-                  name="token"
+                  name="tokenB"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Token</FormLabel>
@@ -493,15 +538,28 @@ const ProjectForm = ({ projectId, data }: Props) => {
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="ETH">ETH</SelectItem>
-                          <SelectItem value="BTC">BTC</SelectItem>
+                         
                         </SelectContent>
                       </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+                
               </div>
-            </div>
+              {form.getValues('tokenSymbol') != '' && form.getValues('tokenB') != '' ? (
+              <div className="flex items-center">
+               <div> Price of </div>
+                <div className="px-1 text-[#F57C00] flex items-center">
+                  {form.getValues('tokenSymbol')}
+                  <span className="text-white px-1">:</span>{price}
+                </div>
+                <div> {form.getValues('tokenB')}
+                </div>
+              </div>
+          ) : <div></div> }
+               </div>
+
             <div className="flex justify-between items-center">
               <button
                 type="button"
@@ -512,12 +570,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
                 Cancel
               </button>
               {data && data?.status === "In Progress" ? (
-                <DeployToken
-                  tokenName={form.getValues("tokenName")}
-                  tokenSymbol={form.getValues("tokenSymbol")}
-                  maxSupply={form.getValues("maxSupply")}
-                  initialSupply={form.getValues("initialSupply")}
-                />
+                 <DeployToken tokenName={form.getValues('tokenName')} tokenSymbol={form.getValues('tokenSymbol')} maxSupply={form.getValues('maxSupply')} initialSupply={form.getValues('initialSupply')} devBuyTax={form.getValues('devBuyTax')} devSellTax={form.getValues('devSellTax')} marketingBuyTax={form.getValues('marketingBuyTax')} marketingSellTax={form.getValues('marketingSellTax')} devWallet={form.getValues('devWallet')} marketingWallet={form.getValues('marketingWallet')} />
               ) : (
                 <Button
                   disabled={submitting}
