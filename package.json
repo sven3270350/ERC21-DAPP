@@ -33,8 +33,6 @@
     "class-variance-authority": "^0.7.0",
     "classnames": "^2.5.1",
     "clsx": "^2.1.0",
-    "drizzle-kit": "^0.20.14",
-    "drizzle-orm": "^0.30.5",
     "ethers": "5.7.2",
     "framer-motion": "^11.1.9",
     "lucide-react": "^0.363.0",
