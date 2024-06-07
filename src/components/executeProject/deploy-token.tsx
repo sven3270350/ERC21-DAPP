@@ -5,7 +5,7 @@ import PuffLoader from "react-spinners/PuffLoader";
 import { useState } from "react";
 
 interface DeployTokenProps {
-  projectId: string;
+  projectId: string | null;
 }
 
 export const DeployToken = ({ projectId }: DeployTokenProps) => {
@@ -13,6 +13,7 @@ export const DeployToken = ({ projectId }: DeployTokenProps) => {
   const [deployState, setDeployState] = useState(false);
 
   const handleDeployment = async () => {
+    if (!projectId) return;
     try {
       setIsDeploying(true);
       const rpc = process.env.NEXT_PUBLIC_RPC!;
@@ -67,6 +68,7 @@ export const DeployToken = ({ projectId }: DeployTokenProps) => {
 };
 
 export const getTxCost = async ({ projectId }: DeployTokenProps) => {
+  if (!projectId) return;
   const rpc = process.env.NEXT_PUBLIC_RPC!;
   const provider = new ethers.providers.JsonRpcProvider(rpc);
 

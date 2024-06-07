@@ -25,11 +25,13 @@ import { Title } from "./title";
 import { DisconnectBtn } from "../Header/disconnect";
 import { useAccount } from "wagmi";
 import { generateBeneficiaryDetails } from "@/utils/generate-wallet";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import ClipLoader from "react-spinners/ClipLoader";
 import { useSession } from "next-auth/react";
 import { ExtendedUser } from "@/types/user";
+import { useRouter } from "next/navigation";
+import { DeployToken } from "../executeProject/deploy-token";
 
 type Project = {
   tokendetails: {
@@ -62,6 +64,7 @@ interface Projects {
 
 type Props = {
   projectId: string | null;
+  data?: any;
 };
 
 const formSchema = z.object({
@@ -79,10 +82,10 @@ const formSchema = z.object({
   token: z.string({ required_error: "Required*." }),
 });
 
-const ProjectForm = ({ projectId }: Props) => {
+const ProjectForm = ({ projectId, data }: Props) => {
   const session = useSession();
   const userId = (session?.data?.user as ExtendedUser)?.id;
-
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -183,7 +186,7 @@ const ProjectForm = ({ projectId }: Props) => {
         userId,
         projectData: projects,
       });
-      if (res?.error){
+      if (res?.error) {
         console.log("Error saving project data");
         return;
       }
@@ -208,6 +211,7 @@ const ProjectForm = ({ projectId }: Props) => {
         storedProjects.push(projects);
         localStorage.setItem("allProjects", JSON.stringify(storedProjects));
       }
+      router.push(`/`);
     } catch (error) {
       console.log("Something went wrong!");
     } finally {
@@ -216,6 +220,23 @@ const ProjectForm = ({ projectId }: Props) => {
   }
 
   let arr: number[] = [1, 2];
+
+  useEffect(() => {
+    if (!data) return;
+    form.setValue("tokenName", data.tokendetails.tokenName);
+    form.setValue("tokenSymbol", data.tokendetails.tokenSymbol);
+    form.setValue("maxSupply", data.tokendetails.maxSupply);
+    form.setValue("initialSupply", data.tokendetails.initialSupply);
+    form.setValue("devBuyTax", data.devWallet.devBuyTax);
+    form.setValue("devSellTax", data.devWallet.devSellTax);
+    form.setValue("devWallet", data.devWallet.devWallet);
+    form.setValue("marketingBuyTax", data.marketingWallet.marketingBuyTax);
+    form.setValue("marketingSellTax", data.marketingWallet.marketingSellTax);
+    form.setValue("marketingWallet", data.marketingWallet.marketingWallet);
+    form.setValue("liquidity", data.poolData.liquidityAmount);
+    form.setValue("token", data.poolData.liquidityToken);
+  }, []);
+
   return (
     <main className="flex flex-col justify-center items-center gap-6 py-[100px]">
       <div className="flex flex-col gap-6 border-[#18181B] p-6 border rounded-[12px]">
@@ -443,7 +464,9 @@ const ProjectForm = ({ projectId }: Props) => {
                       <FormLabel>Token</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        defaultValue={
+                          data ? data.poolData.liquidityToken : field.value
+                        }
                       >
                         <FormControl>
                           <SelectTrigger className="border-[#27272A] bg-[#18181B] border rounded-[6px] text-[#71717A] placeholder:text-[#71717A]">
@@ -454,8 +477,8 @@ const ProjectForm = ({ projectId }: Props) => {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="m@example.com">ETH</SelectItem>
-                          <SelectItem value="m@google.com">BTC</SelectItem>
+                          <SelectItem value="ETH">ETH</SelectItem>
+                          <SelectItem value="BTC">BTC</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -472,19 +495,23 @@ const ProjectForm = ({ projectId }: Props) => {
               >
                 Cancel
               </button>
-              <Button
-                disabled={submitting}
-                className="flex items-center gap-[8px] bg-[#27272A] hover:bg-[#F57C00] px-8 py-2 rounded-[6px] font-bold text-[#71717A] text-sm hover:text-black leading-5 transition-all duration-150 ease-in-out group"
-              >
-                Save Project
-                {submitting && (
-                  <ClipLoader
-                    color="#fff"
-                    className="color-[black]"
-                    size="16px"
-                  />
-                )}
-              </Button>
+              {data && data?.status === "In Progress" ? (
+                <DeployToken projectId={projectId} />
+              ) : (
+                <Button
+                  disabled={submitting}
+                  className="flex items-center gap-[8px] bg-[#27272A] hover:bg-[#F57C00] px-8 py-2 rounded-[6px] font-bold text-[#71717A] text-sm hover:text-black leading-5 transition-all duration-150 ease-in-out group"
+                >
+                  Save Project
+                  {submitting && (
+                    <ClipLoader
+                      color="#fff"
+                      className="color-[black]"
+                      size="16px"
+                    />
+                  )}
+                </Button>
+              )}
             </div>
           </form>
         </Form>

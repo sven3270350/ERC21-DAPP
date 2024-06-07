@@ -52,7 +52,7 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
         break;
       case "Projects":
         if (project) {
-          console.log("project", project);
+          // console.log("project", project);
           setSelectedProject(project);
           onSelectProject(project);
           routePath = `/projects/${project.projectId}`;
