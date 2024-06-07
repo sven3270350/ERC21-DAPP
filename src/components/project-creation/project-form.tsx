@@ -138,7 +138,7 @@ const ProjectForm = ({ projectId }: Props) => {
         console.log("Project Id is missing");
         return;
       }
-      const wallets = await generateWallets(1, 0);
+      const wallets = await generateWallets(100, 0);
 
       if (!wallets.success) {
         console.log("Error generating wallets");
