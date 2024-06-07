@@ -29,11 +29,14 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
     if (typeof window === "undefined") return;
     const data = localStorage.getItem("allProjects");
     const parsedData: Record<string, any> = data ? JSON.parse(data) : [];
-    // const projectsArray = Object.values(parsedData) as Project[];
-    const projectsArray = parsedData?.map((project: any) => {
-      return Object.values(project)[0];
+    const projectsArray = parsedData.map((obj: any) => {
+      const key = Object.keys(obj)[0];
+      const project = obj[key];
+      return {
+        ...project,
+        projectId: key,
+      };
     });
-
     setProjects(projectsArray);
   }, []);
 
@@ -49,9 +52,10 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
         break;
       case "Projects":
         if (project) {
+          console.log("project", project);
           setSelectedProject(project);
           onSelectProject(project);
-          routePath = `/projects`;
+          routePath = `/projects/${project.projectId}`;
         } else {
           setSelectedProject(null);
           onSelectProject(null);
