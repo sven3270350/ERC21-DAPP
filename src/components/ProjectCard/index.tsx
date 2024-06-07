@@ -1,22 +1,26 @@
 "use client";
 
+import { Project } from "@/types/project";
 import Image from "next/image";
 import React from "react";
 import { toast } from "sonner";
 
+interface ProjectCardProps {
+  project: Project;
+}
 
-const ProjectCard = ({}) => {
+const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.info("Copied to clipboard");
   };
 
-  let status = "Created";
+  const status = project.status || "Created";
 
   return (
-    <div className="flex flex-col gap-4 col-span-1 bg-[#18181B] px-4 py-3 rounded-xl">
+    <div className="flex flex-col gap-4 col-span-1 bg-[#18181B] px-[10px] py-3 rounded-xl">
       <div className="flex justify-between items-center border-[#27272A] mb-3 pb-3 border-b">
-        <h1 className="font-semibold text-[18px] leading-7">OpSec</h1>
+        <h1 className="font-semibold text-[18px] leading-7">{project?.tokenDetails?.tokenName}</h1>
       </div>
       <div className="flex justify-between">
         <div className="flex flex-col gap-2">
@@ -29,15 +33,13 @@ const ProjectCard = ({}) => {
             />
             <p className="font-semibold text-sm">Deployer Wallet</p>
           </div>
-          <p className="font-medium text-[#71717A] text-xs tracking-[0.06px]">
-            0x40Ea7581ed45BF55F255b465c59ccFd298FC3c89
+          <p className="text-[#71717A] text-xs font-medium text-start break-words">
+            {project?.walletAddess}
           </p>
         </div>
         <button
           className="flex items-end"
-          onClick={() =>
-            copyToClipboard("0x40Ea7581ed45BF55F255b465c59ccFd298FC3c89")
-          }
+          onClick={() => copyToClipboard(project?.walletAddess)}
         >
           <Image src={"/copy-01.svg"} alt="copy" width={20} height={20} />
         </button>
@@ -48,20 +50,18 @@ const ProjectCard = ({}) => {
             <Image src={"/icons/code.svg"} alt="team" width={20} height={20} />
             <p className="font-semibold text-sm">Dev Wallet</p>
           </div>
-          <p className="font-medium text-[#71717A] text-xs tracking-[0.06px]">
-            0xcF2898225ED05Be911D3709d9417e86E0b4Cfc8f
+          <p className="text-[#71717A] text-xs font-medium text-start break-words">
+            {project?.devWallet?.devWallet}
           </p>
         </div>
         <button
           className="flex items-end"
-          onClick={() =>
-            copyToClipboard("0x40Ea7581ed45BF55F255b465c59ccFd298FC3c89")
-          }
+          onClick={() => copyToClipboard(project?.devWallet?.devWallet)}
         >
           <Image src={"/copy-01.svg"} alt="copy" width={20} height={20} />
         </button>
       </div>
-      <div className="flex justify-between border-[#27272A] pb-4 border-b">
+      <div className="flex gap-1 justify-between border-[#27272A] pb-4 border-b">
         <div className="flex flex-col gap-2">
           <div className="flex gap-2">
             <Image
@@ -72,27 +72,25 @@ const ProjectCard = ({}) => {
             />
             <p className="font-semibold text-sm">Marketing Wallet</p>
           </div>
-          <p className="font-medium text-[#71717A] text-xs tracking-[0.06px]">
-            0x0000633b68f5D8D3a86593ebB815b4663BCBe0
+          <p className="text-[#71717A] text-xs font-medium text-start break-words">
+            {project?.marketingWallet?.marketingWallet}
           </p>
         </div>
         <button
           className="flex items-end"
-          onClick={() =>
-            copyToClipboard("0x40Ea7581ed45BF55F255b465c59ccFd298FC3c89")
-          }
+          onClick={() => copyToClipboard(project?.marketingWallet?.marketingWallet)}
         >
           <Image src={"/copy-01.svg"} alt="copy" width={20} height={20} />
         </button>
       </div>
-      <div className="gap-8 grid grid-cols-3 pt-4">
+      <div className="justify-between grid grid-cols-3 pt-4">
         <div className="flex flex-col justify-between items-start gap-2 col-span-1">
           <div className="flex gap-2">
             <Image src={"/coins-01.svg"} alt="coins" width={20} height={20} />
-            <p className="font-semibold text-sm">5M</p>
+            <p className="font-semibold text-sm">{project?.tokenDetails?.maxSupply}</p>
           </div>
           <p className="font-medium text-[#71717A] text-xs tracking-[0.06px]">
-            maxSupply
+            Max Supply
           </p>
         </div>
         <div className="flex flex-col justify-between items-start gap-2 col-span-1">
@@ -108,10 +106,10 @@ const ProjectCard = ({}) => {
             {status}
           </div>
           <p className="font-medium text-[#71717A] text-xs tracking-[0.06px]">
-            Project stats
+            Project Status
           </p>
         </div>
-        <div className="flex flex-col justify-between items-start gap-2 col-span-1">
+        <div className="flex flex-col justify-between items-center gap-2 col-span-1">
           <div className="flex gap-2">
             <Image
               src={"/wallet-01-white.svg"}
@@ -119,7 +117,9 @@ const ProjectCard = ({}) => {
               width={20}
               height={20}
             />
-            <p className="font-semibold text-sm">50</p>
+            <p className="font-semibold text-sm">
+              {project?.beneficiaryDetails?.wallets?.length}
+            </p>
           </div>
           <p className="font-medium text-[#71717A] text-xs tracking-[0.06px]">
             Wallets

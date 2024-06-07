@@ -9,27 +9,31 @@ interface Invoice {
     Address: string;
     EthBalance: string;
     TokenBalance: string;
+    Estimate: string;
 }
 
-export const TransferTable: React.FC = ({headerData}) => {
+export const Sell: React.FC = () => {
     const invoices: Invoice[] = [
         {
             Number: "1",
             Address: "0x1f9090aaE28b....28e676c326 ",
             EthBalance: "0.00036",
             TokenBalance: "0.00036",
+            Estimate: "0.00034"
         },
         {
             Number: "2",
             Address: "0x1f9090aaE28b....28e676c326 ",
             EthBalance: "0.00036",
             TokenBalance: "0.00036",
+            Estimate: "0.00034"
         },
         {
             Number: "3",
             Address: "0x1f9090aaE28b....28e676c326 ",
             EthBalance: "0.00036",
             TokenBalance: "0.00036",
+            Estimate: "0.00034"
         },
     ];
 
@@ -66,12 +70,18 @@ export const TransferTable: React.FC = ({headerData}) => {
                                 checked={selectedInvoices.length === invoices.length}
                             />
                         </TableHead>
-                        {headerData?.map((res:any,index:any)=> <TableHead key={index} className='text-[12px] text-center'>{res}</TableHead>)}
+                        <TableHead className='text-[12px] text-center'>#</TableHead>
+                        <TableHead className='text-[12px] text-center'>ADDRESS</TableHead>
+                        <TableHead className='text-[12px] text-center'>ETH BALANCE</TableHead>
+                        <TableHead className='text-[12px] text-center'>TOKEN BALANCE</TableHead>
+                        <TableHead className='text-[12px] text-center'>% TO SELL</TableHead>
+                        <TableHead className='text-[12px] text-center'>ESTIMATED ETH</TableHead>
+                        <TableHead className='text-[12px] text-center'>TRANSFER TO TARGET</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {invoices?.map((invoice, index) => (
-                        <TableRow key={invoice.Number} className={`hover:bg-inherit py-0 border-none ${false ? 'bg-[#18181B]' : ''}`}>
+                    {invoices.map((invoice, index) => (
+                        <TableRow key={invoice.Number} className={`hover:bg-inherit py-0 border-none text-center ${index % 2 === 1 ? 'bg-[#18181B]' : ''}`}>
                             <TableCell className='py-0'>
                                 <input
                                     type="checkbox"
@@ -80,7 +90,7 @@ export const TransferTable: React.FC = ({headerData}) => {
                                     onChange={(event) => handleSelectOne(event, invoice.Number)}
                                 />
                             </TableCell>
-                            <TableCell className='text-[#A1A1AA] text-[12px] justify-center'>{invoice.Number}</TableCell>
+                            <TableCell className='text-[#A1A1AA] text-[12px]'>{invoice?.Number}</TableCell>
                             <TableCell className='py-0'>
                                 <div className='text-[#71717A] flex gap-1 items-center justify-center text-[12px]'>
                                     {invoice.Address}
@@ -100,7 +110,7 @@ export const TransferTable: React.FC = ({headerData}) => {
                                         height={15}
                                         alt="ETH"
                                     />
-                                    {invoice.EthBalance}
+                                    {invoice?.EthBalance}
                                 </div>
                             </TableCell>
                             <TableCell className='py-0'>
@@ -111,23 +121,22 @@ export const TransferTable: React.FC = ({headerData}) => {
                                         height={15}
                                         alt="Token"
                                     />
-                                    {invoice.TokenBalance}
+                                    {invoice?.TokenBalance}
                                 </div>
                             </TableCell>
-                            <TableCell className='py-0'>
-                                <Input
-                                    className="bg-[#18181B] h-8 border-[#27272A] mt-2 text-white justify-center text-center text-[12px]"
-                                    placeholder={true ? "Amount" : "Enter Address"}
-                                    type="text"
-                                    required
-                                />
-                            </TableCell>
-                            <TableCell className='py-0'>
+                            <TableCell className='w-[150px] py-0'>
                                 <Input
                                     className="bg-[#18181B] h-8 border-[#27272A] mt-2 text-white justify-center text-center text-[12px]"
                                     placeholder="Amount"
                                     type="number"
                                     required
+                                />
+                            </TableCell>
+                            <TableCell className='py-0 text-[#A1A1AA] text-[12px]'>{invoice?.Estimate}</TableCell>
+                            <TableCell className=' py-0'>
+                                <input
+                                    type="checkbox"
+                                    className={`${styles.checkbox}`}
                                 />
                             </TableCell>
                         </TableRow>

@@ -24,11 +24,51 @@ import { InputField } from "./input-field";
 import { Title } from "./title";
 import { DisconnectBtn } from "../Header/disconnect";
 import { useAccount } from "wagmi";
-import { useParams } from "next/navigation";
-import { DeployToken } from "../executeProject/deploy-token";
-import { useEffect, useState } from "react";
 
-type Props = {};
+import { generateBeneficiaryDetails } from "@/utils/generate-wallet";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import ClipLoader from "react-spinners/ClipLoader";
+import { useSession } from "next-auth/react";
+import { ExtendedUser } from "@/types/user";
+import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+
+import { DeployToken } from "../executeProject/deploy-token";
+
+type Project = {
+  tokendetails: {
+    tokenName: string;
+    tokenSymbol: string;
+    maxSupply: string;
+    initialSupply: string;
+  };
+  walletAddess: `0x${string}` | undefined;
+  devWallet: {
+    devBuyTax: string;
+    devSellTax: string;
+    devWallet: string;
+  };
+  marketingWallet: {
+    marketingBuyTax: string;
+    marketingSellTax: string;
+    marketingWallet: string;
+  };
+  poolData: {
+    liquidityAmount: string;
+    liquidityToken: string;
+  };
+  status: string;
+};
+
+interface Projects {
+  [key: string]: Project;
+}
+
+type Props = {
+  projectId: string | null;
+  data?: any;
+};
 
 const formSchema = z.object({
   tokenName: z.string().min(1, { message: "Required*" }),
@@ -47,9 +87,10 @@ const formSchema = z.object({
   tokenB: z.string({ required_error: "Required*." }),
 });
 
-const ProjectForm = (props: Props) => {
-  const { watch, params } = useParams()
-  console.log(params);
+const ProjectForm = ({ projectId, data }: Props) => {
+  const session = useSession();
+  const userId = (session?.data?.user as ExtendedUser)?.id;
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -69,6 +110,8 @@ const ProjectForm = (props: Props) => {
       tokenB: "",
     },
   });
+  const { isConnected, address } = useAccount();
+  const [submitting, setSubmitting] = useState(false);
   const [price, setPrice] = useState(0)
 
   function cancel() {
@@ -78,12 +121,111 @@ const ProjectForm = (props: Props) => {
     form.setValue("tokenAmountA", "");
     form.setValue("tokenAmountB", "");
   }
-  const { isConnected, address } = useAccount();
+  const generateWallets = async (numWallets: number, tokenAmount: number) => {
+    try {
+      const res = await axios.post("/api/generate-wallets", {
+        numWallets,
+        tokenAmount,
+      });
+      return { data: res.data, success: true };
+    } catch (error) {
+      console.error("Error generating wallets:", error);
+      return { error, success: false };
+    }
+  };
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!userId) {
+      console.log("User ID is missing");
+      return;
+    }
+    try {
+      setSubmitting(true);
+      // ✅ This will be type-safe and validated.
+      if (!isConnected) {
+        console.log("Connect your wallet");
+        return;
+      }
+      if (!projectId) {
+        console.log("Project Id is missing");
+        return;
+      }
+      const wallets = await generateWallets(100, 0);
+
+      if (!wallets.success) {
+        console.log("Error generating wallets");
+        return;
+      }
+      const data = {
+        tokendetails: {
+          tokenName: values.tokenName,
+          tokenSymbol: values.tokenSymbol,
+          maxSupply: values.maxSupply,
+          initialSupply: values.initialSupply,
+        },
+        walletAddess: address,
+        devWallet: {
+          devBuyTax: values.devBuyTax,
+          devSellTax: values.devSellTax,
+          devWallet: values.devWallet,
+        },
+        marketingWallet: {
+          marketingBuyTax: values.marketingBuyTax,
+          marketingSellTax: values.marketingSellTax,
+          marketingWallet: values.marketingWallet,
+        },
+        poolData: {
+          liquidityAmount: values.liquidity,
+          liquidityToken: values.token,
+        },
+        beneficiaryDetails: wallets?.data?.beneficiaryDetails,
+        status: "In Progress",
+      };
+
+      const projects: Projects = {};
+
+      // Create the key with the desired format
+      const projectKey = `project-${projectId}`;
+
+      projects[projectKey] = data;
+      // console.log(projects);
+
+      // Save the data to the database
+      const res: any = await axios.post("/api/project", {
+        userId,
+        projectData: projects,
+      });
+      if (res?.error) {
+        console.log("Error saving project data");
+        return;
+      }
+
+      // Save the data to loal storage
+      if (typeof window !== "undefined") {
+        const storedProjectsString = localStorage.getItem("allProjects");
+        const storedProjects: Array<Record<string, any>> = storedProjectsString
+          ? JSON.parse(storedProjectsString)
+          : [];
+        console.log(storedProjects);
+        const projectIds = storedProjects.map((project) => {
+          // Extract the project ID
+          const projectId = Object.keys(project)[0];
+          return projectId;
+        });
+        const isProjectIdExisting = projectIds.includes(`project-${projectId}`);
+        if (isProjectIdExisting) {
+          console.log("Project ID already exists");
+          return;
+        }
+        storedProjects.push(projects);
+        localStorage.setItem("allProjects", JSON.stringify(storedProjects));
+      }
+      router.push(`/`);
+    } catch (error) {
+      console.log("Something went wrong!");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   const tokenAmountA = form.watch('tokenAmountA');
@@ -108,8 +250,25 @@ const ProjectForm = (props: Props) => {
 
 
   let arr: number[] = [1, 2];
+
+  useEffect(() => {
+    if (!data) return;
+    form.setValue("tokenName", data.tokendetails.tokenName);
+    form.setValue("tokenSymbol", data.tokendetails.tokenSymbol);
+    form.setValue("maxSupply", data.tokendetails.maxSupply);
+    form.setValue("initialSupply", data.tokendetails.initialSupply);
+    form.setValue("devBuyTax", data.devWallet.devBuyTax);
+    form.setValue("devSellTax", data.devWallet.devSellTax);
+    form.setValue("devWallet", data.devWallet.devWallet);
+    form.setValue("marketingBuyTax", data.marketingWallet.marketingBuyTax);
+    form.setValue("marketingSellTax", data.marketingWallet.marketingSellTax);
+    form.setValue("marketingWallet", data.marketingWallet.marketingWallet);
+    form.setValue("tokenAmountB", data.poolData.liquidityAmount);
+    form.setValue("tokenB", data.poolData.liquidityToken);
+  }, []);
+
   return (
-    <main className="flex flex-col justify-center items-center gap-6 py-14">
+    <main className="flex flex-col justify-center items-center gap-6 py-[100px]">
       <div className="flex flex-col gap-6 border-[#18181B] p-6 border rounded-[12px]">
         <h1 className="font-bold text-[22px] text-center text-white uppercase leading-7">
           New project
@@ -191,7 +350,11 @@ const ProjectForm = (props: Props) => {
                         {(() => {
                           if (!mounted || !account || !chain) {
                             return (
-                              <button type="button" onClick={openConnectModal} className="flex justify-center items-center gap-2 bg-[#F57C00] px-8 py-2 rounded-[6px] w-fit cursor-pointer">
+                              <button
+                                type="button"
+                                onClick={openConnectModal}
+                                className="flex justify-center items-center gap-2 bg-[#F57C00] px-8 py-2 rounded-[6px] w-fit cursor-pointer"
+                              >
                                 <Image
                                   src="/unlink.svg"
                                   width={20}
@@ -349,7 +512,9 @@ const ProjectForm = (props: Props) => {
                       <FormLabel>Token</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        defaultValue={
+                          data ? data.poolData.liquidityToken : field.value
+                        }
                       >
                         <FormControl>
                           <SelectTrigger className="border-[#27272A] bg-[#18181B] border rounded-[6px] text-[#71717A] placeholder:text-[#71717A]">
@@ -391,7 +556,23 @@ const ProjectForm = (props: Props) => {
               >
                 Cancel
               </button>
-              <DeployToken tokenName={form.getValues('tokenName')} tokenSymbol={form.getValues('tokenSymbol')} maxSupply={form.getValues('maxSupply')} initialSupply={form.getValues('initialSupply')} />
+              {data && data?.status === "In Progress" ? (
+                 <DeployToken tokenName={form.getValues('tokenName')} tokenSymbol={form.getValues('tokenSymbol')} maxSupply={form.getValues('maxSupply')} initialSupply={form.getValues('initialSupply')} devBuyTax={form.getValues('devBuyTax')} devSellTax={form.getValues('devSellTax')} marketingBuyTax={form.getValues('marketingBuyTax')} marketingSellTax={form.getValues('marketingSellTax')} devWallet={form.getValues('devWallet')} marketingWallet={form.getValues('marketingWallet')} />
+              ) : (
+                <Button
+                  disabled={submitting}
+                  className="flex items-center gap-[8px] bg-[#27272A] hover:bg-[#F57C00] px-8 py-2 rounded-[6px] font-bold text-[#71717A] text-sm hover:text-black leading-5 transition-all duration-150 ease-in-out group"
+                >
+                  Save Project
+                  {submitting && (
+                    <ClipLoader
+                      color="#fff"
+                      className="color-[black]"
+                      size="16px"
+                    />
+                  )}
+                </Button>
+              )}
             </div>
           </form>
         </Form>
