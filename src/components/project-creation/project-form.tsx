@@ -112,7 +112,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
   });
   const { isConnected, address } = useAccount();
   const [submitting, setSubmitting] = useState(false);
-  const [price, setPrice] = useState(0)
+  const [price, setPrice] = useState(0);
 
   function cancel() {
     form.reset();
@@ -175,8 +175,12 @@ const ProjectForm = ({ projectId, data }: Props) => {
           marketingWallet: values.marketingWallet,
         },
         poolData: {
-          liquidityAmount: values.liquidity,
-          liquidityToken: values.token,
+          // liquidityAmount: values.liquidity,
+          // liquidityToken: values.token,
+          tokenAmountA: values.tokenAmountA,
+          tokenAmountB: values.tokenAmountB,
+          liquidityToken: values.tokenB,
+          liquidityAmount: values.tokenAmountB,
         },
         beneficiaryDetails: wallets?.data?.beneficiaryDetails,
         status: "In Progress",
@@ -228,26 +232,22 @@ const ProjectForm = ({ projectId, data }: Props) => {
     }
   }
 
-  const tokenAmountA = form.watch('tokenAmountA');
-  const tokenAmountB = form.watch('tokenAmountB');
-
+  const tokenAmountA = form.watch("tokenAmountA");
+  const tokenAmountB = form.watch("tokenAmountB");
 
   useEffect(() => {
     function calculateTokenPrice() {
-      const tokenAamount = parseFloat(form.getValues('tokenAmountA'));
-      const tokenBamount = parseFloat(form.getValues('tokenAmountB'));
+      const tokenAamount = parseFloat(form.getValues("tokenAmountA"));
+      const tokenBamount = parseFloat(form.getValues("tokenAmountB"));
 
       if (!isNaN(tokenAamount) && !isNaN(tokenBamount) && tokenAamount > 0) {
         setPrice(tokenBamount / tokenAamount);
         console.log(tokenBamount / tokenAamount);
       }
-
     }
 
-    calculateTokenPrice()
-  }, [tokenAmountA, tokenAmountB])
-
-
+    calculateTokenPrice();
+  }, [tokenAmountA, tokenAmountB]);
 
   let arr: number[] = [1, 2];
 
@@ -434,7 +434,6 @@ const ProjectForm = ({ projectId, data }: Props) => {
                 name="devBuyTax"
                 label="Dev buy tax"
                 placeholder="e.g 10%"
-
               />
               <InputField
                 disabled={data?.status === "In Progress"}
@@ -495,14 +494,17 @@ const ProjectForm = ({ projectId, data }: Props) => {
                   type="number"
                   label="LiquidityA"
                   placeholder="Enter number"
-
-
                 />
               </div>
               <div className="text-white">
                 <div>Your Token</div>
-                {form.getValues('tokenSymbol') == '' ? <div className="pt-4"> Enter Token Details </div> : <div className="pt-4 text-[#F57C00]">{form.getValues('tokenSymbol')} </div>}
-               
+                {form.getValues("tokenSymbol") == "" ? (
+                  <div className="pt-4"> Enter Token Details </div>
+                ) : (
+                  <div className="pt-4 text-[#F57C00]">
+                    {form.getValues("tokenSymbol")}{" "}
+                  </div>
+                )}
               </div>
               <div className="col-span-3">
                 <InputField
@@ -511,7 +513,6 @@ const ProjectForm = ({ projectId, data }: Props) => {
                   type="number"
                   label="LiquidityB"
                   placeholder="Enter number"
-
                 />
               </div>
               <div>
@@ -538,27 +539,28 @@ const ProjectForm = ({ projectId, data }: Props) => {
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="ETH">ETH</SelectItem>
-                         
                         </SelectContent>
                       </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                
               </div>
-              {form.getValues('tokenSymbol') != '' && form.getValues('tokenB') != '' ? (
-              <div className="flex items-center">
-               <div> Price of </div>
-                <div className="px-1 text-[#F57C00] flex items-center">
-                  {form.getValues('tokenSymbol')}
-                  <span className="text-white px-1">:</span>{price}
+              {form.getValues("tokenSymbol") != "" &&
+              form.getValues("tokenB") != "" ? (
+                <div className="flex items-center w-fit min-w-[300px]">
+                  <h1> Price of </h1>
+                  <div className="flex items-center px-1 text-[#F57C00]">
+                    {form.getValues("tokenSymbol")}
+                    <span className="px-1 text-white">:</span>
+                    {price}
+                  </div>
+                  <div> {form.getValues("tokenB")}</div>
                 </div>
-                <div> {form.getValues('tokenB')}
-                </div>
-              </div>
-          ) : <div></div> }
-               </div>
+              ) : (
+                <div></div>
+              )}
+            </div>
 
             <div className="flex justify-between items-center">
               <button
@@ -570,7 +572,18 @@ const ProjectForm = ({ projectId, data }: Props) => {
                 Cancel
               </button>
               {data && data?.status === "In Progress" ? (
-                 <DeployToken tokenName={form.getValues('tokenName')} tokenSymbol={form.getValues('tokenSymbol')} maxSupply={form.getValues('maxSupply')} initialSupply={form.getValues('initialSupply')} devBuyTax={form.getValues('devBuyTax')} devSellTax={form.getValues('devSellTax')} marketingBuyTax={form.getValues('marketingBuyTax')} marketingSellTax={form.getValues('marketingSellTax')} devWallet={form.getValues('devWallet')} marketingWallet={form.getValues('marketingWallet')} />
+                <DeployToken
+                  tokenName={form.getValues("tokenName")}
+                  tokenSymbol={form.getValues("tokenSymbol")}
+                  maxSupply={form.getValues("maxSupply")}
+                  initialSupply={form.getValues("initialSupply")}
+                  devBuyTax={form.getValues("devBuyTax")}
+                  devSellTax={form.getValues("devSellTax")}
+                  marketingBuyTax={form.getValues("marketingBuyTax")}
+                  marketingSellTax={form.getValues("marketingSellTax")}
+                  devWallet={form.getValues("devWallet")}
+                  marketingWallet={form.getValues("marketingWallet")}
+                />
               ) : (
                 <Button
                   disabled={submitting}
