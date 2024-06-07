@@ -39,7 +39,18 @@ export default function Project({ params }: Props) {
     if (!project) return;
     setProject(project);
     console.log(project);
+    const handleBeforeUnload = (e: any) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
   }, []);
+
   return (
     <div>
       {project && project?.status ? (

@@ -64,7 +64,7 @@ export const DeployToken = ({ tokenName, tokenSymbol, maxSupply, initialSupply }
         Deployed
       </Button>
       ) : (
-        <Button onClick={handleDeployment} className="flex items-center gap-[3px] bg-[#F57C00] hover:bg-[#F57C00] px-8 py-2 rounded-[6px] font-bold text-black text-sm leading-5">
+        <Button onClick={handleDeployment} type="button" className="flex items-center gap-[3px] bg-[#F57C00] hover:bg-[#F57C00] px-8 py-2 rounded-[6px] font-bold text-black text-sm leading-5">
         <Image
           src="/rocket-black.svg"
           width={20}
