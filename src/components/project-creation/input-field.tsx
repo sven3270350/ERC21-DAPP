@@ -30,6 +30,7 @@ const InputField = ({ form, name, label, placeholder, type }: Props) => {
               className="border-[#27272A] bg-[#18181B] border rounded-[6px] placeholder:text-[#71717A]"
               placeholder={placeholder}
               {...field}
+              onChange={(e) => field.onChange(e.target.value)}
             />
           </FormControl>
           <FormMessage />

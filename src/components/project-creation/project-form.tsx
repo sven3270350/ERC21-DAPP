@@ -26,6 +26,7 @@ import { DisconnectBtn } from "../Header/disconnect";
 import { useAccount } from "wagmi";
 import { useParams } from "next/navigation";
 import { DeployToken } from "../executeProject/deploy-token";
+import { useEffect, useState } from "react";
 
 type Props = {};
 
@@ -40,12 +41,14 @@ const formSchema = z.object({
   marketingBuyTax: z.string().min(1, { message: "Required*" }),
   marketingSellTax: z.string().min(1, { message: "Required*" }),
   marketingWallet: z.string().min(1, { message: "Required*" }),
-  liquidity: z.string().min(1, { message: "Required*" }),
-  token: z.string({ required_error: "Required*." }),
+  tokenAmountA: z.string().min(1, { message: "Required*" }),
+  tokenAmountB: z.string().min(1, { message: "Required*" }),
+  tokenA: z.string({ required_error: "Required*." }),
+  tokenB: z.string({ required_error: "Required*." }),
 });
 
 const ProjectForm = (props: Props) => {
-  const {params} = useParams()
+  const { watch, params } = useParams()
   console.log(params);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -60,16 +63,20 @@ const ProjectForm = (props: Props) => {
       marketingBuyTax: "",
       marketingSellTax: "",
       marketingWallet: "",
-      liquidity: "",
-      token: "",
+      tokenAmountA: "",
+      tokenAmountB: "",
+      tokenA: "",
+      tokenB: "",
     },
   });
+  const [price, setPrice] = useState(0)
 
   function cancel() {
     form.reset();
     form.setValue("maxSupply", "");
     form.setValue("initialSupply", "");
-    form.setValue("liquidity", "");
+    form.setValue("tokenAmountA", "");
+    form.setValue("tokenAmountB", "");
   }
   const { isConnected, address } = useAccount();
 
@@ -78,6 +85,28 @@ const ProjectForm = (props: Props) => {
     // ✅ This will be type-safe and validated.
     console.log(values);
   }
+
+  const tokenAmountA = form.watch('tokenAmountA');
+  const tokenAmountB = form.watch('tokenAmountB');
+
+
+  useEffect(() => {
+    function calculateTokenPrice() {
+      const tokenAamount = parseFloat(form.getValues('tokenAmountA'));
+      const tokenBamount = parseFloat(form.getValues('tokenAmountB'));
+
+      if (!isNaN(tokenAamount) && !isNaN(tokenBamount) && tokenAamount > 0) {
+        setPrice(tokenBamount / tokenAamount);
+        console.log(tokenBamount / tokenAamount);
+      }
+
+    }
+
+    calculateTokenPrice()
+  }, [tokenAmountA, tokenAmountB])
+
+
+
   let arr: number[] = [1, 2];
   return (
     <main className="flex flex-col justify-center items-center gap-6 py-14">
@@ -237,6 +266,7 @@ const ProjectForm = (props: Props) => {
                 name="devBuyTax"
                 label="Dev buy tax"
                 placeholder="e.g 10%"
+
               />
               <InputField
                 form={form}
@@ -287,16 +317,33 @@ const ProjectForm = (props: Props) => {
               <div className="col-span-3">
                 <InputField
                   form={form}
-                  name="liquidity"
+                  name="tokenAmountA"
                   type="number"
-                  label="Liquidity"
+                  label="LiquidityA"
                   placeholder="Enter number"
+
+
+                />
+              </div>
+              <div className="text-white">
+                <div>Your Token</div>
+                {form.getValues('tokenSymbol') == '' ? <div className="pt-4"> Enter Token Details </div> : <div className="pt-4 text-[#F57C00]">{form.getValues('tokenSymbol')} </div>}
+               
+              </div>
+              <div className="col-span-3">
+                <InputField
+                  form={form}
+                  name="tokenAmountB"
+                  type="number"
+                  label="LiquidityB"
+                  placeholder="Enter number"
+
                 />
               </div>
               <div>
                 <FormField
                   control={form.control}
-                  name="token"
+                  name="tokenB"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Token</FormLabel>
@@ -313,16 +360,29 @@ const ProjectForm = (props: Props) => {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="m@example.com">ETH</SelectItem>
-                          <SelectItem value="m@google.com">BTC</SelectItem>
+                          <SelectItem value="ETH">ETH</SelectItem>
+                         
                         </SelectContent>
                       </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+                
               </div>
-            </div>
+              {form.getValues('tokenSymbol') != '' && form.getValues('tokenB') != '' ? (
+              <div className="flex items-center">
+               <div> Price of </div>
+                <div className="px-1 text-[#F57C00] flex items-center">
+                  {form.getValues('tokenSymbol')}
+                  <span className="text-white px-1">:</span>{price}
+                </div>
+                <div> {form.getValues('tokenB')}
+                </div>
+              </div>
+          ) : <div></div> }
+               </div>
+
             <div className="flex justify-between items-center">
               <button
                 type="button"
@@ -331,7 +391,7 @@ const ProjectForm = (props: Props) => {
               >
                 Cancel
               </button>
-           <DeployToken tokenName={form.getValues('tokenName')} tokenSymbol={form.getValues('tokenSymbol')} maxSupply={form.getValues('maxSupply')} initialSupply={form.getValues('initialSupply')}/>
+              <DeployToken tokenName={form.getValues('tokenName')} tokenSymbol={form.getValues('tokenSymbol')} maxSupply={form.getValues('maxSupply')} initialSupply={form.getValues('initialSupply')} />
             </div>
           </form>
         </Form>
