@@ -1,13 +1,13 @@
 "use client";
-import { ProjectForm } from "@/components/project-creation";
-import { useSearchParams } from "next/navigation";
+import { ProjectFormWrapper } from "@/components/project-creation";
+import { Suspense } from "react";
 
 export default function Newprojecthome() {
-  const searchParams = useSearchParams();
-  const projectId = searchParams.get("projectId");
   return (
     <div className="bg-[#09090B] w-full">
-      <ProjectForm projectId={projectId} />
+      <Suspense fallback={<div>Loading...</div>}>
+        <ProjectFormWrapper />
+      </Suspense>
     </div>
   );
 }
