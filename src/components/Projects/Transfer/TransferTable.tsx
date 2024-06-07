@@ -11,7 +11,7 @@ interface Invoice {
     TokenBalance: string;
 }
 
-export const TransferTable: React.FC = () => {
+export const TransferTable: React.FC = ({headerData}) => {
     const invoices: Invoice[] = [
         {
             Number: "1",
@@ -66,17 +66,12 @@ export const TransferTable: React.FC = () => {
                                 checked={selectedInvoices.length === invoices.length}
                             />
                         </TableHead>
-                        <TableHead className='text-[12px] text-center'>#</TableHead>
-                        <TableHead className='text-[12px] text-center'>ADDRESS</TableHead>
-                        <TableHead className='text-[12px] text-center'>ETH BALANCE</TableHead>
-                        <TableHead className='text-[12px] text-center'>TOKEN BALANCE</TableHead>
-                        <TableHead className='text-[12px] text-center'>ADDRESS TO TRANSFER</TableHead>
-                        <TableHead className='text-[12px] text-center'>TOKEN</TableHead>
+                        {headerData?.map((res:any,index:any)=> <TableHead key={index} className='text-[12px] text-center'>{res}</TableHead>)}
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {invoices.map((invoice, index) => (
-                        <TableRow key={invoice.Number} className={`hover:bg-inherit py-0 border-none ${index % 2 === 1 ? 'bg-[#18181B]' : ''}`}>
+                    {invoices?.map((invoice, index) => (
+                        <TableRow key={invoice.Number} className={`hover:bg-inherit py-0 border-none ${false ? 'bg-[#18181B]' : ''}`}>
                             <TableCell className='py-0'>
                                 <input
                                     type="checkbox"
@@ -85,9 +80,9 @@ export const TransferTable: React.FC = () => {
                                     onChange={(event) => handleSelectOne(event, invoice.Number)}
                                 />
                             </TableCell>
-                            <TableCell className='text-[#A1A1AA] text-[12px]'>{invoice.Number}</TableCell>
+                            <TableCell className='text-[#A1A1AA] text-[12px] justify-center'>{invoice.Number}</TableCell>
                             <TableCell className='py-0'>
-                                <div className='text-[#71717A] flex gap-1 items-center text-[12px]'>
+                                <div className='text-[#71717A] flex gap-1 items-center justify-center text-[12px]'>
                                     {invoice.Address}
                                     <Image
                                         src={"/copy-01.svg"}
@@ -98,7 +93,7 @@ export const TransferTable: React.FC = () => {
                                 </div>
                             </TableCell>
                             <TableCell className='py-0'>
-                                <div className='text-[#F57C00] flex gap-1 items-center text-[12px]'>
+                                <div className='text-[#F57C00] flex gap-1 items-center justify-center text-[12px]'>
                                     <Image
                                         src={"/Vector.svg"}
                                         width={15}
@@ -109,7 +104,7 @@ export const TransferTable: React.FC = () => {
                                 </div>
                             </TableCell>
                             <TableCell className='py-0'>
-                                <div className='text-[#A1A1AA] flex gap-1 items-center text-[12px]'>
+                                <div className='text-[#A1A1AA] flex items-center justify-center text-[12px]'>
                                     <Image
                                         src={"/coins-01.svg"}
                                         width={15}
@@ -119,17 +114,17 @@ export const TransferTable: React.FC = () => {
                                     {invoice.TokenBalance}
                                 </div>
                             </TableCell>
-                            <TableCell className='w-[300px] py-0'>
+                            <TableCell className='py-0'>
                                 <Input
-                                    className="bg-[#18181B] h-8 border-[#27272A] mt-2 text-white text-center text-[12px]"
-                                    placeholder="Enter Address"
+                                    className="bg-[#18181B] h-8 border-[#27272A] mt-2 text-white justify-center text-center text-[12px]"
+                                    placeholder={true ? "Amount" : "Enter Address"}
                                     type="text"
                                     required
                                 />
                             </TableCell>
-                            <TableCell className='w-[150px] py-0'>
+                            <TableCell className='py-0'>
                                 <Input
-                                    className="bg-[#18181B] h-8 border-[#27272A] mt-2 text-white text-center text-[12px]"
+                                    className="bg-[#18181B] h-8 border-[#27272A] mt-2 text-white justify-center text-center text-[12px]"
                                     placeholder="Amount"
                                     type="number"
                                     required

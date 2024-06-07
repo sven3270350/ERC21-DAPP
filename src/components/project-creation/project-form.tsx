@@ -24,6 +24,7 @@ import { InputField } from "./input-field";
 import { Title } from "./title";
 import { DisconnectBtn } from "../Header/disconnect";
 import { useAccount } from "wagmi";
+
 import { generateBeneficiaryDetails } from "@/utils/generate-wallet";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -31,6 +32,8 @@ import ClipLoader from "react-spinners/ClipLoader";
 import { useSession } from "next-auth/react";
 import { ExtendedUser } from "@/types/user";
 import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+
 import { DeployToken } from "../executeProject/deploy-token";
 
 type Project = {
@@ -496,7 +499,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
                 Cancel
               </button>
               {data && data?.status === "In Progress" ? (
-                <DeployToken projectId={projectId} />
+                 <DeployToken tokenName={form.getValues('tokenName')} tokenSymbol={form.getValues('tokenSymbol')} maxSupply={form.getValues('maxSupply')} initialSupply={form.getValues('initialSupply')}/>
               ) : (
                 <Button
                   disabled={submitting}
