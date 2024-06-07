@@ -9,11 +9,11 @@ const Page: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
 
   useEffect(() => {
-    const data = localStorage.getItem("projectData");
+    const data = localStorage.getItem("allProjects");
     if (data) {
       try {
-        const parsedData: Record<string, Project> = JSON.parse(data);
-        const projectsArray = Object.values(parsedData);
+        const parsedData: { [key: string]: Project }[] = JSON.parse(data);
+        const projectsArray = parsedData.map((item) => Object.values(item)[0]);
         setProjects(projectsArray);
       } catch (error) {
         console.error("Error parsing JSON data:", error);
@@ -22,7 +22,6 @@ const Page: React.FC = () => {
   }, []);
 
   return (
-
     <div className="flex justify-center pt-[90px] items-start w-full h-full overflow-auto">
       {projects.length === 0 ? <NoProject /> : <Projects projects={projects} />}
     </div>
