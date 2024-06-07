@@ -151,20 +151,16 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
                                         {projects.map((project, index) => (
                                             <MenuItem
                                                 key={index}
-                                                active={isSelectedMenuItem("Projects") && project?.projectName === selectedProject?.projectName}
+                                                active={isSelectedMenuItem("Projects") && project?.tokenDetails?.tokenName === selectedProject?.tokenDetails?.tokenName}
                                                 onClick={() => handleMenuItemClick("Projects", project)}
-                                                className={`ml-3 relative font-semibold ${isSelectedMenuItem("Projects") && project?.projectName === selectedProject?.projectName ? "text-white" : "text-[#52525B]"}`}
+                                                className={`ml-3 relative font-semibold ${isSelectedMenuItem("Projects") && project?.tokenDetails?.tokenName === selectedProject?.tokenDetails?.tokenName ? "text-white" : "text-[#52525B]"}`}
                                             >
                                                 <div className="flex gap-[2px] items-center  h-[50px] ">
                                                     <Image src={"/Rectangle.svg"} alt="logo" width={37} height={37} />
                                                     <div className="flex items-end -bottom-2 left-[60px] z-50 absolute">
-                                                        <p className="text-sm font-bold ">{project?.projectName}</p>
+                                                        <p className="text-sm font-bold ">{project?.tokenDetails?.tokenName}</p>
                                                     </div>
                                                 </div>
-                                                {/* <div className="relative flex items-end gap-1 ">
-                                                    <Image src={"/Rectangle.svg"} alt="logo" width={30} height={30} />
-                                                    <p className="text-sm font-bold absolute z-50 -bottom-[6px] left-[30px] ">{project?.projectName}</p>
-                                                </div> */}
                                             </MenuItem>
                                         ))}
                                     </div>

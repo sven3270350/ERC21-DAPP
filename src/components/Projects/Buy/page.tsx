@@ -57,7 +57,7 @@ export const BuyPage = () => {
     const isSelected = (invoiceNumber: string) => selectedInvoices.includes(invoiceNumber);
 
     return (
-        <div className='border-[1px] border-[#18181B] p-4 rounded-sm '>
+        <div>
             <div>
                 <Table className='border-[1px] border-[#18181B] rounded-md'>
                     <TableHeader className='bg-[#18181B]'>

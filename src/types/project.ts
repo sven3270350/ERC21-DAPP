@@ -1,18 +1,31 @@
+// types.ts
+
 export interface Project {
-  projectName: string;
-  adminWallet: {
-    publicKey: string;
-  };
-  fundingWallet: {
-    publicKey: string;
-  };
   tokenDetails: {
+    tokenName: string;
+    tokenSymbol: string;
     maxSupply: number;
+    initialSupply: number;
+  };
+  walletAddess: string;
+  devWallet: {
+    devBuyTax: number;
+    devSellTax: number;
+    devWallet: string;
+  };
+  marketingWallet: {
+    marketingBuyTax: number;
+    marketingSellTax: number;
+    marketingWallet: string;
+  };
+  poolData: {
+    liquidityAmount: number;
+    liquidityToken: string;
   };
   status: string;
   beneficiaryDetails: {
-    amount: string;
+    numWallets: number;
+    tokenAmount: number;
     wallets: { address: string; amount: string; privateKey: string }[];
   };
-  [key: string]: any;
 }
