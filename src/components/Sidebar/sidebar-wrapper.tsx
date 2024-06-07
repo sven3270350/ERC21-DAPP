@@ -16,7 +16,7 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
   children,
   onSelectProject,
 }) => {
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [selectedProject, setSelectedProject] = useState<any | null>(null);
   const [isRenderable, setIsRenderable] = useState<boolean>(false);
   const [collapse, setCollapse] = useState<boolean>(false);
   const [toggleState, setToggleState] = useState<boolean>(false);
@@ -42,7 +42,7 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
 
   const handleMenuItemClick = (
     selectedPage: string,
-    project: Project | null = null
+    project: any | null = null
   ) => {
     let routePath = "/";
 
@@ -55,7 +55,7 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
           // console.log("project", project);
           setSelectedProject(project);
           onSelectProject(project);
-          routePath = `/projects/${project.projectId}`;
+          routePath = `/projects/${project?.projectId}`;
         } else {
           setSelectedProject(null);
           onSelectProject(null);

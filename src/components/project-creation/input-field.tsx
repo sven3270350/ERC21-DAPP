@@ -12,13 +12,15 @@ type Props = {
   label: string;
   placeholder: string;
   type?: string;
+  disabled?: boolean
 };
 
-const InputField = ({ form, name, label, placeholder, type }: Props) => {
+const InputField = ({ form, name, label, placeholder, type, disabled }: Props) => {
   return (
     <FormField
       control={form.control}
       name={name}
+      disabled={disabled}
       render={({ field }) => (
         <FormItem>
           <FormLabel className="font-medium text-[#A1A1AA] text-sm leading-5">
