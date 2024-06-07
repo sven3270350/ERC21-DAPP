@@ -17,7 +17,7 @@ export const ProjectHeadData: React.FC<{ project: any }> = ({ project }) => {
     return (
         <div>
             <div className="flex items-center gap-4">
-                <p className="text-[#F57C00] font-semibold">{project?.projectName}</p>
+                <p className="text-[#F57C00] font-semibold">{project?.tokenDetails?.tokenName}</p>
                 <span className="text-[#71717A]">|</span>
                 <div className="flex gap-1 items-center">
                     <p className="text-[12px] text-[#71717A]">{project?.tokenDetails?.contractAddress}</p>
