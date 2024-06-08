@@ -12,10 +12,11 @@ type Props = {
   label: string;
   placeholder: string;
   type?: string;
-  disabled?: boolean
+  disabled?: boolean;
+  readOnly?: boolean;
 };
 
-const InputField = ({ form, name, label, placeholder, type, disabled }: Props) => {
+const InputField = ({ form, name, label, placeholder, type, disabled, readOnly }: Props) => {
   return (
     <FormField
       control={form.control}
@@ -33,6 +34,7 @@ const InputField = ({ form, name, label, placeholder, type, disabled }: Props) =
               placeholder={placeholder}
               {...field}
               onChange={(e) => field.onChange(e.target.value)}
+              readOnly={readOnly} // Pass readOnly to the Input element
             />
           </FormControl>
           <FormMessage />
