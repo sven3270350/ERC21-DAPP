@@ -488,7 +488,6 @@ const ProjectForm = ({ projectId, data }: Props) => {
             <div className="gap-6 border-[#27272A] grid grid-cols-4 pb-6 border-b">
               <div className="col-span-3">
                 <InputField
-                  disabled={data?.status === "In Progress"}
                   form={form}
                   name="tokenAmountA"
                   type="number"
