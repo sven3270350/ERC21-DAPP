@@ -1,11 +1,11 @@
-import { prisma } from "../../../../../../prisma"
+import { prisma } from "../../../../../../../prisma"
 import { authOptions } from "@/lib/auth"
 import { getServerSession } from "next-auth"
 import { NextResponse, NextRequest } from "next/server"
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { userId: string } },
+  { params }: { params: { userId: string, projectId: string } },
 ) {
   const session = await getServerSession(authOptions)
 
@@ -17,6 +17,7 @@ export async function GET(
     const userRequests = await prisma.transactionRequest.findMany({
       where: {
         userId: Number(params.userId),
+        projectId: params.projectId
       }
     })
 

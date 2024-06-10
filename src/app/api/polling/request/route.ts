@@ -12,14 +12,15 @@ export async function POST(request: NextRequest) {
 
   const data = await request.json()
 
-  const { transactionHash, userId, transactionType } = data;
+  const { transactionHash, userId, transactionType, projectId } = data;
 
   try {
     const userRequest = await prisma.transactionRequest.create({
       data: {
         userId: userId,
         transactionHash: transactionHash,
-        transactionType: transactionType
+        transactionType: transactionType,
+        projectId: projectId
       }
     })
 
