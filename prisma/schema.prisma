@@ -73,6 +73,7 @@ model TransactionRequest {
   user            User          @relation(fields: [userId], references: [id])
   transactionHash String        @map("transaction_hash") @unique
   transactionType String
+  projectId       String        @map("project_id")
   status          RequestStatus @default(PENDING)
   createAt        DateTime      @default(now()) @map("created_at") @db.Timestamptz
 
