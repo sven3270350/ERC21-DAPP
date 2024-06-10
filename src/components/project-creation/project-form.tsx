@@ -35,6 +35,7 @@ import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 
 import { DeployToken } from "../executeProject/deploy-token";
+import CreatePool from "../executeProject/CreatePool";
 
 type Project = {
   tokendetails: {
@@ -70,6 +71,11 @@ type Props = {
   data?: any;
 };
 
+const ethAddressRegex = /^0x[a-fA-F0-9]{40}$/;
+
+// Custom validation function
+const isValidEthAddress = (address: string) => ethAddressRegex.test(address);
+
 const formSchema = z.object({
   tokenName: z.string().min(1, { message: "Required*" }),
   tokenSymbol: z.string().min(1, { message: "Required*" }),
@@ -77,10 +83,14 @@ const formSchema = z.object({
   initialSupply: z.string().min(1, { message: "Required*" }),
   devBuyTax: z.string().min(1, { message: "Required*" }),
   devSellTax: z.string().min(1, { message: "Required*" }),
-  devWallet: z.string().min(1, { message: "Required*" }),
+  devWallet: z.string({ message: "Required*" }).refine(isValidEthAddress,{
+    message: "Invalid Ethereum address",
+  }),
   marketingBuyTax: z.string().min(1, { message: "Required*" }),
   marketingSellTax: z.string().min(1, { message: "Required*" }),
-  marketingWallet: z.string().min(1, { message: "Required*" }),
+  marketingWallet: z.string().min(1, { message: "Required*" }).refine(isValidEthAddress,{
+    message: "Invalid Ethereum address",
+  }),
   tokenAmountA: z.string().min(1, { message: "Required*" }),
   tokenAmountB: z.string().min(1, { message: "Required*" }),
   tokenA: z.string({ required_error: "Required*." }),
@@ -98,12 +108,12 @@ const ProjectForm = ({ projectId, data }: Props) => {
       tokenSymbol: "",
       maxSupply: "",
       initialSupply: "",
-      devBuyTax: "",
-      devSellTax: "",
-      devWallet: "",
-      marketingBuyTax: "",
-      marketingSellTax: "",
-      marketingWallet: "",
+      devBuyTax: "0",
+      devSellTax: "0",
+      devWallet: "0x0000000000000000000000000000000000000000",
+      marketingBuyTax: "0",
+      marketingSellTax: "0",
+      marketingWallet: "0x0000000000000000000000000000000000000000",
       tokenAmountA: "",
       tokenAmountB: "",
       tokenA: "",
@@ -266,6 +276,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
     form.setValue("tokenAmountB", data.poolData.liquidityAmount);
     form.setValue("tokenB", data.poolData.liquidityToken);
   }, []);
+
 
   return (
     <main className="flex flex-col justify-center items-center gap-6 py-[100px]">
@@ -430,7 +441,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
               <InputField
                 readOnly={data?.status === "In Progress"}
                 form={form}
-                type="number"
+                type="text"
                 name="devBuyTax"
                 label="Dev buy tax"
                 placeholder="e.g 10%"
@@ -438,7 +449,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
               <InputField
                 readOnly={data?.status === "In Progress"}
                 form={form}
-                type="number"
+                type="text"
                 name="devSellTax"
                 label="Dev sell tax"
                 placeholder="e.g 10%"
@@ -455,7 +466,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
               <InputField
                 readOnly={data?.status === "In Progress"}
                 form={form}
-                type="number"
+                type="text"
                 name="marketingBuyTax"
                 label="Marketing buy tax"
                 placeholder="e.g 10%"
@@ -463,7 +474,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
               <InputField
                 readOnly={data?.status === "In Progress"}
                 form={form}
-                type="number"
+                type="text"
                 name="marketingSellTax"
                 label="Marketing sell tax"
                 placeholder="e.g 10%"
@@ -572,16 +583,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
               </button>
               {data && data?.status === "In Progress" ? (
                 <DeployToken
-                  tokenName={form.getValues("tokenName")}
-                  tokenSymbol={form.getValues("tokenSymbol")}
-                  maxSupply={form.getValues("maxSupply")}
-                  initialSupply={form.getValues("initialSupply")}
-                  devBuyTax={form.getValues("devBuyTax")}
-                  devSellTax={form.getValues("devSellTax")}
-                  marketingBuyTax={form.getValues("marketingBuyTax")}
-                  marketingSellTax={form.getValues("marketingSellTax")}
-                  devWallet={form.getValues("devWallet")}
-                  marketingWallet={form.getValues("marketingWallet")}
+                  projectId={projectId!} data={data}
                 />
               ) : (
                 <Button
@@ -598,6 +600,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
                   )}
                 </Button>
               )}
+        
             </div>
           </form>
         </Form>

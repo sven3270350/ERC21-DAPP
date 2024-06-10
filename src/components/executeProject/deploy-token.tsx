@@ -4,59 +4,44 @@ import { abi, bytecode } from "@/constants/tokenABI.json";
 import PuffLoader from "react-spinners/PuffLoader";
 import { useState } from "react";
 import Image from "next/image";
-import { useWalletClient } from "wagmi";
+import { useWalletClient, usePublicClient } from "wagmi";
 import {waitForTransaction} from '@wagmi/core'
 
 interface DeployTokenProps {
-  tokenName: string,
-  tokenSymbol: string,
-  maxSupply: string,
-  initialSupply: string
-  devBuyTax: string,
-  devSellTax: string,
-  marketingBuyTax: string,
-  marketingSellTax: string,
-  devWallet: string,
-  marketingWallet: string,
+  projectId: string
+  data: any;
 }
 
-export const DeployToken = ({ tokenName, tokenSymbol, maxSupply, initialSupply,devBuyTax,
-  devSellTax,
-  marketingBuyTax,
-  marketingSellTax,
-  devWallet,
-  marketingWallet }: DeployTokenProps) => {
+export const DeployToken = ({ projectId, data }: DeployTokenProps) => {
   const [isDeploying, setIsDeploying] = useState(false);
   const [deployState, setDeployState] = useState(false);
 
   const { data: walletClient } = useWalletClient();
 
+  const rpc = process.env.NEXT_PUBLIC_ALCHEMY_RPC;
+
   const handleDeployment = async () => {
     try {
       setIsDeploying(true);
-
+      const provider = new ethers.providers.JsonRpcProvider(rpc)
       const hash = await walletClient?.deployContract({
         abi: abi,
         bytecode: bytecode as `0x${string}`,
-        args: [  tokenName,
-          tokenSymbol,
-          BigInt(maxSupply) * BigInt(10 ** 18),
-          BigInt(initialSupply) * BigInt(10 ** 18),
-          devBuyTax,
-          devSellTax,
-          marketingBuyTax,
-          marketingSellTax,
-          devWallet,
-          marketingWallet],
+        args: [data.tokendetails.tokenName,
+          data.tokendetails.tokenSymbol,
+          BigInt(data.tokendetails.maxSupply) * BigInt(10 ** 18),
+          BigInt(data.tokendetails.initialSupply) * BigInt(10 ** 18),
+          data.devWallet.devBuyTax,
+          data.devWallet.devSellTax,
+          data.marketingWallet.marketingBuyTax,
+          data.marketingWallet.marketingSellTax,
+          data.devWallet.devWallet,
+          data.marketingWallet.marketingWallet],
       });
-
-      const transaction = await waitForTransaction({
-        hash: hash as `0x${string}`,
-      })
+   
+      const transaction = await provider.getTransactionReceipt(hash as string)
 
       console.log("Contract deployed at address:", transaction.contractAddress);
-
-      // localStorage.setItem("projectData", JSON.stringify(parsedData));
 
       setIsDeploying(false);
       setDeployState(true);
@@ -95,7 +80,7 @@ export const DeployToken = ({ tokenName, tokenSymbol, maxSupply, initialSupply,d
   );
 };
 
-export const getTxCost = async ({ tokenName, tokenSymbol, maxSupply, initialSupply }: DeployTokenProps) => {
+export const getTxCost = async ({ data }: DeployTokenProps) => {
   const rpc = process.env.NEXT_PUBLIC_RPC!;
   const provider = new ethers.providers.JsonRpcProvider(rpc);
 
@@ -105,10 +90,16 @@ export const getTxCost = async ({ tokenName, tokenSymbol, maxSupply, initialSupp
   const factory = new ethers.ContractFactory(abi, bytecode, wallet);
 
   const deployTransaction = await factory.getDeployTransaction(
-    tokenName,
-    tokenSymbol,
-    maxSupply,
-    initialSupply
+    data.tokenDetails.tokenName,
+    data.tokenDetails.tokenSymbol,
+    data.tokenDetails.maxSupply,
+    data.tokenDetails.initialSupply,
+    data.devWallet.devBuyTax,
+    data.devWallet.devSellTax,
+    data.marketingWallet.marketingBuyTax,
+    data.marketingWallet.marketingSellTax,
+    data.devWallet.devWallet,
+    data.marketingWallet.marketingWallet
   );
   const estimateGasLimit = await wallet.estimateGas(deployTransaction);
   const gasPrice = await provider.getGasPrice();
