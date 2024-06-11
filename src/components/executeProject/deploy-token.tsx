@@ -48,11 +48,11 @@ export const DeployToken = ({ projectId, data }: DeployTokenProps) => {
       console.log('Transaction hash:', hash);
 
       const provider = new ethers.providers.JsonRpcProvider(rpc)
-      const receipt = await provider.waitForTransaction(hash as string)
+      const transaction = await provider.waitForTransaction(hash as string)
       
-      if (receipt && receipt.status === 1) {
+      if (transaction && transaction.status === 1) {
         console.log('Transaction was successful!');
-        console.log('Contract Address:', receipt.contractAddress);
+        console.log('Contract Address:', transaction.contractAddress);
       } else {
         console.log('Transaction failed');
       }
