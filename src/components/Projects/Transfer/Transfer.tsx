@@ -4,12 +4,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import useBalance from "../../../hooks/useBalance";
 import styles from '../../newproject/checkbox.module.css';
+import { toast } from 'sonner';
 
 interface Wallet {
     address: string;
     amount: string;
     ethBalance: string;
     tokenBalance: string;
+    privateKey: string;
 }
 
 interface TransferPageProps {
@@ -29,7 +31,7 @@ export const Transfer: React.FC<TransferPageProps> = ({ projectData }) => {
     const wallets: Wallet[] = projectData.beneficiaryDetails.wallets.map((wallet, index) => ({
         ...wallet,
         ethBalance: wallet.ethBalance || "0",
-        tokenBalance: wallet.tokenBalance || "0"
+        tokenBalance: wallet.tokenBalance || "0",
     }));
 
     const [selectedInvoices, setSelectedInvoices] = useState<string[]>([]);
@@ -45,7 +47,7 @@ export const Transfer: React.FC<TransferPageProps> = ({ projectData }) => {
     };
 
     useEffect(() => {
-        Promise.all(wallets.map((value) => getBalance({address: value.address as `0x${string}`, tokenAddress: "0xBd2E04Be415ec7517Cb8D110255923D2652Cbb79"}))).then(result => console.log(result));
+        Promise.all(wallets.map((value) => getBalance({ address: value.address as `0x${string}`, tokenAddress: "0xBd2E04Be415ec7517Cb8D110255923D2652Cbb79" }))).then(result => console.log(result));
     }, []);
 
     const handleSelectOne = (event: ChangeEvent<HTMLInputElement>, walletAddress: string) => {
@@ -57,7 +59,11 @@ export const Transfer: React.FC<TransferPageProps> = ({ projectData }) => {
     };
 
     const isSelected = (walletAddress: string) => selectedInvoices.includes(walletAddress);
-
+    const handlePublicKeyCopy = (address: string, privateKey: string) => {
+        const textToCopy = `${address} ${privateKey}`;
+        navigator.clipboard.writeText(textToCopy);
+        toast.info("Public Key and Private Key copied to clipboard");
+    };
     return (
         <div>
             <Table className='border-[1px] border-[#18181B] rounded-md'>
@@ -75,9 +81,8 @@ export const Transfer: React.FC<TransferPageProps> = ({ projectData }) => {
                         <TableHead className='text-[12px] text-center'>ADDRESS</TableHead>
                         <TableHead className='text-[12px] text-center'>ETH BALANCE</TableHead>
                         <TableHead className='text-[12px] text-center'>TOKEN BALANCE</TableHead>
-                        <TableHead className='text-[12px] text-center'>ETH TO TRANSFER</TableHead>
-                        <TableHead className='text-[12px] text-center'>TARGET ADDRESS</TableHead>
-                        <TableHead className='text-[12px] text-center'>TRANSFER TO TARGET</TableHead>
+                        <TableHead className='text-[12px] text-center'>ADDRESS TO TRANSFER</TableHead>
+                        <TableHead className='text-[12px] text-center'>TOKEN</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -93,13 +98,15 @@ export const Transfer: React.FC<TransferPageProps> = ({ projectData }) => {
                             </TableCell>
                             <TableCell className='text-[#A1A1AA] text-[12px]'>{index + 1}</TableCell>
                             <TableCell className='py-0'>
-                                <div className='text-[#71717A] flex gap-1 items-center justify-center text-[12px]'>
+                                <div className='text-[#71717A] flex gap-1 items-center text-[12px]'>
                                     {wallet.address}
+                                    <p className='hidden'>{wallet.privateKey}</p>
                                     <Image
                                         src={"/copy-01.svg"}
                                         width={15}
                                         height={15}
                                         alt="Copy"
+                                        onClick={() => handlePublicKeyCopy(wallet.address, wallet.privateKey)}
                                     />
                                 </div>
                             </TableCell>
@@ -125,10 +132,10 @@ export const Transfer: React.FC<TransferPageProps> = ({ projectData }) => {
                                     {wallet?.tokenBalance}
                                 </div>
                             </TableCell>
-                            <TableCell className='w-[150px] py-0'>
+                            <TableCell className='w-[250px] py-0'>
                                 <Input
                                     className="bg-[#18181B] h-8 border-[#27272A] mt-2 text-white justify-center text-center text-[12px]"
-                                    placeholder="Amount"
+                                    placeholder="Enter Address"
                                     type="number"
                                     required
                                 />
@@ -136,14 +143,8 @@ export const Transfer: React.FC<TransferPageProps> = ({ projectData }) => {
                             <TableCell className='w-[150px] py-0'>
                                 <Input
                                     className="bg-[#18181B] h-8 border-[#27272A] mt-2 text-white justify-center text-center text-[12px]"
-                                    placeholder="Target Address"
+                                    placeholder="Amount"
                                     required
-                                />
-                            </TableCell>
-                            <TableCell className=' py-0'>
-                                <input
-                                    type="checkbox"
-                                    className={`${styles.checkbox}`}
                                 />
                             </TableCell>
                         </TableRow>

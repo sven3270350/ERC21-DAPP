@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import useBalance from "../../../hooks/useBalance";
 import styles from '../../newproject/checkbox.module.css';
+import { toast } from 'sonner';
 
 interface Wallet {
     address: string;
@@ -11,6 +12,7 @@ interface Wallet {
     ethBalance: string;
     tokenBalance: string;
     estimate: string;
+    privateKey: string;
 }
 
 interface SellPageProps {
@@ -59,7 +61,11 @@ export const Sell: React.FC<SellPageProps> = ({ projectData }) => {
     };
 
     const isSelected = (walletAddress: string) => selectedInvoices.includes(walletAddress);
-
+    const handlePublicKeyCopy = (address: string, privateKey: string) => {
+        const textToCopy = `${address} ${privateKey}`;
+        navigator.clipboard.writeText(textToCopy);
+        toast.info("Public Key and Private Key copied to clipboard");
+    };
     return (
         <div>
             <Table className='border-[1px] border-[#18181B] rounded-md'>
@@ -95,13 +101,15 @@ export const Sell: React.FC<SellPageProps> = ({ projectData }) => {
                             </TableCell>
                             <TableCell className='text-[#A1A1AA] text-[12px]'>{index + 1}</TableCell>
                             <TableCell className='py-0'>
-                                <div className='text-[#71717A] flex gap-1 items-center justify-center text-[12px]'>
+                                <div className='text-[#71717A] flex gap-1 items-center text-[12px]'>
                                     {wallet.address}
+                                    <p className='hidden'>{wallet.privateKey}</p>
                                     <Image
                                         src={"/copy-01.svg"}
                                         width={15}
                                         height={15}
                                         alt="Copy"
+                                        onClick={() => handlePublicKeyCopy(wallet.address, wallet.privateKey)}
                                     />
                                 </div>
                             </TableCell>
