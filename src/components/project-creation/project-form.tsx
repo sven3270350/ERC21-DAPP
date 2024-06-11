@@ -38,6 +38,7 @@ import { DeployToken } from "../executeProject/deploy-token";
 import CreatePool from "../executeProject/CreatePool";
 import { formatDate } from "@/utils/format-date";
 import Link from "next/link";
+import { Skeleton } from "../ui/skeleton";
 
 type Project = {
   tokendetails: {
@@ -606,13 +607,13 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
             </div>
 
             <div
-              className={`flex ${data?.status === "Created" ? "justify-end" : "justify-between"} items-center`}
+              className={`flex ${data?.status === "Created" || data?.status === "In Progress" ? "justify-end" : "justify-between"} items-center`}
             >
               <button
                 type="button"
-                disabled={data?.status === "Created"}
+                disabled={data?.status === "Created" || data?.status === "In Progress"}
                 onClick={cancel}
-                className={`${data?.status === "Created" ? "hidden" : ""} font-bold text-[#F57C00] text-sm leading-5`}
+                className={`${data?.status === "Created" || data?.status === "In Progress" ? "hidden" : ""} font-bold text-[#F57C00] text-sm leading-5`}
               >
                 Cancel
               </button>
@@ -675,7 +676,14 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
           </p>
         </div>
         {loading ? (
-          <div className="text-white">Loading</div>
+          <div className="text-white">
+            <div className="flex justify-start items-center gap-2 py-6 text-left">
+              <Skeleton className="bg-[#71717A] w-[48px] h-[16px]" />
+              <Skeleton className="bg-[#71717A] w-[48px] h-[16px]" />
+              <Skeleton className="bg-[#00E676] w-[48px] h-[16px]" />
+              <Skeleton className="bg-[#F57C00] w-[48px] h-[16px]" />
+            </div>
+          </div>
         ) : transactionLog?.length > 0 ? (
           transactionLog?.map((item, index) => (
             <div
