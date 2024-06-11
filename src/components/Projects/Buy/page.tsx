@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, useEffect } from 'react';
+import React, { useState, ChangeEvent, useEffect, useMemo } from 'react';
 import { Button } from '../../ui/button';
 import ConnectWallet from '../../connectWallet';
 import Image from 'next/image';
@@ -23,16 +23,16 @@ interface BuyPageProps {
 }
 
 type BalanceType = {
-    ehtBalance: BigInt;
-    tokenBalance: BigInt;
+    ethBalance: bigint;
+    tokenBalance: bigint;
 }  
 
 export const BuyPage: React.FC<BuyPageProps> = ({ projectData }) => {
-    const wallets: Wallet[] = projectData.beneficiaryDetails.wallets.map((wallet, index) => ({
+    const wallets: Wallet[] = useMemo(() => (projectData.beneficiaryDetails.wallets.slice(0,2).map((wallet, index) => ({
         ...wallet,
         ethBalance: wallet.ethBalance || "0",
         tokenBalance: wallet.tokenBalance || "0"
-    }));
+    }))), [projectData.beneficiaryDetails.wallets]);
     console.log("projectData===>", projectData);
 
     const [selectedInvoices, setSelectedInvoices] = useState<string[]>([]);
@@ -48,8 +48,8 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData }) => {
     };
 
     useEffect(() => {
-        Promise.all(wallets.map((value) => getBalance({address: value.address as `0x${string}`, tokenAddress: "0xBd2E04Be415ec7517Cb8D110255923D2652Cbb79"}))).then(result => console.log(result))
-    }, [])
+        Promise.all(wallets.map((value) => getBalance({address: value.address as `0x${string}`, tokenAddress: "0xBd2E04Be415ec7517Cb8D110255923D2652Cbb79"}))).then(result => setBalances(result))
+    }, [wallets])
 
     const handleSelectOne = (event: ChangeEvent<HTMLInputElement>, walletAddress: string) => {
         if (event.target.checked) {
@@ -114,7 +114,7 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData }) => {
                                             height={15}
                                             alt="ETH"
                                         />
-                                        {wallet?.ethBalance}
+                                        {Number(balances[index]?.ethBalance) / (10 ** 18)}
                                     </div>
                                 </TableCell>
                                 <TableCell className='py-0 text-center'>
@@ -125,7 +125,7 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData }) => {
                                             height={15}
                                             alt="Token"
                                         />
-                                        {wallet?.tokenBalance}
+                                        {Number(balances[index]?.tokenBalance) / (10 ** 18)}
                                     </div>
                                 </TableCell>
                                 <TableCell className='w-[200px] py-0'>

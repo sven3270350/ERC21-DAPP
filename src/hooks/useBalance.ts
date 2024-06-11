@@ -17,7 +17,7 @@ const useBalance = () => {
     setIsLoading(true);
     if (!address || !tokenAddress) {
       setIsLoading(false);
-      return "Invalid function parameters.";
+      return Promise.reject("Invalid function parameters.");
     }
 
     const tokenBalance = await publicClient.readContract({
