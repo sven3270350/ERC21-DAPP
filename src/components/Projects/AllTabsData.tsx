@@ -62,13 +62,13 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab, projectDa
             </div>
 
             {selectedTab === "Buy" && <BuyPage projectData={projectData} />}
-            {selectedTab === "Sell" && <Sell />}
-            {selectedTab === "Transfer" && <Transfer />}
+            {selectedTab === "Sell" && <Sell projectData={projectData} />}
+            {selectedTab === "Transfer" && <Transfer projectData={projectData} />}
 
             <p className='border-b-[1px] border-[#27272A] mt-4 mb-4'>
             </p>
             <div className='flex gap-2 justify-end items-center'>
-                <Button className="bg-[#09090B] border-none text-[#F57C00] text-[12px] font-normal" >
+                <Button className="bg-[#09090B] hover:bg-[#F57C00] border-none text-[#F57C00] text-[12px] font-normal" >
                     <Image
                         src={"/ethereum.svg"}
                         width={18}
@@ -80,7 +80,7 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab, projectDa
                 </Button>
                 {selectedTab === "Buy" &&
                     <button
-                        className="bg-[#27272A] cursor-pointer px-4 py-2 text-[12px] flex gap-2 items-center justify-center rounded-md text-[#000000] text-sm font-bold leading-6 tracking-[0.032px]"
+                        className="bg-[#27272A] hover:bg-[#F57C00] cursor-pointer px-4 py-2 text-[12px] flex gap-2 items-center justify-center rounded-md text-[#000000] text-sm font-bold leading-6 tracking-[0.032px]"
                         disabled={true}
                     >
                         <GrTest className='text-black h-[18px] w-[18px]' />
@@ -89,7 +89,7 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab, projectDa
                 }
 
                 <button
-                    className="bg-[#27272A] px-4 py-2 text-[12px] flex gap-2 items-center justify-center rounded-md text-[#000000] text-sm font-bold leading-6 tracking-[0.032px]"
+                    className="bg-[#27272A] hover:bg-[#F57C00] px-4 py-2 text-[12px] flex gap-2 items-center justify-center rounded-md text-[#000000] text-sm font-bold leading-6 tracking-[0.032px]"
                 >
                     <Image
                         src={"/arrow-data-transfer.svg"}

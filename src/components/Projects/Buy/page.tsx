@@ -95,7 +95,7 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData }) => {
                                     />
                                 </TableCell>
                                 <TableCell className='text-[#A1A1AA] text-[12px]'>{index + 1}</TableCell>
-                                <TableCell className='py-0'>
+                                <TableCell className='py-0 text-center'>
                                     <div className='text-[#71717A] flex gap-1 items-center text-[12px]'>
                                         {wallet.address}
                                         <Image
@@ -106,7 +106,7 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData }) => {
                                         />
                                     </div>
                                 </TableCell>
-                                <TableCell className='py-0'>
+                                <TableCell className='py-0 text-center'>
                                     <div className='text-[#F57C00] flex gap-1 items-center text-[12px]'>
                                         <Image
                                             src={"/Vector.svg"}
@@ -117,7 +117,7 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData }) => {
                                         {wallet?.ethBalance}
                                     </div>
                                 </TableCell>
-                                <TableCell className='py-0'>
+                                <TableCell className='py-0 text-center'>
                                     <div className='text-[#A1A1AA] flex gap-1 items-center text-[12px]'>
                                         <Image
                                             src={"/coins-01.svg"}

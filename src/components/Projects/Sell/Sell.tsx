@@ -1,61 +1,64 @@
-import React, { useState, ChangeEvent } from 'react';
+import React, { useState, ChangeEvent, useEffect } from 'react';
 import Image from 'next/image';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
+import useBalance from "../../../hooks/useBalance";
 import styles from '../../newproject/checkbox.module.css';
 
-interface Invoice {
-    Number: string;
-    Address: string;
-    EthBalance: string;
-    TokenBalance: string;
-    Estimate: string;
+interface Wallet {
+    address: string;
+    amount: string;
+    ethBalance: string;
+    tokenBalance: string;
+    estimate: string;
 }
 
-export const Sell: React.FC = () => {
-    const invoices: Invoice[] = [
-        {
-            Number: "1",
-            Address: "0x1f9090aaE28b....28e676c326 ",
-            EthBalance: "0.00036",
-            TokenBalance: "0.00036",
-            Estimate: "0.00034"
-        },
-        {
-            Number: "2",
-            Address: "0x1f9090aaE28b....28e676c326 ",
-            EthBalance: "0.00036",
-            TokenBalance: "0.00036",
-            Estimate: "0.00034"
-        },
-        {
-            Number: "3",
-            Address: "0x1f9090aaE28b....28e676c326 ",
-            EthBalance: "0.00036",
-            TokenBalance: "0.00036",
-            Estimate: "0.00034"
-        },
-    ];
+interface SellPageProps {
+    projectData: {
+        beneficiaryDetails: {
+            wallets: Wallet[];
+        };
+    };
+}
+
+type BalanceType = {
+    ehtBalance: BigInt;
+    tokenBalance: BigInt;
+};
+
+export const Sell: React.FC<SellPageProps> = ({ projectData }) => {
+    const wallets: Wallet[] = projectData.beneficiaryDetails.wallets.map((wallet, index) => ({
+        ...wallet,
+        ethBalance: wallet.ethBalance || "0",
+        tokenBalance: wallet.tokenBalance || "0",
+        estimate: wallet.estimate || "0"
+    }));
 
     const [selectedInvoices, setSelectedInvoices] = useState<string[]>([]);
+    const [balances, setBalances] = useState<BalanceType[]>([]);
+    const { getBalance, isLoading } = useBalance();
 
     const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
-            setSelectedInvoices(invoices.map(invoice => invoice.Number));
+            setSelectedInvoices(wallets.map(wallet => wallet.address));
         } else {
             setSelectedInvoices([]);
         }
     };
 
-    const handleSelectOne = (event: ChangeEvent<HTMLInputElement>, invoiceNumber: string) => {
+    useEffect(() => {
+        Promise.all(wallets.map((value) => getBalance({ address: value.address as `0x${string}`, tokenAddress: "0xBd2E04Be415ec7517Cb8D110255923D2652Cbb79" }))).then(result => console.log(result));
+    }, []);
+
+    const handleSelectOne = (event: ChangeEvent<HTMLInputElement>, walletAddress: string) => {
         if (event.target.checked) {
-            setSelectedInvoices(prev => [...prev, invoiceNumber]);
+            setSelectedInvoices(prev => [...prev, walletAddress]);
         } else {
-            setSelectedInvoices(prev => prev.filter(number => number !== invoiceNumber));
+            setSelectedInvoices(prev => prev.filter(address => address !== walletAddress));
         }
     };
 
-    const isSelected = (invoiceNumber: string) => selectedInvoices.includes(invoiceNumber);
+    const isSelected = (walletAddress: string) => selectedInvoices.includes(walletAddress);
 
     return (
         <div>
@@ -67,7 +70,7 @@ export const Sell: React.FC = () => {
                                 type="checkbox"
                                 className={styles.checkbox}
                                 onChange={handleSelectAll}
-                                checked={selectedInvoices.length === invoices.length}
+                                checked={selectedInvoices.length === wallets.length}
                             />
                         </TableHead>
                         <TableHead className='text-[12px] text-center'>#</TableHead>
@@ -80,20 +83,20 @@ export const Sell: React.FC = () => {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {invoices.map((invoice, index) => (
-                        <TableRow key={invoice.Number} className={`hover:bg-inherit py-0 border-none text-center ${index % 2 === 1 ? 'bg-[#18181B]' : ''}`}>
+                    {wallets.map((wallet, index) => (
+                        <TableRow key={wallet.address} className={`hover:bg-inherit py-0 border-none text-center ${index % 2 === 1 ? 'bg-[#18181B]' : ''}`}>
                             <TableCell className='py-0'>
                                 <input
                                     type="checkbox"
                                     className={styles.checkbox}
-                                    checked={isSelected(invoice.Number)}
-                                    onChange={(event) => handleSelectOne(event, invoice.Number)}
+                                    checked={isSelected(wallet.address)}
+                                    onChange={(event) => handleSelectOne(event, wallet.address)}
                                 />
                             </TableCell>
-                            <TableCell className='text-[#A1A1AA] text-[12px]'>{invoice?.Number}</TableCell>
+                            <TableCell className='text-[#A1A1AA] text-[12px]'>{index + 1}</TableCell>
                             <TableCell className='py-0'>
                                 <div className='text-[#71717A] flex gap-1 items-center justify-center text-[12px]'>
-                                    {invoice.Address}
+                                    {wallet.address}
                                     <Image
                                         src={"/copy-01.svg"}
                                         width={15}
@@ -110,7 +113,7 @@ export const Sell: React.FC = () => {
                                         height={15}
                                         alt="ETH"
                                     />
-                                    {invoice?.EthBalance}
+                                    {wallet?.ethBalance}
                                 </div>
                             </TableCell>
                             <TableCell className='py-0'>
@@ -121,7 +124,7 @@ export const Sell: React.FC = () => {
                                         height={15}
                                         alt="Token"
                                     />
-                                    {invoice?.TokenBalance}
+                                    {wallet?.tokenBalance}
                                 </div>
                             </TableCell>
                             <TableCell className='w-[150px] py-0'>
@@ -132,7 +135,7 @@ export const Sell: React.FC = () => {
                                     required
                                 />
                             </TableCell>
-                            <TableCell className='py-0 text-[#A1A1AA] text-[12px]'>{invoice?.Estimate}</TableCell>
+                            <TableCell className='py-0 text-[#A1A1AA] text-[12px]'>{wallet?.estimate}</TableCell>
                             <TableCell className=' py-0'>
                                 <input
                                     type="checkbox"
