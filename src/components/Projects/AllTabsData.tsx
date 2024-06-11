@@ -30,36 +30,6 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab, projectDa
             <ConnectWallet />
             <p className='border-b-[1px] border-[#27272A]'>
             </p>
-            <div className='flex justify-between mt-5 mb-5'>
-                <div className='gap-4 flex'>
-                    <p className='text-[#71717A] text-sm font-medium mb-2 flex gap-2 items-center'>Selected: <span className='text-white'>0</span></p>
-                    <p className='text-[#71717A] text-sm font-medium mb-2 flex gap-2 items-center'>Token balance: <span className='text-white'>0.96</span></p>
-                </div>
-                <div className='gap-4 flex'>
-                    <Button className="bg-[#09090B] border-none text-[#F57C00] text-sm font-normal" >
-                        <Image
-                            src={"/Images/New Project/download-02.svg"}
-                            width={18}
-                            height={18}
-                            alt="logo"
-                            className="cursor-pointer m-auto mr-1"
-                        />
-                        Download wallets
-                    </Button>
-                    {selectedTab !== 'Transfer' && (
-                        <Button className="bg-[#09090B] border-none text-[#F57C00] text-sm font-normal" >
-                            <Image
-                                src={"/Images/New Project/add-01.svg"}
-                                width={18}
-                                height={18}
-                                alt="logo"
-                                className="cursor-pointer m-auto mr-1"
-                            />
-                            Generate Wallet
-                        </Button>
-                    )}
-                </div>
-            </div>
 
             {selectedTab === "Buy" && <BuyPage projectData={projectData} />}
             {selectedTab === "Sell" && <Sell projectData={projectData} />}

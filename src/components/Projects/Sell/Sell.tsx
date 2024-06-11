@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import useBalance from "../../../hooks/useBalance";
 import styles from '../../newproject/checkbox.module.css';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 
 interface Wallet {
     address: string;
@@ -68,6 +69,34 @@ export const Sell: React.FC<SellPageProps> = ({ projectData }) => {
     };
     return (
         <div>
+            <div className='flex justify-between mt-5 mb-5'>
+                <div className='gap-4 flex'>
+                    <p className='text-[#71717A] text-sm font-medium mb-2 flex gap-2 items-center'>Selected: <span className='text-white'>0</span></p>
+                    <p className='text-[#71717A] text-sm font-medium mb-2 flex gap-2 items-center'>Token balance: <span className='text-white'>0.96</span></p>
+                </div>
+                <div className='gap-4 flex'>
+                    <Button className="bg-[#09090B] border-none text-[#F57C00] text-sm font-normal" >
+                        <Image
+                            src={"/Images/New Project/download-02.svg"}
+                            width={18}
+                            height={18}
+                            alt="logo"
+                            className="cursor-pointer m-auto mr-1"
+                        />
+                        Download wallets
+                    </Button>
+                    <Button className="bg-[#09090B] border-none text-[#F57C00] text-sm font-normal" >
+                        <Image
+                            src={"/Images/New Project/add-01.svg"}
+                            width={18}
+                            height={18}
+                            alt="logo"
+                            className="cursor-pointer m-auto mr-1"
+                        />
+                        Generate Wallet
+                    </Button>
+                </div>
+            </div>
             <Table className='border-[1px] border-[#18181B] rounded-md'>
                 <TableHeader className='bg-[#18181B]'>
                     <TableRow className='hover:bg-inherit border-none'>

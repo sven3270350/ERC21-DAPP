@@ -18,10 +18,10 @@ const chainss : Chain[] = [mainnet,base,goerli,sepolia];
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(chainss, [
   publicProvider(),
-  alchemyProvider({ apiKey: process.env.ALCHEMY_KEY || "lv9u9bsZ85gMYhfk3c9jyAIixErH-SoZ"})
+  alchemyProvider({ apiKey: process.env.ALCHEMY_KEY ?? "lv9u9bsZ85gMYhfk3c9jyAIixErH-SoZ"})
 ]);
 
-const projectId: string = process.env.WALLETCONNECTPROJECTID || "a8596606f31dd36e8f20bd4237ef2415";
+const projectId: string = process.env.WALLETCONNECTPROJECTID ?? "a8596606f31dd36e8f20bd4237ef2415";
 
 const { wallets } = getDefaultWallets({
   appName: "RainbowKit For Test Project",
