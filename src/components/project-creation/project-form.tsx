@@ -69,6 +69,7 @@ interface Projects {
 type Props = {
   projectId: string | null;
   data?: any;
+  objectData?: any;
 };
 
 const ethAddressRegex = /^0x[a-fA-F0-9]{40}$/;
@@ -97,7 +98,7 @@ const formSchema = z.object({
   tokenB: z.string({ required_error: "Required*." }),
 });
 
-const ProjectForm = ({ projectId, data }: Props) => {
+const ProjectForm = ({ projectId, data, objectData }: Props) => {
   const session = useSession();
   const userId = (session?.data?.user as ExtendedUser)?.id;
   const router = useRouter();
@@ -193,7 +194,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
           liquidityAmount: values.tokenAmountB,
         },
         beneficiaryDetails: wallets?.data?.beneficiaryDetails,
-        status: "In Progress",
+        status: "Created",
       };
 
       const projects: Projects = {};
@@ -274,6 +275,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
     form.setValue("marketingSellTax", data.marketingWallet.marketingSellTax);
     form.setValue("marketingWallet", data.marketingWallet.marketingWallet);
     form.setValue("tokenAmountB", data.poolData.liquidityAmount);
+    form.setValue("tokenAmountA", data.poolData.tokenAmountA);
     form.setValue("tokenB", data.poolData.liquidityToken);
   }, []);
 
@@ -298,21 +300,21 @@ const ProjectForm = ({ projectId, data }: Props) => {
             </div>
             <div className="gap-6 border-[#27272A] grid grid-cols-4 pb-6 border-b">
               <InputField
-                readOnly={data?.status === "In Progress"}
+                readOnly={data?.status === "Created"}
                 form={form}
                 name="tokenName"
                 label="Token name"
                 placeholder="Example..."
               />
               <InputField
-                readOnly={data?.status === "In Progress"}
+                readOnly={data?.status === "Created"}
                 form={form}
                 name="tokenSymbol"
                 label="Token Symbol"
                 placeholder="Example..."
               />
               <InputField
-                readOnly={data?.status === "In Progress"}
+                readOnly={data?.status === "Created"}
                 form={form}
                 name="maxSupply"
                 type="number"
@@ -320,7 +322,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
                 placeholder="Enter number"
               />
               <InputField
-                readOnly={data?.status === "In Progress"}
+                readOnly={data?.status === "Created"}
                 form={form}
                 name="initialSupply"
                 type="number"
@@ -439,7 +441,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
             </div>
             <div className="gap-6 border-[#27272A] grid grid-cols-5 pb-6 border-b">
               <InputField
-                readOnly={data?.status === "In Progress"}
+                readOnly={data?.status === "Created"}
                 form={form}
                 type="text"
                 name="devBuyTax"
@@ -447,7 +449,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
                 placeholder="e.g 10%"
               />
               <InputField
-                readOnly={data?.status === "In Progress"}
+                readOnly={data?.status === "Created"}
                 form={form}
                 type="text"
                 name="devSellTax"
@@ -456,7 +458,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
               />
               <div className="col-span-3">
                 <InputField
-                  readOnly={data?.status === "In Progress"}
+                  readOnly={data?.status === "Created"}
                   form={form}
                   name="devWallet"
                   label="Dev wallet"
@@ -464,7 +466,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
                 />
               </div>
               <InputField
-                readOnly={data?.status === "In Progress"}
+                readOnly={data?.status === "Created"}
                 form={form}
                 type="text"
                 name="marketingBuyTax"
@@ -472,7 +474,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
                 placeholder="e.g 10%"
               />
               <InputField
-                readOnly={data?.status === "In Progress"}
+                readOnly={data?.status === "Created"}
                 form={form}
                 type="text"
                 name="marketingSellTax"
@@ -481,7 +483,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
               />
               <div className="col-span-3">
                 <InputField
-                  readOnly={data?.status === "In Progress"}
+                  readOnly={data?.status === "Created"}
                   form={form}
                   name="marketingWallet"
                   label="Marketing wallet"
@@ -533,7 +535,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
                     <FormItem>
                       <FormLabel>Token</FormLabel>
                       <Select
-                        disabled={data?.status === "TODO In Progress"}
+                        disabled={data?.status === "TODO Created"}
                         onValueChange={field.onChange}
                         defaultValue={
                           data ? data.poolData.liquidityToken : field.value
@@ -572,18 +574,18 @@ const ProjectForm = ({ projectId, data }: Props) => {
               )}
             </div>
 
-            <div className="flex justify-between items-center">
+            <div className={`flex ${data?.status === "Created" ? "justify-end" : "justify-between"} items-center`}>
               <button
                 type="button"
-                disabled={data?.status === "In Progress"}
+                disabled={data?.status === "Created"}
                 onClick={cancel}
-                className="font-bold text-[#F57C00] text-sm leading-5"
+                className={`${data?.status === "Created" ? "hidden" : ""} font-bold text-[#F57C00] text-sm leading-5`}
               >
                 Cancel
               </button>
-              {data && data?.status === "In Progress" ? (
+              {data && data?.status === "Created" ? (
                 <DeployToken
-                  projectId={projectId!} data={data}
+                  projectId={projectId!} data={data} objectData={objectData}
                 />
               ) : (
                 <Button
