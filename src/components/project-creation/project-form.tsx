@@ -624,25 +624,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
                   objectData={objectData}
                 />
               ) : data?.status === "In Progress" ? (
-                <Button
-                  type="button"
-                  className="flex items-center gap-[8px] bg-[#F57C00] px-8 py-2 rounded-[6px] font-bold text-black text-sm leading-5 transition-all duration-150 ease-in-out group"
-                >
-                  <Image
-                    src="/icons/pool.svg"
-                    alt="pool"
-                    width={20}
-                    height={20}
-                  />
-                  Create Liquidity Pool
-                  {/* {submitting && (
-                    <ClipLoader
-                      color="#fff"
-                      className="color-[black]"
-                      size="16px"
-                    />
-                  )} */}
-                </Button>
+                <CreatePool projectId={projectId!}/>
               ) : (
                 <Button
                   disabled={submitting}
