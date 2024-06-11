@@ -9,6 +9,7 @@ import { waitForTransaction } from "@wagmi/core";
 import { UpdateProject } from "@/utils/update-project";
 import { useSession } from "next-auth/react";
 import { ExtendedUser } from "@/types/user";
+import { saveTransaction } from "@/utils/save-transaction";
 
 interface DeployTokenProps {
   projectId: string;
@@ -78,6 +79,17 @@ export const DeployToken = ({
           return;
         }
         // save the transaction hash to transaction table
+        const transactionData = {
+          userId: userId,
+          transactionHash: "123" as string, // !TODO get the transaction hash
+          transactionType: "token deployed",
+          projectId: projectId,
+        };
+        const saveTransactionRes = await saveTransaction(transactionData);
+        if (saveTransactionRes?.error) {
+          console.error(saveTransactionRes?.error);
+          return;
+        }
         // Update the local db
         // Call the transaction logs api
       }
