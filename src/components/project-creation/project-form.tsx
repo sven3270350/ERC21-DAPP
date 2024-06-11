@@ -84,14 +84,17 @@ const formSchema = z.object({
   initialSupply: z.string().min(1, { message: "Required*" }),
   devBuyTax: z.string().min(1, { message: "Required*" }),
   devSellTax: z.string().min(1, { message: "Required*" }),
-  devWallet: z.string({ message: "Required*" }).refine(isValidEthAddress,{
+  devWallet: z.string({ message: "Required*" }).refine(isValidEthAddress, {
     message: "Invalid Ethereum address",
   }),
   marketingBuyTax: z.string().min(1, { message: "Required*" }),
   marketingSellTax: z.string().min(1, { message: "Required*" }),
-  marketingWallet: z.string().min(1, { message: "Required*" }).refine(isValidEthAddress,{
-    message: "Invalid Ethereum address",
-  }),
+  marketingWallet: z
+    .string()
+    .min(1, { message: "Required*" })
+    .refine(isValidEthAddress, {
+      message: "Invalid Ethereum address",
+    }),
   tokenAmountA: z.string().min(1, { message: "Required*" }),
   tokenAmountB: z.string().min(1, { message: "Required*" }),
   tokenA: z.string({ required_error: "Required*." }),
@@ -278,7 +281,6 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
     form.setValue("tokenAmountA", data.poolData.tokenAmountA);
     form.setValue("tokenB", data.poolData.liquidityToken);
   }, []);
-
 
   return (
     <main className="flex flex-col justify-center items-center gap-6 py-[100px]">
@@ -574,7 +576,9 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
               )}
             </div>
 
-            <div className={`flex ${data?.status === "Created" ? "justify-end" : "justify-between"} items-center`}>
+            <div
+              className={`flex ${data?.status === "Created" ? "justify-end" : "justify-between"} items-center`}
+            >
               <button
                 type="button"
                 disabled={data?.status === "Created"}
@@ -585,8 +589,30 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
               </button>
               {data && data?.status === "Created" ? (
                 <DeployToken
-                  projectId={projectId!} data={data} objectData={objectData}
+                  projectId={projectId!}
+                  data={data}
+                  objectData={objectData}
                 />
+              ) : data?.status === "In Progress" ? (
+                <Button
+                  type="button"
+                  className="flex items-center gap-[8px] bg-[#F57C00] px-8 py-2 rounded-[6px] font-bold text-black text-sm leading-5 transition-all duration-150 ease-in-out group"
+                >
+                  <Image
+                    src="/icons/pool.svg"
+                    alt="pool"
+                    width={20}
+                    height={20}
+                  />
+                  Create Liquidity Pool
+                  {/* {submitting && (
+                    <ClipLoader
+                      color="#fff"
+                      className="color-[black]"
+                      size="16px"
+                    />
+                  )} */}
+                </Button>
               ) : (
                 <Button
                   disabled={submitting}
@@ -602,7 +628,6 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
                   )}
                 </Button>
               )}
-        
             </div>
           </form>
         </Form>

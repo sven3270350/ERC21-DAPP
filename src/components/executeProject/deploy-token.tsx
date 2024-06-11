@@ -10,6 +10,7 @@ import { UpdateProject } from "@/utils/update-project";
 import { useSession } from "next-auth/react";
 import { ExtendedUser } from "@/types/user";
 import { saveTransaction } from "@/utils/save-transaction";
+import { useRouter } from "next/navigation";
 
 interface DeployTokenProps {
   projectId: string;
@@ -29,6 +30,7 @@ export const DeployToken = ({
   const { data: walletClient } = useWalletClient();
 
   const rpc = process.env.NEXT_PUBLIC_ALCHEMY_RPC;
+  const router = useRouter();
 
   const handleDeployment = async () => {
     try {
@@ -142,7 +144,7 @@ export const DeployToken = ({
           
           localStorage.setItem("allProjects", JSON.stringify(updatedData));
         }
-        // Call the transaction logs api
+        router.refresh();
       }
 
       setIsDeploying(false);
