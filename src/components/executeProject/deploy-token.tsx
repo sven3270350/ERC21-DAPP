@@ -33,7 +33,7 @@ export const DeployToken = ({
   const handleDeployment = async () => {
     try {
       setIsDeploying(true);
-      const provider = new ethers.providers.JsonRpcProvider(rpc);
+   
       const hash = await walletClient?.deployContract({
         abi: abi,
         bytecode: bytecode as `0x${string}`,
@@ -51,12 +51,23 @@ export const DeployToken = ({
         ],
       });
 
-      const transaction = await provider.getTransactionReceipt(hash as string);
+      if (!hash) {
+        console.error('Failed to deploy contract');
+        return;
+      }
+  
+      console.log('Transaction hash:', hash);
 
-      console.log(
-        "Contract deployed at address:",
-        transaction?.contractAddress
-      );
+      const provider = new ethers.providers.JsonRpcProvider(rpc)
+      const transaction = await provider.waitForTransaction(hash as string)
+      
+      if (transaction && transaction.status === 1) {
+        console.log('Transaction was successful!');
+        console.log('Contract Address:', transaction.contractAddress);
+      } else {
+        console.log('Transaction failed');
+      }
+
       if (transaction?.contractAddress) {
         // save the contract address to the project + status
         if (!objectData) {
