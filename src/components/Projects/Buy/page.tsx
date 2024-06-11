@@ -1,9 +1,10 @@
-import React, { useState, ChangeEvent } from 'react';
+import React, { useState, ChangeEvent, useEffect } from 'react';
 import { Button } from '../../ui/button';
 import ConnectWallet from '../../connectWallet';
 import Image from 'next/image';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
+import useBalance from "../../../hooks/useBalance"
 import styles from '../../newproject/checkbox.module.css';
 
 interface Wallet {
@@ -21,6 +22,11 @@ interface BuyPageProps {
     };
 }
 
+type BalanceType = {
+    ehtBalance: BigInt;
+    tokenBalance: BigInt;
+}  
+
 export const BuyPage: React.FC<BuyPageProps> = ({ projectData }) => {
     const wallets: Wallet[] = projectData.beneficiaryDetails.wallets.map((wallet, index) => ({
         ...wallet,
@@ -30,6 +36,8 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData }) => {
     console.log("projectData===>", projectData);
 
     const [selectedInvoices, setSelectedInvoices] = useState<string[]>([]);
+    const [balances, setBalances] = useState<BalanceType[]>([])
+    const { getBalance, isLoading } = useBalance()
 
     const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
@@ -38,6 +46,10 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData }) => {
             setSelectedInvoices([]);
         }
     };
+
+    useEffect(() => {
+        Promise.all(wallets.map((value) => getBalance({address: value.address as `0x${string}`, tokenAddress: "0xBd2E04Be415ec7517Cb8D110255923D2652Cbb79"}))).then(result => console.log(result))
+    }, [])
 
     const handleSelectOne = (event: ChangeEvent<HTMLInputElement>, walletAddress: string) => {
         if (event.target.checked) {
