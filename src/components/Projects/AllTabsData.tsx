@@ -9,9 +9,9 @@ import { GrTest } from "react-icons/gr";
 
 interface AllTabsDataProps {
     selectedTab: string;
-}
-
-export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab }) => {
+    projectData: any;
+  }
+export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab, projectData  }) => {
     const TabButton = () => {
         switch (selectedTab) {
             case 'Buy':
@@ -61,7 +61,7 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab }) => {
                 </div>
             </div>
 
-            {selectedTab === "Buy" && <BuyPage />}
+            {selectedTab === "Buy" && <BuyPage projectData={projectData} />}
             {selectedTab === "Sell" && <Sell />}
             {selectedTab === "Transfer" && <Transfer />}
 

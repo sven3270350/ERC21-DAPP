@@ -160,7 +160,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
         console.log("Project Id is missing");
         return;
       }
-      const wallets = await generateWallets(100, 0);
+      const wallets = await generateWallets(2, 0);
 
       if (!wallets.success) {
         console.log("Error generating wallets");

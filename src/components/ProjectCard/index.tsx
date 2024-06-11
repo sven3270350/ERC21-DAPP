@@ -38,12 +38,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
             <p className="font-semibold text-sm">Deployer Wallet</p>
           </div>
           <p className="text-[#71717A] text-xs font-medium text-start break-words">
-            {project?.walletAddess}
+            {project?.walletAddress}
           </p>
         </div>
         <button
           className="flex items-end"
-          onClick={() => copyToClipboard(project?.walletAddess)}
+          onClick={() => copyToClipboard(project?.walletAddress)}
         >
           <Image src={"/copy-01.svg"} alt="copy" width={20} height={20} />
         </button>
@@ -122,7 +122,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
               height={20}
             />
             <p className="font-semibold text-sm">
-              {totalWalletAmount.toFixed(2)}
+              {totalWalletAmount?.toFixed(2)}
             </p>
           </div>
           <p className="font-medium text-[#71717A] text-xs tracking-[0.06px]">

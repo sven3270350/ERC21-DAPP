@@ -6,55 +6,48 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import styles from '../../newproject/checkbox.module.css';
 
-interface Invoice {
-    Number: string;
-    Address: string;
-    EthBalance: string;
-    TokenBalance: string;
+interface Wallet {
+    address: string;
+    amount: string;
+    ethBalance: string;
+    tokenBalance: string;
 }
 
+interface BuyPageProps {
+    projectData: {
+        beneficiaryDetails: {
+            wallets: Wallet[];
+        };
+    };
+}
 
-export const BuyPage = () => {
-    const invoices: Invoice[] = [
-        {
-            Number: "1",
-            Address: "0x1f9090aaE28b....28e676c326 ",
-            EthBalance: "0.00036",
-            TokenBalance: "0.00036",
-        },
-        {
-            Number: "2",
-            Address: "0x1f9090aaE28b....28e676c326 ",
-            EthBalance: "0.00036",
-            TokenBalance: "0.00036",
-        },
-        {
-            Number: "3",
-            Address: "0x1f9090aaE28b....28e676c326 ",
-            EthBalance: "0.00036",
-            TokenBalance: "0.00036",
-        },
-    ];
+export const BuyPage: React.FC<BuyPageProps> = ({ projectData }) => {
+    const wallets: Wallet[] = projectData.beneficiaryDetails.wallets.map((wallet, index) => ({
+        ...wallet,
+        ethBalance: wallet.ethBalance || "0",
+        tokenBalance: wallet.tokenBalance || "0"
+    }));
+    console.log("projectData===>", projectData);
 
     const [selectedInvoices, setSelectedInvoices] = useState<string[]>([]);
 
     const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
-            setSelectedInvoices(invoices.map(invoice => invoice.Number));
+            setSelectedInvoices(wallets.map(wallet => wallet.address));
         } else {
             setSelectedInvoices([]);
         }
     };
 
-    const handleSelectOne = (event: ChangeEvent<HTMLInputElement>, invoiceNumber: string) => {
+    const handleSelectOne = (event: ChangeEvent<HTMLInputElement>, walletAddress: string) => {
         if (event.target.checked) {
-            setSelectedInvoices(prev => [...prev, invoiceNumber]);
+            setSelectedInvoices(prev => [...prev, walletAddress]);
         } else {
-            setSelectedInvoices(prev => prev.filter(number => number !== invoiceNumber));
+            setSelectedInvoices(prev => prev.filter(address => address !== walletAddress));
         }
     };
 
-    const isSelected = (invoiceNumber: string) => selectedInvoices.includes(invoiceNumber);
+    const isSelected = (walletAddress: string) => selectedInvoices.includes(walletAddress);
 
     return (
         <div>
@@ -67,7 +60,7 @@ export const BuyPage = () => {
                                     type="checkbox"
                                     className={styles.checkbox}
                                     onChange={handleSelectAll}
-                                    checked={selectedInvoices.length === invoices.length}
+                                    checked={selectedInvoices.length === wallets.length}
                                 />
                             </TableHead>
                             <TableHead className='text-[12px] text-center'>#</TableHead>
@@ -79,20 +72,20 @@ export const BuyPage = () => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {invoices.map((invoice, index) => (
-                            <TableRow key={invoice.Number} className={`hover:bg-inherit py-0 border-none ${index % 2 === 1 ? 'bg-[#18181B]' : ''}`}>
+                        {wallets.map((wallet, index) => (
+                            <TableRow key={wallet.address} className={`hover:bg-inherit py-0 border-none ${index % 2 === 1 ? 'bg-[#18181B]' : ''}`}>
                                 <TableCell className='py-0'>
                                     <input
                                         type="checkbox"
                                         className={styles.checkbox}
-                                        checked={isSelected(invoice.Number)}
-                                        onChange={(event) => handleSelectOne(event, invoice.Number)}
+                                        checked={isSelected(wallet.address)}
+                                        onChange={(event) => handleSelectOne(event, wallet.address)}
                                     />
                                 </TableCell>
-                                <TableCell className='text-[#A1A1AA] text-[12px]'>{invoice.Number}</TableCell>
+                                <TableCell className='text-[#A1A1AA] text-[12px]'>{index + 1}</TableCell>
                                 <TableCell className='py-0'>
                                     <div className='text-[#71717A] flex gap-1 items-center text-[12px]'>
-                                        {invoice.Address}
+                                        {wallet.address}
                                         <Image
                                             src={"/copy-01.svg"}
                                             width={15}
@@ -109,7 +102,7 @@ export const BuyPage = () => {
                                             height={15}
                                             alt="ETH"
                                         />
-                                        {invoice.EthBalance}
+                                        {wallet?.ethBalance}
                                     </div>
                                 </TableCell>
                                 <TableCell className='py-0'>
@@ -120,7 +113,7 @@ export const BuyPage = () => {
                                             height={15}
                                             alt="Token"
                                         />
-                                        {invoice.TokenBalance}
+                                        {wallet?.tokenBalance}
                                     </div>
                                 </TableCell>
                                 <TableCell className='w-[200px] py-0'>
@@ -145,5 +138,5 @@ export const BuyPage = () => {
                 </Table>
             </div>
         </div>
-    )
+    );
 }

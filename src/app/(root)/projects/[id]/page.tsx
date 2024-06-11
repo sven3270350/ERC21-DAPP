@@ -13,6 +13,7 @@ type Props = {
 export default function Project({ params }: Props) {
   const projectId = params.id;
   const [project, setProject] = useState<any>(null);
+
   const fetchProject = () => {
     if (typeof window === "undefined") return;
     const data = localStorage.getItem("allProjects");
@@ -34,6 +35,7 @@ export default function Project({ params }: Props) {
     }
     return project;
   };
+
   useEffect(() => {
     const project = fetchProject();
     if (!project) return;
@@ -53,10 +55,10 @@ export default function Project({ params }: Props) {
 
   return (
     <div>
-      {project && project?.status ? (
-        <ProjectForm projectId={projectId} data={project} />
+      {project && project?.status === "Completed" ? (
+        <Projects projectData={project} />
       ) : (
-        <Projects />
+        <ProjectForm projectId={projectId} data={project} />
       )}
     </div>
   );
