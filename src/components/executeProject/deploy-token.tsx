@@ -23,7 +23,8 @@ export const DeployToken = ({ projectId, data }: DeployTokenProps) => {
   const handleDeployment = async () => {
     try {
       setIsDeploying(true);
-      const provider = new ethers.providers.JsonRpcProvider(rpc)
+
+
       const hash = await walletClient?.deployContract({
         abi: abi,
         bytecode: bytecode as `0x${string}`,
@@ -38,10 +39,23 @@ export const DeployToken = ({ projectId, data }: DeployTokenProps) => {
           data.devWallet.devWallet,
           data.marketingWallet.marketingWallet],
       });
-   
-      const transaction = await provider.getTransactionReceipt(hash as string)
 
-      console.log("Contract deployed at address:", transaction.contractAddress);
+      if (!hash) {
+        console.error('Failed to deploy contract');
+        return;
+      }
+  
+      console.log('Transaction hash:', hash);
+
+      const provider = new ethers.providers.JsonRpcProvider(rpc)
+      const receipt = await provider.waitForTransaction(hash as string)
+      
+      if (receipt && receipt.status === 1) {
+        console.log('Transaction was successful!');
+        console.log('Contract Address:', receipt.contractAddress);
+      } else {
+        console.log('Transaction failed');
+      }
 
       setIsDeploying(false);
       setDeployState(true);
