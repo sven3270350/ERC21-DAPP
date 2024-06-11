@@ -33,7 +33,7 @@ export const DeployToken = ({
   const handleDeployment = async () => {
     try {
       setIsDeploying(true);
-   
+
       const hash = await walletClient?.deployContract({
         abi: abi,
         bytecode: bytecode as `0x${string}`,
@@ -52,20 +52,20 @@ export const DeployToken = ({
       });
 
       if (!hash) {
-        console.error('Failed to deploy contract');
+        console.error("Failed to deploy contract");
         return;
       }
-  
-      console.log('Transaction hash:', hash);
 
-      const provider = new ethers.providers.JsonRpcProvider(rpc)
-      const transaction = await provider.waitForTransaction(hash as string)
-      
+      console.log("Transaction hash:", hash);
+
+      const provider = new ethers.providers.JsonRpcProvider(rpc);
+      const transaction = await provider.waitForTransaction(hash as string);
+
       if (transaction && transaction.status === 1) {
-        console.log('Transaction was successful!');
-        console.log('Contract Address:', transaction.contractAddress);
+        console.log("Transaction was successful!");
+        console.log("Contract Address:", transaction.contractAddress);
       } else {
-        console.log('Transaction failed');
+        console.log("Transaction failed");
       }
 
       if (transaction?.contractAddress) {
@@ -78,7 +78,8 @@ export const DeployToken = ({
           ...objectData,
         };
         projectData[projectId].status = "In Progress";
-        projectData[projectId].deployedTokenAddress = transaction?.contractAddress;
+        projectData[projectId].deployedTokenAddress =
+          transaction?.contractAddress;
         console.log(projectData, "data");
         if (!userId) {
           console.error("User not found");
@@ -92,16 +93,55 @@ export const DeployToken = ({
         // save the transaction hash to transaction table
         const transactionData = {
           userId: userId,
-          transactionHash: "123" as string, // !TODO get the transaction hash
+          transactionHash: hash as string, // !TODO get the transaction hash
           transactionType: "token deployed",
           projectId: projectId,
         };
         const saveTransactionRes = await saveTransaction(transactionData);
         if (saveTransactionRes?.error) {
           console.error(saveTransactionRes?.error);
-          return;
+          // return; //!TODO: handle error
         }
         // Update the local db
+        if (typeof window !== "undefined") {
+          console.log("window");
+          
+          const data = localStorage.getItem("allProjects");
+          const parsedData: Record<string, any> = data ? JSON.parse(data) : [];
+          const projectsArray = parsedData.map((obj: any) => {
+            const key = Object.keys(obj)[0];
+            const project = obj[key];
+            return {
+              ...project,
+              projectId: key,
+            };
+          });
+          const project = projectsArray.find(
+            (project: any) => project.projectId === projectId
+          );
+          if (!project) {
+            console.error("Project not found");
+            return;
+          }
+          console.log(project, "project");
+          
+          const projectIndex = projectsArray.findIndex(
+            (project: any) => project.projectId === projectId
+          );
+          projectsArray[projectIndex] = {
+            ...project,
+            status: "In Progress",
+            deployedTokenAddress: transaction?.contractAddress,
+          };
+          const updatedData = projectsArray.map((project: any) => {
+            return {
+              [project.projectId]: project,
+            };
+          });
+          console.log(updatedData, "updatedData");
+          
+          localStorage.setItem("allProjects", JSON.stringify(updatedData));
+        }
         // Call the transaction logs api
       }
 
@@ -110,6 +150,8 @@ export const DeployToken = ({
     } catch (error) {
       setIsDeploying(false);
       console.log(error);
+    } finally {
+      setIsDeploying(false);
     }
   };
 
