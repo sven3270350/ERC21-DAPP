@@ -36,6 +36,8 @@ import { useParams } from "next/navigation";
 
 import { DeployToken } from "../executeProject/deploy-token";
 import CreatePool from "../executeProject/CreatePool";
+import { formatDate } from "@/utils/format-date";
+import Link from "next/link";
 
 type Project = {
   tokendetails: {
@@ -65,6 +67,12 @@ type Project = {
 interface Projects {
   [key: string]: Project;
 }
+
+type TransactionLog = {
+  transactionType: string;
+  createAt: string;
+  transactionHash: string;
+};
 
 type Props = {
   projectId: string | null;
@@ -127,6 +135,8 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
   const { isConnected, address } = useAccount();
   const [submitting, setSubmitting] = useState(false);
   const [price, setPrice] = useState(0);
+  const [transactionLog, setTransactionLog] = useState<TransactionLog[]>([]);
+  const [loading, setLoading] = useState(false);
 
   function cancel() {
     form.reset();
@@ -263,7 +273,26 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
     calculateTokenPrice();
   }, [tokenAmountA, tokenAmountB]);
 
-  let arr: number[] = [1, 2];
+  useEffect(() => {
+    if (!projectId) return;
+    if (!data?.deployedTokenAddress) return;
+    const fetchTransactionLog = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get(`/api/polling/log/${userId}/${projectId}`);
+        if (res.data.success) {
+          console.log("Transaction log:", res.data.userRequests);
+
+          setTransactionLog(res.data.userRequests);
+        }
+      } catch (error) {
+        console.error("Error fetching transaction log:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTransactionLog();
+  }, [data?.deployedTokenAddress, projectId]);
 
   useEffect(() => {
     if (!data) return;
@@ -635,7 +664,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
       <div
         className={classNames(
           {
-            "py-6": arr.length == 0,
+            "py-6": transactionLog.length == 0,
           },
           "relative flex flex-col border-[#3f3f46] bg-[#18181B] px-6 pt-10 border rounded-[12px] w-[719px]"
         )}
@@ -645,27 +674,40 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
             Transaction Logs
           </p>
         </div>
-        {arr?.map((_, index) => (
-          <div
-            key={index}
-            className={classNames(
-              {
-                "border-b border-[#27272A]": index !== arr.length - 1, // remove border bottom for last element
-              },
-              "flex justify-start items-center gap-2 text-left py-6"
-            )}
-          >
-            <p className="font-[400] text-[#71717A] text-sm leading-5">
-              May 14, 18:58 UTC
-            </p>
-            <p className="font-[400] text-[#00E676] text-sm leading-5">
-              token deployed
-            </p>
-            <p className="font-[400] text-[#F57C00] text-sm underline leading-5">
-              etherscan
-            </p>
+        {loading ? (
+          <div className="text-white">Loading</div>
+        ) : transactionLog?.length > 0 ? (
+          transactionLog?.map((item, index) => (
+            <div
+              key={index}
+              className={classNames(
+                {
+                  "border-b border-[#27272A]":
+                    index !== transactionLog.length - 1, // remove border bottom for last element
+                },
+                "flex justify-start items-center gap-2 text-left py-6"
+              )}
+            >
+              <p className="font-[400] text-[#71717A] text-sm leading-5">
+                {formatDate(item?.createAt)}
+              </p>
+              <p className="font-[400] text-[#00E676] text-sm leading-5">
+                {item?.transactionType}
+              </p>
+              <Link
+                href={`https://etherscan.io/tx/${item?.transactionHash}`}
+                target="_blank"
+                className="font-[400] text-[#F57C00] text-sm underline leading-5"
+              >
+                etherscan
+              </Link>
+            </div>
+          ))
+        ) : (
+          <div>
+            <h1>No Transaction Found</h1>
           </div>
-        ))}
+        )}
       </div>
     </main>
   );
