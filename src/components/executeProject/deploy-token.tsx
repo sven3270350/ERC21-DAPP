@@ -145,6 +145,7 @@ export const DeployToken = ({
           localStorage.setItem("allProjects", JSON.stringify(updatedData));
         }
         router.refresh();
+        router.push("/dashboard")
       }
 
       setIsDeploying(false);
