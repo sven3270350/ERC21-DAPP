@@ -624,7 +624,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
                   objectData={objectData}
                 />
               ) : data?.status === "In Progress" ? (
-                <CreatePool projectId={projectId!}/>
+                <CreatePool projectId={projectId!} objectData={objectData}/>
               ) : (
                 <Button
                   disabled={submitting}
