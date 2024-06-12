@@ -570,7 +570,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
                     <FormItem>
                       <FormLabel>Token</FormLabel>
                       <Select
-                        disabled={data?.status === "TODO Created"}
+                        disabled={data?.status === "Created" || data?.status === "In progress"}
                         onValueChange={field.onChange}
                         defaultValue={
                           data ? data.poolData.liquidityToken : field.value
