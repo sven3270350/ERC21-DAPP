@@ -16,11 +16,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   };
 
   const status = project.status || "Created";
-
-  const totalWalletAmount = project?.beneficiaryDetails?.wallets?.reduce((total, wallet) => {
-    return total + (parseFloat(wallet.amount) || 0);
-  }, 0);
-
+  const totalWalletAmount = project?.beneficiaryDetails?.length
   return (
     <div className="flex flex-col gap-4 col-span-1 bg-[#18181B] px-[10px] py-3 rounded-xl">
       <div className="flex justify-between items-center border-[#27272A] mb-3 pb-3 border-b">
@@ -122,11 +118,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
               height={20}
             />
             <p className="font-semibold text-sm">
-              {totalWalletAmount?.toFixed(2)}
+              {totalWalletAmount}
             </p>
           </div>
           <p className="font-medium text-[#71717A] text-xs tracking-[0.06px]">
-            Wallets Amount
+            Wallets
           </p>
         </div>
       </div>

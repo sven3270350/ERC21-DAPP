@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { createWallets } from "@/utils/generate-wallet";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { zodResolver } from "@hookform/resolvers/zod";
 import classNames from "classnames";
@@ -24,8 +25,6 @@ import { InputField } from "./input-field";
 import { Title } from "./title";
 import { DisconnectBtn } from "../Header/disconnect";
 import { useAccount } from "wagmi";
-
-import { generateBeneficiaryDetails } from "@/utils/generate-wallet";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import ClipLoader from "react-spinners/ClipLoader";
@@ -175,12 +174,14 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
         console.log("Project Id is missing");
         return;
       }
-      const wallets = await generateWallets(100, 0);
 
-      if (!wallets.success) {
-        console.log("Error generating wallets");
-        return;
-      }
+      console.log("Creating wallets...");
+      const startTime = performance.now();
+      const wallets = await createWallets(50);
+      const endTime = performance.now();
+      const elapsedTime = endTime - startTime;
+      console.log(`Time taken to create wallets: ${elapsedTime} milliseconds`);
+  
       const data = {
         tokendetails: {
           tokenName: values.tokenName,
@@ -207,7 +208,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
           liquidityToken: values.tokenB,
           liquidityAmount: values.tokenAmountB,
         },
-        beneficiaryDetails: wallets?.data?.beneficiaryDetails,
+        beneficiaryDetails: wallets,
         status: "Created",
       };
 
