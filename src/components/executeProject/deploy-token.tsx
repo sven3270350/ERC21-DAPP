@@ -185,7 +185,7 @@ export const DeployToken = ({
 };
 
 export const getTxCost = async ({ data }: DeployTokenProps) => {
-  const rpc = process.env.NEXT_PUBLIC_RPC!;
+  const rpc = process.env.NEXT_PUBLIC_ALCHEMY_RPC;
   const provider = new ethers.providers.JsonRpcProvider(rpc);
 
   const privateKey = process.env.NEXT_PUBLIC_WALLET_PRIVATE_KEY!;
