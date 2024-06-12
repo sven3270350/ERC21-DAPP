@@ -24,9 +24,8 @@ export interface Project {
   };
   status: string;
   beneficiaryDetails: {
-    [x: string]: number;
-    numWallets: number;
-    tokenAmount: number;
-    wallets: { address: string; amount: string; privateKey: string }[];
-  };
+    address: string;
+    amount: string;
+    privateKey: string;
+  }[];
 }

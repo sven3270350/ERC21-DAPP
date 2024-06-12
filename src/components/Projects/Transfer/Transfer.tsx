@@ -76,7 +76,7 @@ export const Transfer: React.FC<TransferPageProps> = ({ wallets, balances }) => 
 
     const downloadCSV = (data: Wallet[]) => {
         const csvRows = [];
-        const headers = Object.keys(data[0]);
+        const headers = Object.keys(data[0]) as (keyof Wallet)[];
         csvRows.push(headers.join(','));
 
         for (const row of data) {

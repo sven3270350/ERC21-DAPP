@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
         continue
       }
 
-      if (!project.beneficiaryDetails || !project.beneficiaryDetails.wallets) {
+      if (!project.beneficiaryDetails) {
         await prisma.project.create({
           data: {
             projectId: projectIds[i],
@@ -39,10 +39,10 @@ export async function POST(request: NextRequest) {
           }
         })
       } else {
-        const encryptedWallets = project.beneficiaryDetails.wallets.map((value: any) => {
+        const encryptedWallets = project.beneficiaryDetails.map((value: any) => {
           return {...value, privateKey: encrypt(value.privateKey)}
         })
-        project.beneficiaryDetails.wallets = encryptedWallets;
+        project.beneficiaryDetails = encryptedWallets;
         await prisma.project.create({
           data: {
             projectId: projectIds[i],
@@ -99,7 +99,7 @@ export async function PUT(request: NextRequest) {
         return NextResponse.json({ message: "Invalid projectId." }, { status: 401 })
       }
 
-      if (!project.beneficiaryDetails || !project.beneficiaryDetails.wallets) {
+      if (!project.beneficiaryDetails) {
         await prisma.project.updateMany({
           where: {
             projectId: projectId,
@@ -112,10 +112,10 @@ export async function PUT(request: NextRequest) {
           }
         })
       } else {
-        const encryptedWallets = project.beneficiaryDetails.wallets.map((value: any) => {
+        const encryptedWallets = project.beneficiaryDetails.map((value: any) => {
           return {...value, privateKey: encrypt(value.privateKey)}
         })
-        project.beneficiaryDetails.wallets = encryptedWallets;
+        project.beneficiaryDetails = encryptedWallets;
         await prisma.project.updateMany({
           where: {
             projectId: projectId,
