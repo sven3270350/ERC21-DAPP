@@ -600,7 +600,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
                   )}
                 </Button>
               )}
-        
+          <CreatePool projectId={projectId!}/>
             </div>
           </form>
         </Form>
