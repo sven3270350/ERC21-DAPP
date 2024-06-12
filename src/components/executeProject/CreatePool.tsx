@@ -38,12 +38,11 @@ const CreatePool: React.FC<CreatePoolProps> = ({ onPrev, projectId,  }) => {
     );
     const tokenData = project?.tokendetails;
     const poolData = project?.poolData;
-    const tokenAddress = tokenData?.contractAddress;
+    const tokenAddress = project?.deployedTokenAddress;
     const amountTokenDesired = poolData.tokenAmountA;
     const amountETHDesired = poolData?.tokenAmountB;
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from now
 
-    
     try {
 
       setIsCreating(true);
