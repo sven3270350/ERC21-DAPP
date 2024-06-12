@@ -27,6 +27,10 @@ interface Wallet {
     privateKey: string;
     tokensToBuy: string;
     additionalEth: string;
+    estimate: string;
+    tokenToSell: string;
+    addressToTransfer: string;
+    TokenAmount: string;
 }
 
 type BalanceType = {
@@ -37,8 +41,9 @@ type BalanceType = {
 export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab, projectData }) => {
     const wallets: Wallet[] = useMemo(() => (projectData.beneficiaryDetails.wallets.slice(0, 2).map((wallet, index) => ({
         ...wallet,
-        ethBalance: wallet.ethBalance || "0",
-        tokenBalance: wallet.tokenBalance || "0"
+        ethBalance: wallet?.ethBalance || "0",
+        tokenBalance: wallet?.tokenBalance || "0",
+        estimate: wallet?.estimate || "0"
     }))), [projectData.beneficiaryDetails.wallets]);
 
     console.log("wallets===>", wallets);
@@ -78,8 +83,8 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab, projectDa
             <p className='border-b-[1px] border-[#27272A]'></p>
 
             {selectedTab === "Buy" && <BuyPage projectData={projectData} wallets={wallets} balances={balances} />}
-            {selectedTab === "Sell" && <Sell />}
-            {selectedTab === "Transfer" && <Transfer />}
+            {selectedTab === "Sell" && <Sell wallets={wallets} balances={balances}/>}
+            {selectedTab === "Transfer" && <Transfer wallets={wallets} balances={balances}/>}
 
             <p className='border-b-[1px] border-[#27272A] mt-4 mb-4'></p>
             <div className='flex gap-2 justify-end items-center'>
