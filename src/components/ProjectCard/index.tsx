@@ -16,7 +16,6 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   };
 
   const status = project.status || "Created";
-  console.log(project);
   const totalWalletAmount = project?.beneficiaryDetails?.length
   return (
     <div className="flex flex-col gap-4 col-span-1 bg-[#18181B] px-[10px] py-3 rounded-xl">
