@@ -3,62 +3,113 @@ import Image from 'next/image';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import styles from '../../newproject/checkbox.module.css';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 
-interface Invoice {
-    Number: string;
-    Address: string;
-    EthBalance: string;
-    TokenBalance: string;
-    Estimate: string;
+interface Wallet {
+    address: string;
+    amount: string;
+    ethBalance: string;
+    tokenBalance: string;
+    estimate: string;
+    privateKey: string;
+    tokenToSell: string;
 }
 
-export const Sell: React.FC = () => {
-    const invoices: Invoice[] = [
-        {
-            Number: "1",
-            Address: "0x1f9090aaE28b....28e676c326 ",
-            EthBalance: "0.00036",
-            TokenBalance: "0.00036",
-            Estimate: "0.00034"
-        },
-        {
-            Number: "2",
-            Address: "0x1f9090aaE28b....28e676c326 ",
-            EthBalance: "0.00036",
-            TokenBalance: "0.00036",
-            Estimate: "0.00034"
-        },
-        {
-            Number: "3",
-            Address: "0x1f9090aaE28b....28e676c326 ",
-            EthBalance: "0.00036",
-            TokenBalance: "0.00036",
-            Estimate: "0.00034"
-        },
-    ];
+interface SellPageProps {
+    wallets: Wallet[];
+    balances: { ethBalance: bigint; tokenBalance: bigint; }[];
+}
 
-    const [selectedInvoices, setSelectedInvoices] = useState<string[]>([]);
+export const Sell: React.FC<SellPageProps> = ({ wallets, balances }) => {
+    const [selectedWallet, setSelectedWallet] = useState<string[]>([]);
+    const [initialWallets, setInitialWallets] = useState<Wallet[]>(wallets);
 
     const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
-            setSelectedInvoices(invoices.map(invoice => invoice.Number));
+            setSelectedWallet(initialWallets.map(wallet => wallet.address));
+            applyAmountsToAll();
         } else {
-            setSelectedInvoices([]);
+            setSelectedWallet([]);
+            setInitialWallets(wallets);
         }
     };
 
-    const handleSelectOne = (event: ChangeEvent<HTMLInputElement>, invoiceNumber: string) => {
+    const applyAmountsToAll = () => {
+        const firstWallet = initialWallets[0];
+        setInitialWallets(prevWallets => prevWallets.map(wallet => ({
+            ...wallet,
+            tokenToSell: firstWallet.tokenToSell,
+        })));
+    };
+
+    const handleTokenToSell = (event: ChangeEvent<HTMLInputElement>, index: number) => {
+        const newWallets = [...initialWallets];
+        newWallets[index].tokenToSell = event.target.value;
+        setInitialWallets(newWallets);
+    };
+
+    const handleSelectOne = (event: ChangeEvent<HTMLInputElement>, walletAddress: string) => {
         if (event.target.checked) {
-            setSelectedInvoices(prev => [...prev, invoiceNumber]);
+            setSelectedWallet(prev => [...prev, walletAddress]);
         } else {
-            setSelectedInvoices(prev => prev.filter(number => number !== invoiceNumber));
+            setSelectedWallet(prev => prev.filter(address => address !== walletAddress));
         }
     };
 
-    const isSelected = (invoiceNumber: string) => selectedInvoices.includes(invoiceNumber);
+    const isSelected = (walletAddress: string) => selectedWallet.includes(walletAddress);
+
+    const handlePublicKeyCopy = (address: string, privateKey: string) => {
+        const textToCopy = `${address} ${privateKey}`;
+        navigator.clipboard.writeText(textToCopy);
+        toast.info("Public Key and Private Key copied to clipboard");
+    };
+
+    const downloadCSV = (data: Wallet[]) => {
+        const csvRows = [];
+        const headers = Object.keys(data[0]);
+        csvRows.push(headers.join(','));
+
+        for (const row of data) {
+            const values = headers.map(header => row[header]);
+            csvRows.push(values.join(','));
+        }
+
+        const csvString = csvRows.join('\n');
+        const blob = new Blob([csvString], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('href', url);
+        a.setAttribute('download', 'wallets.csv');
+        a.click();
+    };
+
+    const handleDownloadCSV = () => {
+        if (selectedWallet.length === initialWallets.length) {
+            applyAmountsToAll();
+        }
+        downloadCSV(initialWallets);
+    };
 
     return (
         <div>
+            <div className='flex justify-between mt-5 mb-5'>
+                <div className='gap-4 flex'>
+                    <p className='text-[#71717A] text-sm font-medium mb-2 flex gap-2 items-center'>Selected: <span className='text-white'>{selectedWallet.length}</span></p>
+                </div>
+                <div className='gap-4 flex'>
+                    <Button className="bg-[#09090B] border-none text-[#F57C00] text-sm font-normal" onClick={handleDownloadCSV}>
+                        <Image
+                            src={"/Images/New Project/download-02.svg"}
+                            width={18}
+                            height={18}
+                            alt="logo"
+                            className="cursor-pointer m-auto mr-1"
+                        />
+                        Download wallets
+                    </Button>
+                </div>
+            </div>
             <Table className='border-[1px] border-[#18181B] rounded-md'>
                 <TableHeader className='bg-[#18181B]'>
                     <TableRow className='hover:bg-inherit border-none'>
@@ -67,7 +118,7 @@ export const Sell: React.FC = () => {
                                 type="checkbox"
                                 className={styles.checkbox}
                                 onChange={handleSelectAll}
-                                checked={selectedInvoices.length === invoices.length}
+                                checked={selectedWallet.length === wallets.length}
                             />
                         </TableHead>
                         <TableHead className='text-[12px] text-center'>#</TableHead>
@@ -80,25 +131,27 @@ export const Sell: React.FC = () => {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {invoices.map((invoice, index) => (
-                        <TableRow key={invoice.Number} className={`hover:bg-inherit py-0 border-none text-center ${index % 2 === 1 ? 'bg-[#18181B]' : ''}`}>
+                    {initialWallets.map((wallet, index) => (
+                        <TableRow key={wallet.address} className={`hover:bg-inherit py-0 border-none text-center ${index % 2 === 1 ? 'bg-[#18181B]' : ''}`}>
                             <TableCell className='py-0'>
                                 <input
                                     type="checkbox"
                                     className={styles.checkbox}
-                                    checked={isSelected(invoice.Number)}
-                                    onChange={(event) => handleSelectOne(event, invoice.Number)}
+                                    checked={isSelected(wallet.address)}
+                                    onChange={(event) => handleSelectOne(event, wallet.address)}
                                 />
                             </TableCell>
-                            <TableCell className='text-[#A1A1AA] text-[12px]'>{invoice?.Number}</TableCell>
+                            <TableCell className='text-[#A1A1AA] text-[12px]'>{index + 1}</TableCell>
                             <TableCell className='py-0'>
-                                <div className='text-[#71717A] flex gap-1 items-center justify-center text-[12px]'>
-                                    {invoice.Address}
+                                <div className='text-[#71717A] flex gap-1 items-center text-[12px]'>
+                                    {wallet.address}
+                                    <p className='hidden'>{wallet.privateKey}</p>
                                     <Image
                                         src={"/copy-01.svg"}
                                         width={15}
                                         height={15}
                                         alt="Copy"
+                                        onClick={() => handlePublicKeyCopy(wallet.address, wallet.privateKey)}
                                     />
                                 </div>
                             </TableCell>
@@ -110,7 +163,7 @@ export const Sell: React.FC = () => {
                                         height={15}
                                         alt="ETH"
                                     />
-                                    {invoice?.EthBalance}
+                                    {Number(balances[index]?.ethBalance) / (10 ** 18)}
                                 </div>
                             </TableCell>
                             <TableCell className='py-0'>
@@ -121,18 +174,20 @@ export const Sell: React.FC = () => {
                                         height={15}
                                         alt="Token"
                                     />
-                                    {invoice?.TokenBalance}
+                                    {Number(balances[index]?.tokenBalance) / (10 ** 18)}
                                 </div>
                             </TableCell>
                             <TableCell className='w-[150px] py-0'>
                                 <Input
                                     className="bg-[#18181B] h-8 border-[#27272A] mt-2 text-white justify-center text-center text-[12px]"
-                                    placeholder="Amount"
+                                    placeholder="%"
                                     type="number"
                                     required
+                                    value={wallet?.tokenToSell}
+                                    onChange={(e) => handleTokenToSell(e, index)}
                                 />
                             </TableCell>
-                            <TableCell className='py-0 text-[#A1A1AA] text-[12px]'>{invoice?.Estimate}</TableCell>
+                            <TableCell className='py-0 text-[#A1A1AA] text-[12px]'>{wallet?.estimate}</TableCell>
                             <TableCell className=' py-0'>
                                 <input
                                     type="checkbox"

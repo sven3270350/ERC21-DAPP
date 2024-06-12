@@ -189,7 +189,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
           maxSupply: values.maxSupply,
           initialSupply: values.initialSupply,
         },
-        walletAddess: address,
+        walletAddress: address,
         devWallet: {
           devBuyTax: values.devBuyTax,
           devSellTax: values.devSellTax,

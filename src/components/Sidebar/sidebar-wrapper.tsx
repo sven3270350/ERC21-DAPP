@@ -201,7 +201,7 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
           </Sidebar>
         )}
       </div>
-      <div className="bg-[#09090B] w-full h-full text-white overflow-auto scrollbar-hide">
+      <div className="bg-[#09090B] w-full h-full text-white overflow-auto scrollbar-hide pt-24">
         {children}
       </div>
     </div>

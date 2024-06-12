@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 const ConnectWallet = () => {
   // const router = useRouter();
-  // const { isConnected, address } = useAccount();
+  const { isConnected, address } = useAccount();
   // const isAllowed = isConnected;
   // useEffect(() => {
   //   if (session.status !== "authenticated") return;
@@ -25,7 +25,8 @@ const ConnectWallet = () => {
     <div className=" w-full text-white overflow-auto flex justify-between items-start ">
       <div>
         <h2 className="text-xl font-semibold text-white text-start mb-2">Deployer wallet</h2>
-        <p className="text-[#71717A] text-sm font-medium text-center mb-2 flex gap-2 items-center">0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367
+        <p className="text-[#71717A] text-sm font-medium text-center mb-2 flex gap-2 items-center">
+          {address || "Connect Wallet"}
           <span className="font-bold text-white">
             <Image
               src={"/copy-01.svg"}
@@ -33,7 +34,8 @@ const ConnectWallet = () => {
               height={20}
               alt="copy"
               onClick={handlePublicKeyCopy}
-            /></span>
+            />
+          </span>
         </p>
         <p className="text-[#71717A] text-sm font-medium text-start mb-4">Connect your deployer wallet to interact with this page</p>
       </div>

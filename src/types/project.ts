@@ -7,7 +7,7 @@ export interface Project {
     maxSupply: number;
     initialSupply: number;
   };
-  walletAddess: string;
+  walletAddress: string;
   devWallet: {
     devBuyTax: number;
     devSellTax: number;
