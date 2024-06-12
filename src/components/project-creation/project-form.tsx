@@ -685,7 +685,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
                 {item?.transactionType}
               </p>
               <Link
-                href={`https://etherscan.io/tx/${item?.transactionHash}`}
+                href={`https://sepolia.etherscan.io/tx/${item?.transactionHash}`}
                 target="_blank"
                 className="font-[400] text-[#F57C00] text-sm underline leading-5"
               >

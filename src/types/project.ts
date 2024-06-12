@@ -1,5 +1,11 @@
 // types.ts
 
+interface Wallet {
+  address: string;
+  amount: string;
+  privateKey: string;
+}
+
 export interface Project {
   tokendetails: {
     tokenName: string;
@@ -24,8 +30,8 @@ export interface Project {
   };
   status: string;
   beneficiaryDetails: {
-    address: string;
-    amount: string;
-    privateKey: string;
-  }[];
+    numWallets: number;
+    tokenAmount: number;
+    wallets: Wallet[];
+  } & { [key: string]: number };
 }
