@@ -113,24 +113,24 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
   const session = useSession();
   const userId = (session?.data?.user as ExtendedUser)?.id;
   const router = useRouter();
+  const defaultValues = {
+    tokenName: data?.tokendetails?.tokenName || "",
+    tokenSymbol: data?.tokendetails?.tokenSymbol || "",
+    maxSupply: data?.tokendetails?.maxSupply || "",
+    initialSupply: data?.tokendetails?.initialSupply || "",
+    devBuyTax: data?.devWallet?.devBuyTax || "0",
+    devSellTax: data?.devWallet?.devSellTax || "0",
+    devWallet: data?.devWallet?.devWallet || "0x0000000000000000000000000000000000000000",
+    marketingBuyTax: data?.marketingWallet?.marketingBuyTax || "0",
+    marketingSellTax: data?.marketingWallet?.marketingSellTax || "0",
+    marketingWallet: data?.marketingWallet?.marketingWallet || "0x0000000000000000000000000000000000000000",
+    tokenAmountA: data?.poolData?.tokenAmountA || "",
+    tokenAmountB: data?.poolData?.liquidityAmount || "",
+    tokenB: data?.poolData?.liquidityToken || "",
+  };
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      tokenName: "",
-      tokenSymbol: "",
-      maxSupply: "",
-      initialSupply: "",
-      devBuyTax: "0",
-      devSellTax: "0",
-      devWallet: "0x0000000000000000000000000000000000000000",
-      marketingBuyTax: "0",
-      marketingSellTax: "0",
-      marketingWallet: "0x0000000000000000000000000000000000000000",
-      tokenAmountA: "",
-      tokenAmountB: "",
-      tokenA: "",
-      tokenB: "",
-    },
+    defaultValues
   });
   const { isConnected, address } = useAccount();
   const [submitting, setSubmitting] = useState(false);
@@ -297,20 +297,23 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
 
   useEffect(() => {
     if (!data) return;
-    form.setValue("tokenName", data.tokendetails.tokenName);
-    form.setValue("tokenSymbol", data.tokendetails.tokenSymbol);
-    form.setValue("maxSupply", data.tokendetails.maxSupply);
-    form.setValue("initialSupply", data.tokendetails.initialSupply);
-    form.setValue("devBuyTax", data.devWallet.devBuyTax);
-    form.setValue("devSellTax", data.devWallet.devSellTax);
-    form.setValue("devWallet", data.devWallet.devWallet);
-    form.setValue("marketingBuyTax", data.marketingWallet.marketingBuyTax);
-    form.setValue("marketingSellTax", data.marketingWallet.marketingSellTax);
-    form.setValue("marketingWallet", data.marketingWallet.marketingWallet);
-    form.setValue("tokenAmountB", data.poolData.liquidityAmount);
-    form.setValue("tokenAmountA", data.poolData.tokenAmountA);
-    form.setValue("tokenB", data.poolData.liquidityToken);
-  }, []);
+  
+    form.reset({
+      tokenName: data.tokendetails.tokenName,
+      tokenSymbol: data.tokendetails.tokenSymbol,
+      maxSupply: data.tokendetails.maxSupply,
+      initialSupply: data.tokendetails.initialSupply,
+      devBuyTax: data.devWallet.devBuyTax,
+      devSellTax: data.devWallet.devSellTax,
+      devWallet: data.devWallet.devWallet,
+      marketingBuyTax: data.marketingWallet.marketingBuyTax,
+      marketingSellTax: data.marketingWallet.marketingSellTax,
+      marketingWallet: data.marketingWallet.marketingWallet,
+      tokenAmountB: data.poolData.liquidityAmount,
+      tokenAmountA: data.poolData.tokenAmountA,
+      tokenB: data.poolData.liquidityToken,
+    });
+  }, [data]);
 
   return (
     <main className="flex flex-col justify-center items-center gap-6 py-[100px]">

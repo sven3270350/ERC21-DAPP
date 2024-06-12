@@ -27,7 +27,6 @@ export default function Project({ params }: Props) {
       return projects.find((project : any) => project.hasOwnProperty(projectId));
     }
     const foundProject = findProjectById(parsedData, projectId);
-    console.log(foundProject, "foundProject");
     
     const projectsArray = parsedData.map((obj: any) => {
       const key = Object.keys(obj)[0];
@@ -67,6 +66,9 @@ export default function Project({ params }: Props) {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
+
+  console.log(project);
+  
 
   return (
     <div>
