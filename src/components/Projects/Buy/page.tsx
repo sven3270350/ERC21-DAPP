@@ -1,10 +1,9 @@
-import React, { useState, ChangeEvent, useEffect, useMemo } from 'react';
+import React, { useState, ChangeEvent } from 'react';
 import { Button } from '../../ui/button';
 import ConnectWallet from '../../connectWallet';
 import Image from 'next/image';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
-import useBalance from "../../../hooks/useBalance";
 import styles from '../../newproject/checkbox.module.css';
 import { toast } from 'sonner';
 
@@ -24,31 +23,13 @@ interface BuyPageProps {
             wallets: Wallet[];
         };
     };
+    wallets: Wallet[];
+    balances: { ethBalance: bigint; tokenBalance: bigint; }[];
 }
 
-type BalanceType = {
-    ethBalance: bigint;
-    tokenBalance: bigint;
-}
-
-export const BuyPage: React.FC<BuyPageProps> = ({ projectData }) => {
-    const wallets: Wallet[] = useMemo(() => (projectData.beneficiaryDetails.wallets.slice(0, 2).map((wallet, index) => ({
-        ...wallet,
-        ethBalance: wallet.ethBalance || "0",
-        tokenBalance: wallet.tokenBalance || "0"
-    }))), [projectData.beneficiaryDetails.wallets]);
-    console.log("wallets===>", wallets);
-
-    const [initialWallets, setInitialWallets] = useState<Wallet[]>(wallets);
+export const BuyPage: React.FC<BuyPageProps> = ({ projectData, wallets, balances }) => {
     const [selectedWallet, setSelectedWallet] = useState<string[]>([]);
-    const [balances, setBalances] = useState<BalanceType[]>([]);
-    const [firstTokensToBuy, setFirstTokensToBuy] = useState<string>("");
-    const [firstAdditionalEth, setFirstAdditionalEth] = useState<string>("");
-
-    const { getBalance, isLoading } = useBalance();
-    useEffect(() => {
-        Promise.all(wallets.map((value) => getBalance({ address: value.address as `0x${string}`, tokenAddress: "0xBd2E04Be415ec7517Cb8D110255923D2652Cbb79" }))).then(result => setBalances(result))
-    }, [wallets]);
+    const [initialWallets, setInitialWallets] = useState<Wallet[]>(wallets);
 
     const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
@@ -83,20 +64,12 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData }) => {
         const newWallets = [...initialWallets];
         newWallets[index].tokensToBuy = event.target.value;
         setInitialWallets(newWallets);
-
-        if (index === 0) {
-            setFirstTokensToBuy(event.target.value);
-        }
     };
 
     const handleAdditionalEthChange = (event: ChangeEvent<HTMLInputElement>, index: number) => {
         const newWallets = [...initialWallets];
         newWallets[index].additionalEth = event.target.value;
         setInitialWallets(newWallets);
-
-        if (index === 0) {
-            setFirstAdditionalEth(event.target.value);
-        }
     };
 
     const handlePublicKeyCopy = (address: string, privateKey: string) => {
@@ -105,15 +78,40 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData }) => {
         toast.info("Public Key and Private Key copied to clipboard");
     };
 
+    const downloadCSV = (data: Wallet[]) => {
+        const csvRows = [];
+        const headers = Object.keys(data[0]);
+        csvRows.push(headers.join(','));
+
+        for (const row of data) {
+            const values = headers.map(header => row[header]);
+            csvRows.push(values.join(','));
+        }
+
+        const csvString = csvRows.join('\n');
+        const blob = new Blob([csvString], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('href', url);
+        a.setAttribute('download', 'wallets.csv');
+        a.click();
+    };
+
+    const handleDownloadCSV = () => {
+        if (selectedWallet.length === initialWallets.length) {
+            applyAmountsToAll();
+        }
+        downloadCSV(initialWallets);
+    };
+
     return (
         <div>
             <div className='flex justify-between mt-5 mb-5'>
                 <div className='gap-4 flex'>
                     <p className='text-[#71717A] text-sm font-medium mb-2 flex gap-2 items-center'>Selected: <span className='text-white'>{selectedWallet?.length}</span></p>
-                    <p className='text-[#71717A] text-sm font-medium mb-2 flex gap-2 items-center'>Token balance: <span className='text-white'>{Number(balances[0]?.tokenBalance) / (10 ** 18)}</span></p>
                 </div>
                 <div className='gap-4 flex'>
-                    <Button className="bg-[#09090B] border-none text-[#F57C00] text-sm font-normal" >
+                    <Button className="bg-[#09090B] border-none text-[#F57C00] text-sm font-normal" onClick={handleDownloadCSV}>
                         <Image
                             src={"/Images/New Project/download-02.svg"}
                             width={18}
@@ -123,7 +121,7 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData }) => {
                         />
                         Download wallets
                     </Button>
-                    <Button className="bg-[#09090B] border-none text-[#F57C00] text-sm font-normal" >
+                    {/* <Button className="bg-[#09090B] border-none text-[#F57C00] text-sm font-normal">
                         <Image
                             src={"/Images/New Project/add-01.svg"}
                             width={18}
@@ -131,8 +129,8 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData }) => {
                             alt="logo"
                             className="cursor-pointer m-auto mr-1"
                         />
-                        Generate Wallet
-                    </Button>
+                        Add Wallet
+                    </Button> */}
                 </div>
             </div>
             <div>
@@ -229,4 +227,4 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData }) => {
             </div>
         </div>
     );
-}
+};
