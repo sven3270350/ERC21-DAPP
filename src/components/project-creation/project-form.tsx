@@ -36,6 +36,9 @@ import { useParams } from "next/navigation";
 
 import { DeployToken } from "../executeProject/deploy-token";
 import CreatePool from "../executeProject/CreatePool";
+import { formatDate } from "@/utils/format-date";
+import Link from "next/link";
+import { Skeleton } from "../ui/skeleton";
 
 type Project = {
   tokendetails: {
@@ -66,9 +69,16 @@ interface Projects {
   [key: string]: Project;
 }
 
+type TransactionLog = {
+  transactionType: string;
+  createAt: string;
+  transactionHash: string;
+};
+
 type Props = {
   projectId: string | null;
   data?: any;
+  objectData?: any;
 };
 
 const ethAddressRegex = /^0x[a-fA-F0-9]{40}$/;
@@ -83,21 +93,24 @@ const formSchema = z.object({
   initialSupply: z.string().min(1, { message: "Required*" }),
   devBuyTax: z.string().min(1, { message: "Required*" }),
   devSellTax: z.string().min(1, { message: "Required*" }),
-  devWallet: z.string({ message: "Required*" }).refine(isValidEthAddress,{
+  devWallet: z.string({ message: "Required*" }).refine(isValidEthAddress, {
     message: "Invalid Ethereum address",
   }),
   marketingBuyTax: z.string().min(1, { message: "Required*" }),
   marketingSellTax: z.string().min(1, { message: "Required*" }),
-  marketingWallet: z.string().min(1, { message: "Required*" }).refine(isValidEthAddress,{
-    message: "Invalid Ethereum address",
-  }),
+  marketingWallet: z
+    .string()
+    .min(1, { message: "Required*" })
+    .refine(isValidEthAddress, {
+      message: "Invalid Ethereum address",
+    }),
   tokenAmountA: z.string().min(1, { message: "Required*" }),
   tokenAmountB: z.string().min(1, { message: "Required*" }),
   tokenA: z.string({ required_error: "Required*." }),
   tokenB: z.string({ required_error: "Required*." }),
 });
 
-const ProjectForm = ({ projectId, data }: Props) => {
+const ProjectForm = ({ projectId, data, objectData }: Props) => {
   const session = useSession();
   const userId = (session?.data?.user as ExtendedUser)?.id;
   const router = useRouter();
@@ -123,6 +136,8 @@ const ProjectForm = ({ projectId, data }: Props) => {
   const { isConnected, address } = useAccount();
   const [submitting, setSubmitting] = useState(false);
   const [price, setPrice] = useState(0);
+  const [transactionLog, setTransactionLog] = useState<TransactionLog[]>([]);
+  const [loading, setLoading] = useState(false);
 
   function cancel() {
     form.reset();
@@ -193,7 +208,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
           liquidityAmount: values.tokenAmountB,
         },
         beneficiaryDetails: wallets?.data?.beneficiaryDetails,
-        status: "In Progress",
+        status: "Created",
       };
 
       const projects: Projects = {};
@@ -259,7 +274,26 @@ const ProjectForm = ({ projectId, data }: Props) => {
     calculateTokenPrice();
   }, [tokenAmountA, tokenAmountB]);
 
-  let arr: number[] = [1, 2];
+  useEffect(() => {
+    if (!projectId) return;
+    if (!data?.deployedTokenAddress) return;
+    const fetchTransactionLog = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get(`/api/polling/log/${userId}/${projectId}`);
+        if (res.data.success) {
+          console.log("Transaction log:", res.data.userRequests);
+
+          setTransactionLog(res.data.userRequests);
+        }
+      } catch (error) {
+        console.error("Error fetching transaction log:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTransactionLog();
+  }, [data?.deployedTokenAddress, projectId]);
 
   useEffect(() => {
     if (!data) return;
@@ -274,9 +308,9 @@ const ProjectForm = ({ projectId, data }: Props) => {
     form.setValue("marketingSellTax", data.marketingWallet.marketingSellTax);
     form.setValue("marketingWallet", data.marketingWallet.marketingWallet);
     form.setValue("tokenAmountB", data.poolData.liquidityAmount);
+    form.setValue("tokenAmountA", data.poolData.tokenAmountA);
     form.setValue("tokenB", data.poolData.liquidityToken);
   }, []);
-
 
   return (
     <main className="flex flex-col justify-center items-center gap-6 py-[100px]">
@@ -298,21 +332,21 @@ const ProjectForm = ({ projectId, data }: Props) => {
             </div>
             <div className="gap-6 border-[#27272A] grid grid-cols-4 pb-6 border-b">
               <InputField
-                readOnly={data?.status === "In Progress"}
+                readOnly={data?.status === "Created"}
                 form={form}
                 name="tokenName"
                 label="Token name"
                 placeholder="Example..."
               />
               <InputField
-                readOnly={data?.status === "In Progress"}
+                readOnly={data?.status === "Created"}
                 form={form}
                 name="tokenSymbol"
                 label="Token Symbol"
                 placeholder="Example..."
               />
               <InputField
-                readOnly={data?.status === "In Progress"}
+                readOnly={data?.status === "Created"}
                 form={form}
                 name="maxSupply"
                 type="number"
@@ -320,7 +354,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
                 placeholder="Enter number"
               />
               <InputField
-                readOnly={data?.status === "In Progress"}
+                readOnly={data?.status === "Created"}
                 form={form}
                 name="initialSupply"
                 type="number"
@@ -439,7 +473,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
             </div>
             <div className="gap-6 border-[#27272A] grid grid-cols-5 pb-6 border-b">
               <InputField
-                readOnly={data?.status === "In Progress"}
+                readOnly={data?.status === "Created"}
                 form={form}
                 type="text"
                 name="devBuyTax"
@@ -447,7 +481,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
                 placeholder="e.g 10%"
               />
               <InputField
-                readOnly={data?.status === "In Progress"}
+                readOnly={data?.status === "Created"}
                 form={form}
                 type="text"
                 name="devSellTax"
@@ -456,7 +490,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
               />
               <div className="col-span-3">
                 <InputField
-                  readOnly={data?.status === "In Progress"}
+                  readOnly={data?.status === "Created"}
                   form={form}
                   name="devWallet"
                   label="Dev wallet"
@@ -464,7 +498,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
                 />
               </div>
               <InputField
-                readOnly={data?.status === "In Progress"}
+                readOnly={data?.status === "Created"}
                 form={form}
                 type="text"
                 name="marketingBuyTax"
@@ -472,7 +506,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
                 placeholder="e.g 10%"
               />
               <InputField
-                readOnly={data?.status === "In Progress"}
+                readOnly={data?.status === "Created"}
                 form={form}
                 type="text"
                 name="marketingSellTax"
@@ -481,7 +515,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
               />
               <div className="col-span-3">
                 <InputField
-                  readOnly={data?.status === "In Progress"}
+                  readOnly={data?.status === "Created"}
                   form={form}
                   name="marketingWallet"
                   label="Marketing wallet"
@@ -533,7 +567,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
                     <FormItem>
                       <FormLabel>Token</FormLabel>
                       <Select
-                        disabled={data?.status === "TODO In Progress"}
+                        disabled={data?.status === "TODO Created"}
                         onValueChange={field.onChange}
                         defaultValue={
                           data ? data.poolData.liquidityToken : field.value
@@ -572,19 +606,25 @@ const ProjectForm = ({ projectId, data }: Props) => {
               )}
             </div>
 
-            <div className="flex justify-between items-center">
+            <div
+              className={`flex ${data?.status === "Created" || data?.status === "In Progress" ? "justify-end" : "justify-between"} items-center`}
+            >
               <button
                 type="button"
-                disabled={data?.status === "In Progress"}
+                disabled={data?.status === "Created" || data?.status === "In Progress"}
                 onClick={cancel}
-                className="font-bold text-[#F57C00] text-sm leading-5"
+                className={`${data?.status === "Created" || data?.status === "In Progress" ? "hidden" : ""} font-bold text-[#F57C00] text-sm leading-5`}
               >
                 Cancel
               </button>
-              {data && data?.status === "In Progress" ? (
+              {data && data?.status === "Created" ? (
                 <DeployToken
-                  projectId={projectId!} data={data}
+                  projectId={projectId!}
+                  data={data}
+                  objectData={objectData}
                 />
+              ) : data?.status === "In Progress" ? (
+                <CreatePool projectId={projectId!}/>
               ) : (
                 <Button
                   disabled={submitting}
@@ -600,7 +640,6 @@ const ProjectForm = ({ projectId, data }: Props) => {
                   )}
                 </Button>
               )}
-          <CreatePool projectId={projectId!}/>
             </div>
           </form>
         </Form>
@@ -608,7 +647,7 @@ const ProjectForm = ({ projectId, data }: Props) => {
       <div
         className={classNames(
           {
-            "py-6": arr.length == 0,
+            "py-6": transactionLog.length == 0,
           },
           "relative flex flex-col border-[#3f3f46] bg-[#18181B] px-6 pt-10 border rounded-[12px] w-[719px]"
         )}
@@ -618,27 +657,47 @@ const ProjectForm = ({ projectId, data }: Props) => {
             Transaction Logs
           </p>
         </div>
-        {arr?.map((_, index) => (
-          <div
-            key={index}
-            className={classNames(
-              {
-                "border-b border-[#27272A]": index !== arr.length - 1, // remove border bottom for last element
-              },
-              "flex justify-start items-center gap-2 text-left py-6"
-            )}
-          >
-            <p className="font-[400] text-[#71717A] text-sm leading-5">
-              May 14, 18:58 UTC
-            </p>
-            <p className="font-[400] text-[#00E676] text-sm leading-5">
-              token deployed
-            </p>
-            <p className="font-[400] text-[#F57C00] text-sm underline leading-5">
-              etherscan
-            </p>
+        {loading ? (
+          <div className="text-white">
+            <div className="flex justify-start items-center gap-2 py-6 text-left">
+              <Skeleton className="bg-[#71717A] w-[48px] h-[16px]" />
+              <Skeleton className="bg-[#71717A] w-[48px] h-[16px]" />
+              <Skeleton className="bg-[#00E676] w-[48px] h-[16px]" />
+              <Skeleton className="bg-[#F57C00] w-[48px] h-[16px]" />
+            </div>
           </div>
-        ))}
+        ) : transactionLog?.length > 0 ? (
+          transactionLog?.map((item, index) => (
+            <div
+              key={index}
+              className={classNames(
+                {
+                  "border-b border-[#27272A]":
+                    index !== transactionLog.length - 1, // remove border bottom for last element
+                },
+                "flex justify-start items-center gap-2 text-left py-6"
+              )}
+            >
+              <p className="font-[400] text-[#71717A] text-sm leading-5">
+                {formatDate(item?.createAt)}
+              </p>
+              <p className="font-[400] text-[#00E676] text-sm leading-5">
+                {item?.transactionType}
+              </p>
+              <Link
+                href={`https://etherscan.io/tx/${item?.transactionHash}`}
+                target="_blank"
+                className="font-[400] text-[#F57C00] text-sm underline leading-5"
+              >
+                etherscan
+              </Link>
+            </div>
+          ))
+        ) : (
+          <div>
+            <h1>No Transaction Found</h1>
+          </div>
+        )}
       </div>
     </main>
   );
