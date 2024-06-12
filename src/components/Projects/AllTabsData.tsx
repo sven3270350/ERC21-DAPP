@@ -14,6 +14,9 @@ interface AllTabsDataProps {
         beneficiaryDetails: {
             wallets: Wallet[];
         };
+        deployedTokenAddress: {
+            contractAddress: `0x${string}`;
+        }
     };
 }
 interface Wallet {
@@ -46,7 +49,7 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab, projectDa
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const results = await Promise.all(wallets.map(value => getBalance({ address: value.address as `0x${string}`, tokenAddress: "0xBd2E04Be415ec7517Cb8D110255923D2652Cbb79" })));
+                const results = await Promise.all(wallets.map(value => getBalance({ address: value.address as `0x${string}`, tokenAddress: projectData?.deployedTokenAddress?.contractAddress })));
                 setBalances(results);
             } catch (error) {
                 console.error("Error fetching balances:", error);
@@ -56,7 +59,7 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab, projectDa
         fetchData();
     }, [wallets]);
 
-      const TabButton = () => {
+    const TabButton = () => {
         switch (selectedTab) {
             case 'Buy':
                 return 'Enable & Buy';
