@@ -50,6 +50,7 @@ export const DeployToken = ({
           data.marketingWallet.marketingSellTax,
           data.devWallet.devWallet,
           data.marketingWallet.marketingWallet,
+          data.devWallet.devWallet
         ],
       });
 
@@ -60,7 +61,7 @@ export const DeployToken = ({
 
       console.log("Transaction hash:", hash);
 
-      const provider = new ethers.providers.JsonRpcProvider(rpc);
+      const provider = new ethers.JsonRpcProvider(rpc);
       const transaction = await provider.waitForTransaction(hash as string);
 
       if (transaction && transaction.status === 1) {
@@ -185,8 +186,9 @@ export const DeployToken = ({
 };
 
 export const getTxCost = async ({ data }: DeployTokenProps) => {
+
   const rpc = process.env.NEXT_PUBLIC_ALCHEMY_RPC;
-  const provider = new ethers.providers.JsonRpcProvider(rpc);
+  const provider = new ethers.JsonRpcProvider(rpc);
 
   const privateKey = process.env.NEXT_PUBLIC_WALLET_PRIVATE_KEY!;
   const wallet = new ethers.Wallet(privateKey, provider);
@@ -206,8 +208,10 @@ export const getTxCost = async ({ data }: DeployTokenProps) => {
     data.marketingWallet.marketingWallet
   );
   const estimateGasLimit = await wallet.estimateGas(deployTransaction);
-  const gasPrice = await provider.getGasPrice();
-  const estimatedTransactionCost = estimateGasLimit.mul(gasPrice);
+  const gasPrice = (await provider.getFeeData()).gasPrice;
+  const estimatedTransactionCost = estimateGasLimit * (gasPrice!);
 
-  return ethers.utils.formatEther(estimatedTransactionCost);
+
+  return ethers.formatEther(estimatedTransactionCost);
 };
+

@@ -47,7 +47,7 @@ const CreatePool: React.FC<CreatePoolProps> = ({ onPrev, projectId,  }) => {
 
       setIsCreating(true);
       const rpc = process.env.NEXT_PUBLIC_ALCHEMY_RPC;
-      const provider = new ethers.providers.JsonRpcProvider(rpc)
+      const provider = new ethers.JsonRpcProvider(rpc)
       
       setProcessState('Approving')
       const { request: approveRequest } = await prepareWriteContract({
@@ -70,6 +70,16 @@ const CreatePool: React.FC<CreatePoolProps> = ({ onPrev, projectId,  }) => {
       }
 
       setProcessState('Creating Pool')
+
+      const routerContract = new ethers.Contract(uniswapV2RouterAddress, uniswapRouterabi, provider);
+      const tx = await routerContract.addLiquidityETH.staticCall(tokenAddress,
+          parseUnits(amountTokenDesired, 18),
+          parseUnits(amountTokenDesired, 18),
+          parseUnits(amountETHDesired, 18),
+          address,
+          deadline,{from: address, value: parseUnits(amountETHDesired, 18)});
+
+        console.log(tx)
 
       const { request } = await prepareWriteContract({
         abi: uniswapRouterabi,
