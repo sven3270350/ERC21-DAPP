@@ -22,6 +22,7 @@ import ClipLoader from "react-spinners/ClipLoader";
 import { useSession } from "next-auth/react";
 import { ExtendedUser } from "@/types/user";
 import { UpdateProject } from "@/utils/update-project";
+import { useRouter } from "next/navigation";
 
 interface CreatePoolProps {
   onPrev?: () => void;
@@ -39,7 +40,7 @@ const CreatePool: React.FC<CreatePoolProps> = ({
   const [isCreating, setIsCreating] = useState(false);
   const [poolState, setPoolState] = useState(false);
   const [processState, setProcessState] = useState("Create Liquidity Pool");
-
+  const router = useRouter(); 
   const handlePoolCreation = async () => {
     const data = localStorage.getItem("allProjects");
     const parsedData: Record<string, any> = data ? JSON.parse(data) : [];
@@ -137,6 +138,7 @@ const CreatePool: React.FC<CreatePoolProps> = ({
         );
 
         console.log(setPairReceipt);
+        const demoPoolAddres = "0x97bf5e146581ac7c633f0dfd0f382ff0213e742b"
         if (pairAddress) {
           // update db with pair address and status
           if (!objectData || !projectId) {
@@ -196,6 +198,7 @@ const CreatePool: React.FC<CreatePoolProps> = ({
             console.log(updatedData, "updatedData");
             
             localStorage.setItem("allProjects", JSON.stringify(updatedData));
+            router.push("/dashboard")
           }
         }
       } else {

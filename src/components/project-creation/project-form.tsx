@@ -113,24 +113,24 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
   const session = useSession();
   const userId = (session?.data?.user as ExtendedUser)?.id;
   const router = useRouter();
-  const defaultValues = {
-    tokenName: data?.tokendetails?.tokenName || "",
-    tokenSymbol: data?.tokendetails?.tokenSymbol || "",
-    maxSupply: data?.tokendetails?.maxSupply || "",
-    initialSupply: data?.tokendetails?.initialSupply || "",
-    devBuyTax: data?.devWallet?.devBuyTax || "0",
-    devSellTax: data?.devWallet?.devSellTax || "0",
-    devWallet: data?.devWallet?.devWallet || "0x0000000000000000000000000000000000000000",
-    marketingBuyTax: data?.marketingWallet?.marketingBuyTax || "0",
-    marketingSellTax: data?.marketingWallet?.marketingSellTax || "0",
-    marketingWallet: data?.marketingWallet?.marketingWallet || "0x0000000000000000000000000000000000000000",
-    tokenAmountA: data?.poolData?.tokenAmountA || "",
-    tokenAmountB: data?.poolData?.liquidityAmount || "",
-    tokenB: data?.poolData?.liquidityToken || "",
-  };
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues
+    defaultValues: {
+      tokenName: "",
+      tokenSymbol: "",
+      maxSupply: "",
+      initialSupply: "",
+      devBuyTax: "0",
+      devSellTax: "0",
+      devWallet: "0x0000000000000000000000000000000000000000",
+      marketingBuyTax: "0",
+      marketingSellTax: "0",
+      marketingWallet: "0x0000000000000000000000000000000000000000",
+      tokenAmountA: "",
+      tokenAmountB: "",
+      tokenA: "",
+      tokenB: "",
+    },
   });
   const { isConnected, address } = useAccount();
   const [submitting, setSubmitting] = useState(false);
@@ -296,23 +296,20 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
   }, [data?.deployedTokenAddress, projectId]);
 
   useEffect(() => {
-    if (!data) return;
-  
-    form.reset({
-      tokenName: data.tokendetails.tokenName,
-      tokenSymbol: data.tokendetails.tokenSymbol,
-      maxSupply: data.tokendetails.maxSupply,
-      initialSupply: data.tokendetails.initialSupply,
-      devBuyTax: data.devWallet.devBuyTax,
-      devSellTax: data.devWallet.devSellTax,
-      devWallet: data.devWallet.devWallet,
-      marketingBuyTax: data.marketingWallet.marketingBuyTax,
-      marketingSellTax: data.marketingWallet.marketingSellTax,
-      marketingWallet: data.marketingWallet.marketingWallet,
-      tokenAmountB: data.poolData.liquidityAmount,
-      tokenAmountA: data.poolData.tokenAmountA,
-      tokenB: data.poolData.liquidityToken,
-    });
+    if (!data || !data.tokendetails) return;
+    form.setValue("tokenName", data.tokendetails.tokenName);
+    form.setValue("tokenSymbol", data.tokendetails.tokenSymbol);
+    form.setValue("maxSupply", data.tokendetails.maxSupply);
+    form.setValue("initialSupply", data.tokendetails.initialSupply);
+    form.setValue("devBuyTax", data.devWallet.devBuyTax);
+    form.setValue("devSellTax", data.devWallet.devSellTax);
+    form.setValue("devWallet", data.devWallet.devWallet);
+    form.setValue("marketingBuyTax", data.marketingWallet.marketingBuyTax);
+    form.setValue("marketingSellTax", data.marketingWallet.marketingSellTax);
+    form.setValue("marketingWallet", data.marketingWallet.marketingWallet);
+    form.setValue("tokenAmountB", data.poolData.liquidityAmount);
+    form.setValue("tokenAmountA", data.poolData.tokenAmountA);
+    form.setValue("tokenB", data.poolData.liquidityToken);
   }, [data]);
 
   return (
@@ -570,7 +567,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
                     <FormItem>
                       <FormLabel>Token</FormLabel>
                       <Select
-                        disabled={data?.status === "Created" || data?.status === "In progress"}
+                        disabled={data?.status === "TODO Created"}
                         onValueChange={field.onChange}
                         defaultValue={
                           data ? data.poolData.liquidityToken : field.value
@@ -627,7 +624,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
                   objectData={objectData}
                 />
               ) : data?.status === "In Progress" ? (
-                <CreatePool projectId={projectId!} objectData={objectData}/>
+                <CreatePool projectId={projectId!}/>
               ) : (
                 <Button
                   disabled={submitting}
@@ -688,7 +685,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
                 {item?.transactionType}
               </p>
               <Link
-                href={`https://sepolia.etherscan.io/tx/${item?.transactionHash}`}
+                href={`https://etherscan.io/tx/${item?.transactionHash}`}
                 target="_blank"
                 className="font-[400] text-[#F57C00] text-sm underline leading-5"
               >
