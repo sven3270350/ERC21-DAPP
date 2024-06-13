@@ -7,6 +7,7 @@ import { Sell } from './Sell/Sell';
 import { BuyPage } from './Buy/page';
 import { GrTest } from "react-icons/gr";
 import useBalance from "../../hooks/useBalance";
+import { Wallet } from '@/types/wallet';
 
 interface AllTabsDataProps {
     selectedTab: string;
@@ -19,19 +20,7 @@ interface AllTabsDataProps {
         }
     };
 }
-interface Wallet {
-    address: string;
-    amount: string;
-    ethBalance: string;
-    tokenBalance: string;
-    privateKey: string;
-    tokensToBuy: string;
-    additionalEth: string;
-    estimate: string;
-    tokenToSell: string;
-    addressToTransfer: string;
-    TokenAmount: string;
-}
+
 
 type BalanceType = {
     ethBalance: bigint;
@@ -46,10 +35,9 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab, projectDa
         estimate: wallet?.estimate || "0"
     }))), [projectData.beneficiaryDetails.wallets]);
 
-    console.log("wallets===>", wallets);
-
     const { getBalance, isLoading } = useBalance();
     const [balances, setBalances] = useState<BalanceType[]>([]);
+    const [selectedWallets, setSelectedWallets] = useState<Wallet[]>([]); // Add this line
 
     useEffect(() => {
         const fetchData = async () => {
@@ -63,6 +51,20 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab, projectDa
 
         fetchData();
     }, [wallets]);
+
+    const handleCollectAllETH = () => {
+        const minimalWalletData = selectedWallets.map(wallet => ({
+            address: wallet.address,
+            privateKey: wallet.privateKey,
+            ethBalance: wallet.ethBalance,
+            tokenBalance: wallet.tokenBalance,
+        }));
+        console.log("Selected Wallets:", minimalWalletData);
+    };
+
+    const handleSelectionChange = (selectedWallets: Wallet[]) => {
+        setSelectedWallets(selectedWallets);
+    };
 
     const TabButton = () => {
         switch (selectedTab) {
@@ -82,13 +84,13 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab, projectDa
             <ConnectWallet />
             <p className='border-b-[1px] border-[#27272A]'></p>
 
-            {selectedTab === "Buy" && <BuyPage projectData={projectData} wallets={wallets} balances={balances} />}
-            {selectedTab === "Sell" && <Sell wallets={wallets} balances={balances}/>}
-            {selectedTab === "Transfer" && <Transfer wallets={wallets} balances={balances}/>}
+            {selectedTab === "Buy" && <BuyPage projectData={projectData} wallets={wallets} balances={balances} onSelectionChange={handleSelectionChange} />} 
+            {selectedTab === "Sell" && <Sell wallets={wallets} balances={balances} onSelectionChange={handleSelectionChange}/>}
+            {selectedTab === "Transfer" && <Transfer wallets={wallets} balances={balances} onSelectionChange={handleSelectionChange}/>}
 
             <p className='border-b-[1px] border-[#27272A] mt-4 mb-4'></p>
             <div className='flex gap-2 justify-end items-center'>
-                <Button className="bg-[#09090B] border-none text-[#F57C00] text-[12px] font-normal">
+                <Button className="bg-[#09090B] border-none text-[#F57C00] text-[12px] font-normal" onClick={handleCollectAllETH}>
                     Collect All ETH
                 </Button>
                 {selectedTab === "Buy" &&

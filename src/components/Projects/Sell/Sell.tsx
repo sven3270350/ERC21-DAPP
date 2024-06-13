@@ -5,23 +5,16 @@ import { Input } from '@/components/ui/input';
 import styles from '../../newproject/checkbox.module.css';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { Wallet } from '@/types/wallet';
 
-interface Wallet {
-    address: string;
-    amount: string;
-    ethBalance: string;
-    tokenBalance: string;
-    estimate: string;
-    privateKey: string;
-    tokenToSell: string;
-}
 
 interface SellPageProps {
     wallets: Wallet[];
     balances: { ethBalance: bigint; tokenBalance: bigint; }[];
+    onSelectionChange: (selectedWallets: Wallet[]) => void;
 }
 
-export const Sell: React.FC<SellPageProps> = ({ wallets, balances }) => {
+export const Sell: React.FC<SellPageProps> = ({ wallets, balances, onSelectionChange }) => {
     const [selectedWallet, setSelectedWallet] = useState<string[]>([]);
     const [initialWallets, setInitialWallets] = useState<Wallet[]>(wallets);
 
@@ -29,9 +22,11 @@ export const Sell: React.FC<SellPageProps> = ({ wallets, balances }) => {
         if (event.target.checked) {
             setSelectedWallet(initialWallets.map(wallet => wallet.address));
             applyAmountsToAll();
+            onSelectionChange(initialWallets)
         } else {
             setSelectedWallet([]);
             setInitialWallets(wallets);
+            onSelectionChange([]);
         }
     };
 
@@ -51,9 +46,13 @@ export const Sell: React.FC<SellPageProps> = ({ wallets, balances }) => {
 
     const handleSelectOne = (event: ChangeEvent<HTMLInputElement>, walletAddress: string) => {
         if (event.target.checked) {
-            setSelectedWallet(prev => [...prev, walletAddress]);
+            const updatedSelection = [...selectedWallet, walletAddress];
+            setSelectedWallet(updatedSelection);
+            onSelectionChange(initialWallets.filter(wallet => updatedSelection.includes(wallet.address))); 
         } else {
-            setSelectedWallet(prev => prev.filter(address => address !== walletAddress));
+            const updatedSelection = selectedWallet.filter(address => address !== walletAddress);
+            setSelectedWallet(updatedSelection);
+            onSelectionChange(initialWallets.filter(wallet => updatedSelection.includes(wallet.address))); 
         }
     };
 

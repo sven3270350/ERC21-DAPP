@@ -1,21 +1,12 @@
 import React, { useState, ChangeEvent } from 'react';
 import { Button } from '../../ui/button';
-import ConnectWallet from '../../connectWallet';
 import Image from 'next/image';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import styles from '../../newproject/checkbox.module.css';
 import { toast } from 'sonner';
+import { Wallet } from '@/types/wallet';
 
-interface Wallet {
-    address: string;
-    amount: string;
-    ethBalance: string;
-    tokenBalance: string;
-    privateKey: string;
-    tokensToBuy: string;
-    additionalEth: string;
-}
 
 interface BuyPageProps {
     projectData: {
@@ -25,9 +16,10 @@ interface BuyPageProps {
     };
     wallets: Wallet[];
     balances: { ethBalance: bigint; tokenBalance: bigint; }[];
+    onSelectionChange: (selectedWallets: Wallet[]) => void; 
 }
 
-export const BuyPage: React.FC<BuyPageProps> = ({ projectData, wallets, balances }) => {
+export const BuyPage: React.FC<BuyPageProps> = ({ projectData, wallets, balances, onSelectionChange }) => { 
     const [selectedWallet, setSelectedWallet] = useState<string[]>([]);
     const [initialWallets, setInitialWallets] = useState<Wallet[]>(wallets);
 
@@ -35,9 +27,11 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData, wallets, balances
         if (event.target.checked) {
             setSelectedWallet(initialWallets.map(wallet => wallet.address));
             applyAmountsToAll();
+            onSelectionChange(initialWallets); 
         } else {
             setSelectedWallet([]);
             setInitialWallets(wallets);
+            onSelectionChange([]); 
         }
     };
 
@@ -52,9 +46,13 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData, wallets, balances
 
     const handleSelectOne = (event: ChangeEvent<HTMLInputElement>, walletAddress: string) => {
         if (event.target.checked) {
-            setSelectedWallet(prev => [...prev, walletAddress]);
+            const updatedSelection = [...selectedWallet, walletAddress];
+            setSelectedWallet(updatedSelection);
+            onSelectionChange(initialWallets.filter(wallet => updatedSelection.includes(wallet.address))); 
         } else {
-            setSelectedWallet(prev => prev.filter(address => address !== walletAddress));
+            const updatedSelection = selectedWallet.filter(address => address !== walletAddress);
+            setSelectedWallet(updatedSelection);
+            onSelectionChange(initialWallets.filter(wallet => updatedSelection.includes(wallet.address))); 
         }
     };
 
@@ -121,16 +119,6 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData, wallets, balances
                         />
                         Download wallets
                     </Button>
-                    {/* <Button className="bg-[#09090B] border-none font-normal text-[#F57C00] text-sm">
-                        <Image
-                            src={"/Images/New Project/add-01.svg"}
-                            width={18}
-                            height={18}
-                            alt="logo"
-                            className="m-auto mr-1 cursor-pointer"
-                        />
-                        Add Wallet
-                    </Button> */}
                 </div>
             </div>
             <div>
