@@ -117,7 +117,7 @@ export const Sell: React.FC<SellPageProps> = ({ wallets, balances, onSelectionCh
                                 type="checkbox"
                                 className={styles.checkbox}
                                 onChange={handleSelectAll}
-                                checked={selectedWallet.length === wallets.length}
+                                checked={selectedWallet.length === wallets?.length}
                             />
                         </TableHead>
                         <TableHead className='text-[12px] text-center'>#</TableHead>
@@ -130,7 +130,7 @@ export const Sell: React.FC<SellPageProps> = ({ wallets, balances, onSelectionCh
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {initialWallets.map((wallet, index) => (
+                    {initialWallets?.map((wallet, index) => (
                         <TableRow key={wallet.address} className={`hover:bg-inherit py-0 border-none text-center ${index % 2 === 1 ? 'bg-[#18181B]' : ''}`}>
                             <TableCell className='py-0'>
                                 <input

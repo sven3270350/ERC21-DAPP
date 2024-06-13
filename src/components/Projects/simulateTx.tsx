@@ -2,7 +2,7 @@ import { abi} from "@/constants/tokenABI.json";
 import { useAccount } from "wagmi";
 import { Address, readContract} from "@wagmi/core";
 import { GrTest } from "react-icons/gr";
-import {uniswapRouterabi, uniswapV2RouterAddress, wethAddress, uniswapV2PairABI} from '@/constants/routerABI.json'
+import {uniswapRouterABI, uniswapV2RouterAddress, wethAddress, uniswapV2PairABI} from '@/constants/routerABI.json'
 import { formatUnits, parseUnits } from "viem";
 
 import axios from "axios";
@@ -15,11 +15,8 @@ interface SimulateTxProps {
         beneficiaryDetails: {
             wallets: Wallet[];
         };
-        deployedTokenAddress: {
-            contractAddress: `0x${string}`;
-            pairAddress: `0x${string}`;
-
-        }
+        deployedTokenAddress: `0x${string}`;
+        poolAddress: `0x${string}`;
     };
 }
 
@@ -29,7 +26,7 @@ const invoices: any[] = [
         Address: "0x694a967A60b61Cb23dAA46571A137e4Fb0656076",
         EthBalance: "0.00036",
         TokenBalance: "0.00036",
-        TokensToBuy: '100'
+        TokensToBuy: '10'
     },
     {
         Number: "1",
@@ -54,11 +51,15 @@ export const SimulateTx = ({
 }: SimulateTxProps) => {
   const {address} = useAccount();  
 
+
+
   const handleSimulation = async () => {
     await fetchQuotes()
     const transactionSequence = [];
     const ethTransferTransactions = await getEthTransferTxSequence();
     transactionSequence.push(...ethTransferTransactions);
+    const setTradingManagerTransaction = await getTradingManagerTx();
+    transactionSequence.push(setTradingManagerTransaction);
     const enableTradingTransaction = getEnableTradingTx();
     transactionSequence.push(enableTradingTransaction);
     const buyTx = getBuyTx()
@@ -72,10 +73,10 @@ export const SimulateTx = ({
   };
 
   const fetchQuotes = async() => {
-    
+    const pairAddress = projectData.poolAddress;
     const result = await readContract({
       abi: uniswapV2PairABI,
-      address: '0xCA60cA0699161Db7A0420F8D1e05E19d16DF4257',
+      address: pairAddress,
       functionName: 'getReserves'
     })
 
@@ -87,39 +88,35 @@ export const SimulateTx = ({
     for(let i=0; i<invoices.length; i++){
         const amountToken = parseUnits(invoices[i].TokensToBuy, 18).toString()
         const ethRequired = await getEthAmountForToken(reserveEth, reserveToken, amountToken);
-        reserveEth += ethRequired;
+        reserveEth += ethRequired!;
         reserveToken -= parseFloat(amountToken);
-        const formattedValue = formatUnits(BigInt(ethRequired), 18);
+        const formattedValue = formatUnits(BigInt(ethRequired!), 18);
 
         invoices[i].requiredETH = formattedValue;
     }
 
-    async function getEthAmountForToken(reserveEth: number, reserveToken: number, amountOut:string) {
+  }
+
+  const getEthAmountForToken = async(reserveEth: number, reserveToken: number, amountOut:string) => {
+    try {
       const result = await readContract({
-        abi:uniswapRouterabi,
+        abi:uniswapRouterABI,
         address: uniswapV2RouterAddress as Address,
         functionName: 'getAmountIn',
-        args: [amountOut, reserveEth, reserveToken]
+        args: [amountOut, reserveEth.toString(), reserveToken.toString()]
     
-    })
+      })
       const amounts: any = result;
 
       return parseFloat(amounts);
+    } catch (error) {
+      console.log(error)
+    }
   }
 
-  }
-
-  const getEthTransferTxSequence = async() => {
+  const getEthTransferTxSequence = () => {
 
     const ethTransferTransactions = []
-
-    const result = await readContract({
-      abi: uniswapV2PairABI,
-      address: '0xCA60cA0699161Db7A0420F8D1e05E19d16DF4257',
-      functionName: 'getReserves'
-    })
-
-    const reservesArray: any = result;
     for(let i=0; i<invoices.length; i++){
         const ethValue = parseFloat(invoices[i].requiredETH) + parseFloat(formatUnits(BigInt('907946'), 9));
         console.log(ethValue);
@@ -134,16 +131,42 @@ export const SimulateTx = ({
     return ethTransferTransactions
   }
 
+  const getTradingManagerTx = async() => {
+    try {
+
+        const tokenAddress = projectData.deployedTokenAddress;
+
+        const tokenInterface = new Interface(abi);
+
+        const result = await readContract({
+          abi,
+          address: tokenAddress,
+          functionName: 'TRADING_MANAGER_ROLE'
+        })
+
+        const tx = {
+            from: address,
+            to: tokenAddress,
+            input: tokenInterface.encodeFunctionData('grantRole', [result, address])
+        }
+
+        return tx
+
+    } catch (error) {
+      console.log(error);
+    } 
+  }
+
   const getEnableTradingTx = () => {
     try {
 
-        const tokenAddress = projectData.deployedTokenAddress.contractAddress;
+        const tokenAddress = projectData.deployedTokenAddress;
 
         const tokenInterface = new Interface(abi);
 
         const tx = {
             from: address,
-            to: "0x97bf5e146581ac7c633f0dfd0f382ff0213e742b",
+            to: tokenAddress,
             input: tokenInterface.encodeFunctionData('setEnableTrading', [true])
         }
 
@@ -157,19 +180,16 @@ export const SimulateTx = ({
   const getBuyTx = () => {
     try {
 
-        const tokenAddress = projectData.deployedTokenAddress.contractAddress;
-
-        const uniswapRouterInterface = new Interface(uniswapRouterabi);
+        const tokenAddress = projectData.deployedTokenAddress;
+        const uniswapRouterInterface = new Interface(uniswapRouterABI);
         const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from now
         const buyTranscations = []
         for(let i=0; i<invoices.length; i++){
-      
           const amountETHMax: string = invoices[i].requiredETH
-          console.log(amountETHMax)
         const tx = {
             from: invoices[i].Address,
             to: uniswapV2RouterAddress,
-            input: uniswapRouterInterface.encodeFunctionData('swapETHForExactTokens', [parseUnits(invoices[i].TokensToBuy,18),[wethAddress,"0xcc30EE414bDcDD02eFc1eEa7DCC1Ea14040018B0"],invoices[i].Address,deadline]),
+            input: uniswapRouterInterface.encodeFunctionData('swapETHForExactTokens', [parseUnits(invoices[i].TokensToBuy,18),[wethAddress,tokenAddress],invoices[i].Address,deadline]),
             value: (parseUnits(amountETHMax, 18).toString())
         }
         buyTranscations.push(tx);
@@ -208,7 +228,7 @@ export const SimulateTx = ({
     <div>
         <button
         onClick={handleSimulation}
-        className="bg-[#27272A] cursor-pointer px-4 py-2 text-[12px] flex gap-2 items-center justify-center rounded-md text-[#000000] text-sm font-bold leading-6 tracking-[0.032px]"
+        className="bg-[#27272A] hover:bg-[#F57C00] cursor-pointer px-4 py-2 text-[12px] flex gap-2 items-center justify-center rounded-md text-[#000000] text-sm font-bold leading-6 tracking-[0.032px]"
         disabled={false}
     >
         <GrTest className='text-black h-[18px] w-[18px]' />
