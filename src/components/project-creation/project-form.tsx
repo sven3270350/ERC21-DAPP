@@ -296,7 +296,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
   }, [data?.deployedTokenAddress, projectId]);
 
   useEffect(() => {
-    if (!data) return;
+    if (!data || !data.tokendetails) return;
     form.setValue("tokenName", data.tokendetails.tokenName);
     form.setValue("tokenSymbol", data.tokendetails.tokenSymbol);
     form.setValue("maxSupply", data.tokendetails.maxSupply);
@@ -310,7 +310,9 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
     form.setValue("tokenAmountB", data.poolData.liquidityAmount);
     form.setValue("tokenAmountA", data.poolData.tokenAmountA);
     form.setValue("tokenB", data.poolData.liquidityToken);
-  }, []);
+    console.log(data?.poolData.liquidityToken, "data");
+    
+  }, [data]);
 
   return (
     <main className="flex flex-col justify-center items-center gap-6 py-[100px]">
@@ -559,7 +561,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
                   placeholder="Enter number"
                 />
               </div>
-              <div>
+              <div className="relative">
                 <FormField
                   control={form.control}
                   name="tokenB"
@@ -569,6 +571,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
                       <Select
                         disabled={data?.status === "TODO Created"}
                         onValueChange={field.onChange}
+                        value={data ? data.poolData.liquidityToken : field.value}
                         defaultValue={
                           data ? data.poolData.liquidityToken : field.value
                         }
@@ -592,7 +595,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
               </div>
               {form.getValues("tokenSymbol") != "" &&
               form.getValues("tokenB") != "" ? (
-                <div className="flex items-center w-fit min-w-[300px]">
+                <div className="flex items-center w-fit min-w-[600px]">
                   <h1> Price of </h1>
                   <div className="flex items-center px-1 text-[#F57C00]">
                     {form.getValues("tokenSymbol")}
@@ -624,7 +627,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
                   objectData={objectData}
                 />
               ) : data?.status === "In Progress" ? (
-                <CreatePool projectId={projectId!}/>
+                <CreatePool projectId={projectId!} objectData={objectData}/>
               ) : (
                 <Button
                   disabled={submitting}

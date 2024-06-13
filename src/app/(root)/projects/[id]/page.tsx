@@ -27,7 +27,6 @@ export default function Project({ params }: Props) {
       return projects.find((project : any) => project.hasOwnProperty(projectId));
     }
     const foundProject = findProjectById(parsedData, projectId);
-    console.log(foundProject, "foundProject");
     
     const projectsArray = parsedData.map((obj: any) => {
       const key = Object.keys(obj)[0];
@@ -68,9 +67,12 @@ export default function Project({ params }: Props) {
     };
   }, []);
 
+  console.log(project);
+  
+
   return (
     <div>
-      {project && project.status === "Completed" ? (
+      {project && project.status === "Launched" ? (
         <Projects projectData={project} />
       ) : (
         <ProjectForm projectId={projectId} data={project} objectData={projectData} />
