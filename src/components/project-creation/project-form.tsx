@@ -310,6 +310,8 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
     form.setValue("tokenAmountB", data.poolData.liquidityAmount);
     form.setValue("tokenAmountA", data.poolData.tokenAmountA);
     form.setValue("tokenB", data.poolData.liquidityToken);
+    console.log(data?.poolData.liquidityToken, "data");
+    
   }, [data]);
 
   return (
@@ -569,6 +571,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
                       <Select
                         disabled={data?.status === "TODO Created"}
                         onValueChange={field.onChange}
+                        value={data ? data.poolData.liquidityToken : field.value}
                         defaultValue={
                           data ? data.poolData.liquidityToken : field.value
                         }
