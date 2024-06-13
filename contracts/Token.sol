@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import "@openzeppelin/contracts/access/AccessControl.sol";
+
 interface IERC20 {
     event Transfer(address indexed from, address indexed to, uint256 value);
 
@@ -36,16 +38,6 @@ interface IERC20Metadata is IERC20 {
     function symbol() external view returns (string memory);
 
     function decimals() external view returns (uint8);
-}
-
-abstract contract Context {
-    function _msgSender() internal view virtual returns (address) {
-        return msg.sender;
-    }
-
-    function _msgData() internal view virtual returns (bytes calldata) {
-        return msg.data;
-    }
 }
 
 abstract contract Ownable is Context {
@@ -293,7 +285,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     ) internal virtual {}
 }
 
-contract Token is ERC20, Ownable {
+contract Token is ERC20, Ownable, AccessControl {
+    bytes32 public constant TRADING_MANAGER_ROLE =
+        keccak256("TRADING_MANAGER_ROLE");
     uint256 private _maxSupply;
 
     uint256 public devBuyTax;
@@ -319,7 +313,8 @@ contract Token is ERC20, Ownable {
         uint256 _marketingBuyTax,
         uint256 _marketingSellTax,
         address _devWallet,
-        address _marketingWallet
+        address _marketingWallet,
+        address _tradingManager
     ) ERC20(name, symbol) {
         _maxSupply = maxSupply;
 
@@ -332,6 +327,10 @@ contract Token is ERC20, Ownable {
         marketingWallet = _marketingWallet;
 
         _isExcludedFromFees[msg.sender] = true;
+
+        grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+
+        grantRole(TRADING_MANAGER_ROLE, _tradingManager);
 
         _mint(msg.sender, _intialSupply);
     }
@@ -364,7 +363,11 @@ contract Token is ERC20, Ownable {
         marketingWallet = _wallet;
     }
 
-    function setEnableTrading(bool _check) external onlyOwner {
+    function setEnableTrading(bool _check) external {
+        require(
+            hasRole(TRADING_MANAGER_ROLE, msg.sender),
+            "Caller is not a trading manager"
+        );
         enableTrading = _check;
     }
 
