@@ -3,13 +3,7 @@ import Image from 'next/image';
 import { toast } from 'sonner';
 
 export const ProjectHeadData: React.FC<{ project: any }> = ({ project }) => {
-    const totalAmount = project?.beneficiaryDetails?.wallets?.reduce(
-        (total: number, wallet: { amount?: string }) => {
-            const parsedAmount = parseFloat(wallet?.amount || "0");
-            return total + parsedAmount;
-        },
-        0
-    );
+    const totalAmount = project?.beneficiaryDetails?.length
     const handlePublicKeyCopy = () => {
         navigator.clipboard.writeText(project?.tokenDetails?.contractAddress);
         toast.info("Public Key copied to clipboard");

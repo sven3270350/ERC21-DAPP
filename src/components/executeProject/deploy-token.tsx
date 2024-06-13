@@ -186,7 +186,8 @@ export const DeployToken = ({
 };
 
 export const getTxCost = async ({ data }: DeployTokenProps) => {
-  const rpc = process.env.NEXT_PUBLIC_RPC!;
+
+  const rpc = process.env.NEXT_PUBLIC_ALCHEMY_RPC;
   const provider = new ethers.JsonRpcProvider(rpc);
 
   const privateKey = process.env.NEXT_PUBLIC_WALLET_PRIVATE_KEY!;
@@ -210,5 +211,7 @@ export const getTxCost = async ({ data }: DeployTokenProps) => {
   const gasPrice = (await provider.getFeeData()).gasPrice;
   const estimatedTransactionCost = estimateGasLimit * (gasPrice!);
 
+
   return ethers.formatEther(estimatedTransactionCost);
 };
+

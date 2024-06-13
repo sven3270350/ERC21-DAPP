@@ -46,7 +46,7 @@ type Project = {
     maxSupply: string;
     initialSupply: string;
   };
-  walletAddess: `0x${string}` | undefined;
+  walletAddress: `0x${string}` | undefined;
   devWallet: {
     devBuyTax: string;
     devSellTax: string;
@@ -189,7 +189,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
           maxSupply: values.maxSupply,
           initialSupply: values.initialSupply,
         },
-        walletAddess: address,
+        walletAddress: address,
         devWallet: {
           devBuyTax: values.devBuyTax,
           devSellTax: values.devSellTax,
@@ -218,7 +218,6 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
       const projectKey = `project-${projectId}`;
 
       projects[projectKey] = data;
-      // console.log(projects);
 
       // Save the data to the database
       const res: any = await axios.post("/api/project", {

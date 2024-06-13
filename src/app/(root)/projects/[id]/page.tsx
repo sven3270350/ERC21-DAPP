@@ -70,10 +70,10 @@ export default function Project({ params }: Props) {
 
   return (
     <div>
-      {project && project?.status ? (
-        <ProjectForm projectId={projectId} data={project} objectData={projectData} />
+      {project && project.status === "Completed" ? (
+        <Projects projectData={project} />
       ) : (
-        <Projects />
+        <ProjectForm projectId={projectId} data={project} objectData={projectData} />
       )}
     </div>
   );

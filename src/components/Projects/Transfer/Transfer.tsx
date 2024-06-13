@@ -3,58 +3,119 @@ import Image from 'next/image';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import styles from '../../newproject/checkbox.module.css';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+import { Wallet } from '@/types/wallet';
 
-interface Invoice {
-    Number: string;
-    Address: string;
-    EthBalance: string;
-    TokenBalance: string;
+
+interface TransferPageProps {
+    wallets: Wallet[];
+    balances: { ethBalance: bigint; tokenBalance: bigint; }[];
+    onSelectionChange: (selectedWallets: Wallet[]) => void; 
 }
 
-export const Transfer: React.FC = () => {
-    const invoices: Invoice[] = [
-        {
-            Number: "1",
-            Address: "0x1f9090aaE28b....28e676c326 ",
-            EthBalance: "0.00036",
-            TokenBalance: "0.00036",
-        },
-        {
-            Number: "2",
-            Address: "0x1f9090aaE28b....28e676c326 ",
-            EthBalance: "0.00036",
-            TokenBalance: "0.00036",
-        },
-        {
-            Number: "3",
-            Address: "0x1f9090aaE28b....28e676c326 ",
-            EthBalance: "0.00036",
-            TokenBalance: "0.00036",
-        },
-    ];
-
-    const [selectedInvoices, setSelectedInvoices] = useState<string[]>([]);
+export const Transfer: React.FC<TransferPageProps> = ({ wallets, balances, onSelectionChange }) => {
+    const [selectedWallet, setSelectedWallet] = useState<string[]>([]);
+    const [initialWallets, setInitialWallets] = useState<Wallet[]>(wallets);
 
     const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
-            setSelectedInvoices(invoices.map(invoice => invoice.Number));
+            setSelectedWallet(initialWallets.map(wallet => wallet.address));
+            applyAmountsToAll(initialWallets);
+            onSelectionChange(initialWallets); 
         } else {
-            setSelectedInvoices([]);
+            setSelectedWallet([]);
+            setInitialWallets(wallets);
+            onSelectionChange([]); 
         }
     };
 
-    const handleSelectOne = (event: ChangeEvent<HTMLInputElement>, invoiceNumber: string) => {
+    const applyAmountsToAll = (walletsToUpdate: Wallet[]) => {
+        const firstWallet = walletsToUpdate[0];
+        setInitialWallets(walletsToUpdate.map(wallet => ({
+            ...wallet,
+            addressToTransfer: firstWallet.addressToTransfer,
+            TokenAmount: firstWallet.TokenAmount,
+        })));
+    };
+
+    const handleAdress = (event: ChangeEvent<HTMLInputElement>, index: number) => {
+        const newWallets = [...initialWallets];
+        newWallets[index].addressToTransfer = event.target.value;
+        setInitialWallets(newWallets);
+    };
+
+    const handleTokenAmount = (event: ChangeEvent<HTMLInputElement>, index: number) => {
+        const newWallets = [...initialWallets];
+        newWallets[index].TokenAmount = event.target.value;
+        setInitialWallets(newWallets);
+    };
+
+    const handleSelectOne = (event: ChangeEvent<HTMLInputElement>, walletAddress: string) => {
         if (event.target.checked) {
-            setSelectedInvoices(prev => [...prev, invoiceNumber]);
+            const updatedSelection = [...selectedWallet, walletAddress];
+            setSelectedWallet(updatedSelection);
+            onSelectionChange(initialWallets.filter(wallet => updatedSelection.includes(wallet.address))); 
         } else {
-            setSelectedInvoices(prev => prev.filter(number => number !== invoiceNumber));
+            const updatedSelection = selectedWallet.filter(address => address !== walletAddress);
+            setSelectedWallet(updatedSelection);
+            onSelectionChange(initialWallets.filter(wallet => updatedSelection.includes(wallet.address))); 
         }
     };
 
-    const isSelected = (invoiceNumber: string) => selectedInvoices.includes(invoiceNumber);
+    const isSelected = (walletAddress: string) => selectedWallet.includes(walletAddress);
+
+    const handlePublicKeyCopy = (address: string, privateKey: string) => {
+        const textToCopy = `${address} ${privateKey}`;
+        navigator.clipboard.writeText(textToCopy);
+        toast.info("Public Key and Private Key copied to clipboard");
+    };
+
+    const downloadCSV = (data: Wallet[]) => {
+        const csvRows = [];
+        const headers = Object.keys(data[0]) as (keyof Wallet)[];
+        csvRows.push(headers.join(','));
+
+        for (const row of data) {
+            const values = headers.map(header => row[header]);
+            csvRows.push(values.join(','));
+        }
+
+        const csvString = csvRows.join('\n');
+        const blob = new Blob([csvString], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('href', url);
+        a.setAttribute('download', 'wallets.csv');
+        a.click();
+    };
+
+    const handleDownloadCSV = () => {
+        if (selectedWallet.length === initialWallets.length) {
+            applyAmountsToAll(initialWallets);
+        }
+        downloadCSV(initialWallets);
+    };
 
     return (
         <div>
+            <div className='flex justify-between mt-5 mb-5'>
+                <div className='gap-4 flex'>
+                    <p className='text-[#71717A] text-sm font-medium mb-2 flex gap-2 items-center'>Selected: <span className='text-white'>{selectedWallet.length}</span></p>
+                </div>
+                <div className='gap-4 flex'>
+                    <Button className="bg-[#09090B] border-none text-[#F57C00] text-sm font-normal" onClick={handleDownloadCSV}>
+                        <Image
+                            src={"/Images/New Project/download-02.svg"}
+                            width={18}
+                            height={18}
+                            alt="logo"
+                            className="cursor-pointer m-auto mr-1"
+                        />
+                        Download wallets
+                    </Button>
+                </div>
+            </div>
             <Table className='border-[1px] border-[#18181B] rounded-md'>
                 <TableHeader className='bg-[#18181B]'>
                     <TableRow className='hover:bg-inherit border-none'>
@@ -63,7 +124,7 @@ export const Transfer: React.FC = () => {
                                 type="checkbox"
                                 className={styles.checkbox}
                                 onChange={handleSelectAll}
-                                checked={selectedInvoices.length === invoices.length}
+                                checked={selectedWallet.length === wallets.length}
                             />
                         </TableHead>
                         <TableHead className='text-[12px] text-center'>#</TableHead>
@@ -75,25 +136,27 @@ export const Transfer: React.FC = () => {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {invoices.map((invoice, index) => (
-                        <TableRow key={invoice.Number} className={`hover:bg-inherit py-0 border-none ${index % 2 === 1 ? 'bg-[#18181B]' : ''}`}>
+                    {initialWallets.map((wallet, index) => (
+                        <TableRow key={wallet.address} className={`hover:bg-inherit py-0 border-none ${index % 2 === 1 ? 'bg-[#18181B]' : ''}`}>
                             <TableCell className='py-0'>
                                 <input
                                     type="checkbox"
                                     className={styles.checkbox}
-                                    checked={isSelected(invoice.Number)}
-                                    onChange={(event) => handleSelectOne(event, invoice.Number)}
+                                    checked={isSelected(wallet.address)}
+                                    onChange={(event) => handleSelectOne(event, wallet.address)}
                                 />
                             </TableCell>
-                            <TableCell className='text-[#A1A1AA] text-[12px]'>{invoice.Number}</TableCell>
+                            <TableCell className='text-[#A1A1AA] text-[12px]'>{index + 1}</TableCell>
                             <TableCell className='py-0'>
                                 <div className='text-[#71717A] flex gap-1 items-center text-[12px]'>
-                                    {invoice.Address}
+                                    {wallet.address}
+                                    <p className='hidden'>{wallet.privateKey}</p>
                                     <Image
                                         src={"/copy-01.svg"}
                                         width={15}
                                         height={15}
                                         alt="Copy"
+                                        onClick={() => handlePublicKeyCopy(wallet.address, wallet.privateKey)}
                                     />
                                 </div>
                             </TableCell>
@@ -105,7 +168,7 @@ export const Transfer: React.FC = () => {
                                         height={15}
                                         alt="ETH"
                                     />
-                                    {invoice.EthBalance}
+                                    {Number(balances[index]?.ethBalance) / (10 ** 18)}
                                 </div>
                             </TableCell>
                             <TableCell className='py-0'>
@@ -116,7 +179,7 @@ export const Transfer: React.FC = () => {
                                         height={15}
                                         alt="Token"
                                     />
-                                    {invoice.TokenBalance}
+                                    {Number(balances[index]?.tokenBalance) / (10 ** 18)}
                                 </div>
                             </TableCell>
                             <TableCell className='w-[300px] py-0'>
@@ -125,6 +188,8 @@ export const Transfer: React.FC = () => {
                                     placeholder="Enter Address"
                                     type="text"
                                     required
+                                    value={wallet.addressToTransfer}
+                                    onChange={(e) => handleAdress(e, index)}
                                 />
                             </TableCell>
                             <TableCell className='w-[150px] py-0'>
@@ -133,6 +198,8 @@ export const Transfer: React.FC = () => {
                                     placeholder="Amount"
                                     type="number"
                                     required
+                                    value={wallet.TokenAmount}
+                                    onChange={(e) => handleTokenAmount(e, index)}
                                 />
                             </TableCell>
                         </TableRow>

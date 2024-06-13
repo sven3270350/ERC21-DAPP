@@ -7,7 +7,7 @@ export interface Project {
     maxSupply: number;
     initialSupply: number;
   };
-  walletAddess: string;
+  walletAddress: string;
   devWallet: {
     devBuyTax: number;
     devSellTax: number;
@@ -24,9 +24,8 @@ export interface Project {
   };
   status: string;
   beneficiaryDetails: {
-    [x: string]: number;
-    numWallets: number;
-    tokenAmount: number;
-    wallets: { address: string; amount: string; privateKey: string }[];
-  };
+    address: string;
+    amount: string;
+    privateKey: string;
+  }[];
 }
