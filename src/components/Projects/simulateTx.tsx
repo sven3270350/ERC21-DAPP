@@ -36,7 +36,7 @@ const invoices: any[] = [
         Address: "0x20FEE153B13d8f0A83bd9B9C2B627f830Ff957FB",
         EthBalance: "0.00036",
         TokenBalance: "0.00036",
-        TokensToBuy: '100'
+        TokensToBuy: '50'
         
     },
     {
@@ -44,7 +44,7 @@ const invoices: any[] = [
         Address: "0xf4C4795c309a8e4a1AD548D82a875193980E82ff",
         EthBalance: "0.00036",
         TokenBalance: "0.00036",
-        TokensToBuy: '100'
+        TokensToBuy: '10'
     },
 
 ];
@@ -53,6 +53,7 @@ export const SimulateTx = ({
     projectData
 }: SimulateTxProps) => {
   const {address} = useAccount();  
+
   const handleSimulation = async () => {
     await fetchQuotes()
     const transactionSequence = [];
@@ -63,14 +64,15 @@ export const SimulateTx = ({
     const buyTx = getBuyTx()
     transactionSequence.push(...buyTx);
 
+    console.log(invoices);
     console.log(transactionSequence);
 
-    // await simulate(transactionSequence)
+    await simulate(transactionSequence)
 
   };
 
   const fetchQuotes = async() => {
-
+    
     const result = await readContract({
       abi: uniswapV2PairABI,
       address: '0xCA60cA0699161Db7A0420F8D1e05E19d16DF4257',
@@ -79,42 +81,48 @@ export const SimulateTx = ({
 
     const reservesArray: any = result;
 
-    console.log(reservesArray[0].toString());
-    
     let reserveEth = parseFloat(reservesArray[0]);
     let reserveToken = parseFloat(reservesArray[1]);
 
     for(let i=0; i<invoices.length; i++){
-
-        let ethRequired = getEthAmountForPoo(reserveEth, reserveToken, invoices[i].TokensToBuy);
+        const amountToken = parseUnits(invoices[i].TokensToBuy, 18).toString()
+        const ethRequired = await getEthAmountForToken(reserveEth, reserveToken, amountToken);
         reserveEth += ethRequired;
-        reserveToken -= invoices[i].TokensToBuy;
-
-        const formattedValue = formatUnits(ethRequired, 18);
+        reserveToken -= parseFloat(amountToken);
+        const formattedValue = formatUnits(BigInt(ethRequired), 18);
 
         invoices[i].requiredETH = formattedValue;
     }
 
-    function getEthAmountForPoo(reserveEth: number, reservePoo: number, amountPoo:number): number {
-      let newReservePoo = reservePoo - amountPoo;
-      let newReserveEth = (reserveEth * reservePoo) / newReservePoo;
-      let ethRequired = newReserveEth - reserveEth;
-      return ethRequired;
+    async function getEthAmountForToken(reserveEth: number, reserveToken: number, amountOut:string) {
+      const result = await readContract({
+        abi:uniswapRouterabi,
+        address: uniswapV2RouterAddress as Address,
+        functionName: 'getAmountIn',
+        args: [amountOut, reserveEth, reserveToken]
+    
+    })
+      const amounts: any = result;
+
+      return parseFloat(amounts);
   }
 
   }
-
-  
 
   const getEthTransferTxSequence = async() => {
 
     const ethTransferTransactions = []
 
+    const result = await readContract({
+      abi: uniswapV2PairABI,
+      address: '0xCA60cA0699161Db7A0420F8D1e05E19d16DF4257',
+      functionName: 'getReserves'
+    })
 
-
-
+    const reservesArray: any = result;
     for(let i=0; i<invoices.length; i++){
         const ethValue = parseFloat(invoices[i].requiredETH) + parseFloat(formatUnits(BigInt('907946'), 9));
+        console.log(ethValue);
         const tx = {
             from: address,
             to: invoices[i].Address,
@@ -155,12 +163,14 @@ export const SimulateTx = ({
         const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from now
         const buyTranscations = []
         for(let i=0; i<invoices.length; i++){
-       
+      
+          const amountETHMax: string = invoices[i].requiredETH
+          console.log(amountETHMax)
         const tx = {
             from: invoices[i].Address,
             to: uniswapV2RouterAddress,
-            input: uniswapRouterInterface.encodeFunctionData('swapExactETHForTokens', [parseUnits('1',18),[wethAddress,"0xcc30EE414bDcDD02eFc1eEa7DCC1Ea14040018B0"],invoices[i].Address,deadline]),
-            value: (parseUnits(invoices[i].requiredETH, 18).toString())
+            input: uniswapRouterInterface.encodeFunctionData('swapETHForExactTokens', [parseUnits(invoices[i].TokensToBuy,18),[wethAddress,"0xcc30EE414bDcDD02eFc1eEa7DCC1Ea14040018B0"],invoices[i].Address,deadline]),
+            value: (parseUnits(amountETHMax, 18).toString())
         }
         buyTranscations.push(tx);
         }

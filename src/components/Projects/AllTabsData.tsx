@@ -18,6 +18,7 @@ interface AllTabsDataProps {
         };
         deployedTokenAddress: {
             contractAddress: `0x${string}`;
+            pairAddress: `0x${string}`;
         }
     };
 }
@@ -29,7 +30,8 @@ type BalanceType = {
 }
 
 export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab, projectData }) => {
-    const wallets: Wallet[] = useMemo(() => (projectData.beneficiaryDetails.wallets.slice(0, 2).map((wallet, index) => ({
+
+    const wallets: Wallet[] = useMemo(() => (projectData.beneficiaryDetails?.wallets?.slice(0, 2).map((wallet, index) => ({
         ...wallet,
         ethBalance: wallet?.ethBalance || "0",
         tokenBalance: wallet?.tokenBalance || "0",

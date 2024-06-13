@@ -7,14 +7,8 @@ import {
   readContract,
 } from "@wagmi/core";
 import { Address, parseUnits } from "viem";
-import {
-  uniswapRouterabi,
-  uniswapV2FactoryAddress,
-  uniswapV2FactoryABI,
-  uniswapV2RouterAddress,
-  wethAddress,
-} from "@/constants/routerABI.json";
-import { abi } from "@/constants/tokenABI.json";
+import { uniswapRouterABI, uniswapV2FactoryAddress, uniswapV2FactoryABI, uniswapV2RouterAddress, wethAddress } from "@/constants/routerABI.json";
+import { abi, } from "@/constants/tokenABI.json";
 import { useAccount } from "wagmi";
 import { Button } from "../ui/button";
 import { ethers } from "ethers";
@@ -62,6 +56,7 @@ const CreatePool: React.FC<CreatePoolProps> = ({
     const amountETHDesired = poolData?.tokenAmountB;
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from now
 
+  
     try {
       setIsCreating(true);
       const rpc = process.env.NEXT_PUBLIC_ALCHEMY_RPC;
@@ -91,7 +86,7 @@ const CreatePool: React.FC<CreatePoolProps> = ({
 
       setProcessState("Creating Pool");
 
-      const routerContract = new ethers.Contract(uniswapV2RouterAddress, uniswapRouterabi, provider);
+      const routerContract = new ethers.Contract(uniswapV2RouterAddress, uniswapRouterABI, provider);
       const tx = await routerContract.addLiquidityETH.staticCall(tokenAddress,
           parseUnits(amountTokenDesired, 18),
           parseUnits(amountTokenDesired, 18),
@@ -102,7 +97,7 @@ const CreatePool: React.FC<CreatePoolProps> = ({
         console.log(tx)
 
       const { request } = await prepareWriteContract({
-        abi: uniswapRouterabi,
+        abi: uniswapRouterABI,
         address: uniswapV2RouterAddress as Address,
         functionName: "addLiquidityETH",
         args: [
