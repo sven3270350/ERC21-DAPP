@@ -107,34 +107,34 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData, wallets, balances
     return (
         <div>
             <div className='flex justify-between mt-5 mb-5'>
-                <div className='gap-4 flex'>
-                    <p className='text-[#71717A] text-sm font-medium mb-2 flex gap-2 items-center'>Selected: <span className='text-white'>{selectedWallet?.length}</span></p>
+                <div className='flex gap-4'>
+                    <p className='flex items-center gap-2 mb-2 font-medium text-[#71717A] text-sm'>Selected: <span className='text-white'>{selectedWallet?.length}</span></p>
                 </div>
-                <div className='gap-4 flex'>
-                    <Button className="bg-[#09090B] border-none text-[#F57C00] text-sm font-normal" onClick={handleDownloadCSV}>
+                <div className='flex gap-4'>
+                    <Button className="bg-[#09090B] border-none font-normal text-[#F57C00] text-sm" onClick={handleDownloadCSV}>
                         <Image
                             src={"/Images/New Project/download-02.svg"}
                             width={18}
                             height={18}
                             alt="logo"
-                            className="cursor-pointer m-auto mr-1"
+                            className="m-auto mr-1 cursor-pointer"
                         />
                         Download wallets
                     </Button>
-                    {/* <Button className="bg-[#09090B] border-none text-[#F57C00] text-sm font-normal">
+                    {/* <Button className="bg-[#09090B] border-none font-normal text-[#F57C00] text-sm">
                         <Image
                             src={"/Images/New Project/add-01.svg"}
                             width={18}
                             height={18}
                             alt="logo"
-                            className="cursor-pointer m-auto mr-1"
+                            className="m-auto mr-1 cursor-pointer"
                         />
                         Add Wallet
                     </Button> */}
                 </div>
             </div>
             <div>
-                <Table className='border-[1px] border-[#18181B] rounded-md text-center'>
+                <Table className='border-[#18181B] border-[1px] rounded-md text-center'>
                     <TableHeader className='bg-[#18181B]'>
                         <TableRow className='hover:bg-inherit border-none'>
                             <TableHead>
@@ -142,7 +142,7 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData, wallets, balances
                                     type="checkbox"
                                     className={styles.checkbox}
                                     onChange={handleSelectAll}
-                                    checked={selectedWallet.length === wallets.length}
+                                    checked={selectedWallet.length === wallets?.length}
                                 />
                             </TableHead>
                             <TableHead className='text-[12px] text-center'>#</TableHead>
@@ -154,7 +154,7 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData, wallets, balances
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {initialWallets.map((wallet, index) => (
+                        {initialWallets?.map((wallet, index) => (
                             <TableRow key={wallet.address} className={`hover:bg-inherit py-0 border-none ${index % 2 === 1 ? 'bg-[#18181B]' : ''}`}>
                                 <TableCell className='py-0'>
                                     <input
@@ -166,7 +166,7 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData, wallets, balances
                                 </TableCell>
                                 <TableCell className='text-[#A1A1AA] text-[12px]'>{index + 1}</TableCell>
                                 <TableCell className='py-0 text-center'>
-                                    <div className='text-[#71717A] flex gap-1 items-center text-[12px]'>
+                                    <div className='flex items-center gap-1 text-[#71717A] text-[12px]'>
                                         {wallet.address}
                                         <p className='hidden'>{wallet.privateKey}</p>
                                         <Image
@@ -179,7 +179,7 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData, wallets, balances
                                     </div>
                                 </TableCell>
                                 <TableCell className='py-0'>
-                                    <div className='text-[#F57C00] flex gap-1 items-center text-[12px] justify-center'>
+                                    <div className='flex justify-center items-center gap-1 text-[#F57C00] text-[12px]'>
                                         <Image
                                             src={"/Vector.svg"}
                                             width={15}
@@ -189,8 +189,8 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData, wallets, balances
                                         {Number(balances[index]?.ethBalance) / (10 ** 18)}
                                     </div>
                                 </TableCell>
-                                <TableCell className='py-0 '>
-                                    <div className='text-[#A1A1AA] flex gap-1 items-center text-[12px] justify-center'>
+                                <TableCell className='py-0'>
+                                    <div className='flex justify-center items-center gap-1 text-[#A1A1AA] text-[12px]'>
                                         <Image
                                             src={"/coins-01.svg"}
                                             width={15}
@@ -200,9 +200,9 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData, wallets, balances
                                         {Number(balances[index]?.tokenBalance) / (10 ** 18)}
                                     </div>
                                 </TableCell>
-                                <TableCell className='w-[200px] py-0'>
+                                <TableCell className='py-0 w-[200px]'>
                                     <Input
-                                        className="bg-[#18181B] h-8 border-[#27272A] mt-2 text-white text-center text-[12px]"
+                                        className="border-[#27272A] bg-[#18181B] mt-2 h-8 text-[12px] text-center text-white"
                                         placeholder="Amount"
                                         type="number"
                                         value={wallet.tokensToBuy}
@@ -210,9 +210,9 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData, wallets, balances
                                         required
                                     />
                                 </TableCell>
-                                <TableCell className='w-[200px] py-0'>
+                                <TableCell className='py-0 w-[200px]'>
                                     <Input
-                                        className="bg-[#18181B] h-8 border-[#27272A] mt-2 text-white text-center text-[12px]"
+                                        className="border-[#27272A] bg-[#18181B] mt-2 h-8 text-[12px] text-center text-white"
                                         placeholder="Amount"
                                         type="number"
                                         value={wallet.additionalEth}
