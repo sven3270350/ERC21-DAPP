@@ -49,8 +49,7 @@ export const DeployToken = ({
           data.marketingWallet.marketingBuyTax,
           data.marketingWallet.marketingSellTax,
           data.devWallet.devWallet,
-          data.marketingWallet.marketingWallet,
-          data.devWallet.devWallet
+          data.marketingWallet.marketingWallet
         ],
       });
 
