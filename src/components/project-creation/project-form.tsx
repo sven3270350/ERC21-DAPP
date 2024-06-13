@@ -559,7 +559,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
                   placeholder="Enter number"
                 />
               </div>
-              <div>
+              <div className="relative">
                 <FormField
                   control={form.control}
                   name="tokenB"
@@ -592,7 +592,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
               </div>
               {form.getValues("tokenSymbol") != "" &&
               form.getValues("tokenB") != "" ? (
-                <div className="flex items-center w-fit min-w-[300px]">
+                <div className="flex items-center w-fit min-w-[600px]">
                   <h1> Price of </h1>
                   <div className="flex items-center px-1 text-[#F57C00]">
                     {form.getValues("tokenSymbol")}
@@ -624,7 +624,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
                   objectData={objectData}
                 />
               ) : data?.status === "In Progress" ? (
-                <CreatePool projectId={projectId!}/>
+                <CreatePool projectId={projectId!} objectData={objectData}/>
               ) : (
                 <Button
                   disabled={submitting}
