@@ -313,7 +313,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
   }, []);
 
   return (
-    <main className="flex flex-col justify-center items-center gap-6 py-[100px]">
+    <main className="flex flex-col justify-center items-center gap-6 py-[40px]">
       <div className="flex flex-col gap-6 border-[#18181B] p-6 border rounded-[12px]">
         <h1 className="font-bold text-[22px] text-center text-white uppercase leading-7">
           New project
@@ -559,7 +559,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
                   placeholder="Enter number"
                 />
               </div>
-              <div>
+              <div className="relative">
                 <FormField
                   control={form.control}
                   name="tokenB"
