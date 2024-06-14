@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 export const ProjectHeadData: React.FC<{ project: any }> = ({ project }) => {
     const totalAmount = project?.beneficiaryDetails?.length
     const handlePublicKeyCopy = () => {
-        navigator.clipboard.writeText(project?.tokenDetails?.contractAddress);
+        navigator.clipboard.writeText(project?.deployedTokenAddress?.contractAddress);
         toast.info("Public Key copied to clipboard");
     };
     return (
@@ -14,7 +14,7 @@ export const ProjectHeadData: React.FC<{ project: any }> = ({ project }) => {
                 <p className="text-[#F57C00] font-semibold">{project?.tokendetails?.tokenName}</p>
                 <span className="text-[#71717A]">|</span>
                 <div className="flex gap-1 items-center">
-                    <p className="text-[12px] text-[#71717A]">{project?.tokendetails?.contractAddress}</p>
+                    <p className="text-[12px] text-[#71717A]">{project?.deployedTokenAddress?.contractAddress}</p>
                     <Image
                         src={"/Images/New Project/copy-01.svg"}
                         width={14}

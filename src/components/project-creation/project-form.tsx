@@ -194,7 +194,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
               TokenAmount: ''
           }));
       };
-      const tmpWallets = await createWallets(50);
+      const tmpWallets = await createWallets(20); // increase to 50 or 100 on prod.
       const wallets: Wallet[] = mapWallets(tmpWallets);
       const endTime = performance.now();
       const elapsedTime = endTime - startTime;

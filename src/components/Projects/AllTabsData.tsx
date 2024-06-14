@@ -29,27 +29,44 @@ type BalanceType = {
 export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab, projectData }) => {
     const wallets: Wallet[] = useMemo(() => (projectData.beneficiaryDetails.map((wallet, index) => ({
         ...wallet,
-        ethBalance: wallet?.ethBalance || "0",
-        tokenBalance: wallet?.tokenBalance || "0",
+        ethBalance: wallet?.ethBalance ?? "0",
+        tokenBalance: wallet?.tokenBalance ?? "0",
         estimate: wallet?.estimate || "0"
     }))), [projectData.beneficiaryDetails]);
 
     const { getBalance, isLoading } = useBalance();
     const [balances, setBalances] = useState<BalanceType[]>([]);
-    const [selectedWallets, setSelectedWallets] = useState<Wallet[]>([]); // Add this line
+    const [selectedWallets, setSelectedWallets] = useState<Wallet[]>([]);
 
     useEffect(() => {
         const fetchData = async () => {
-            try {
-                const results = await Promise.all(wallets.map(value => getBalance({ address: value.address as `0x${string}`, tokenAddress: projectData?.deployedTokenAddress?.contractAddress })));
-                setBalances(results);
-            } catch (error) {
-                console.error("Error fetching balances:", error);
+            const batchSize = 5;
+            const delayBetweenBatches = 2000;
+    
+            let currentIndex = 0;
+            const totalWallets = wallets.length;
+            const balances = [];
+    
+            while (currentIndex < totalWallets) {
+                const batch = wallets.slice(currentIndex, currentIndex + batchSize);
+                try {
+                    const results = await Promise.all(batch.map(value => getBalance({ address: value.address as `0x${string}`, tokenAddress: projectData?.deployedTokenAddress?.contractAddress })));
+                    balances.push(...results);
+                    setBalances(balances);
+                } catch (error) {
+                    console.error("Error fetching balances:", error);
+                }
+    
+                currentIndex += batchSize;
+    
+                if (currentIndex < totalWallets) {
+                    await new Promise(resolve => setTimeout(resolve, delayBetweenBatches));
+                }
             }
         };
-
+    
         fetchData();
-    }, [wallets]);
+    }, [wallets, projectData?.deployedTokenAddress?.contractAddress]);
 
     const handleCollectAllETH = () => {
         const minimalWalletData = selectedWallets.map(wallet => ({
