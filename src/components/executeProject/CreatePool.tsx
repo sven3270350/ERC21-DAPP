@@ -22,6 +22,7 @@ import { useSession } from "next-auth/react";
 import { ExtendedUser } from "@/types/user";
 import { UpdateProject } from "@/utils/update-project";
 import { useRouter } from "next/navigation";
+import { useStore } from "@/store";
 
 interface CreatePoolProps {
   onPrev?: () => void;
@@ -35,6 +36,7 @@ const CreatePool: React.FC<CreatePoolProps> = ({
 }) => {
   const { address } = useAccount();
   const session = useSession();
+  const {setAllProjects} = useStore();
   const userId = (session?.data?.user as ExtendedUser)?.id;
   const [isCreating, setIsCreating] = useState(false);
   const [poolState, setPoolState] = useState(false);
@@ -209,7 +211,9 @@ const CreatePool: React.FC<CreatePoolProps> = ({
             console.log(updatedData, "updatedData");
             
             localStorage.setItem("allProjects", JSON.stringify(updatedData));
-            router.push("/dashboard")
+            setAllProjects(projectsArray);
+            router.refresh();
+            router.push(`/projects/${projectId}`)
           }
         }
       } else {

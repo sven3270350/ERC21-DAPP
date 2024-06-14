@@ -2,7 +2,8 @@
 
 import { Projects } from "@/components/Projects/Projects";
 import { ProjectForm } from "@/components/project-creation";
-import { useEffect, useState } from "react";
+import { useStore } from "@/store";
+import { useEffect, useMemo, useState } from "react";
 
 type Props = {
   params: {
@@ -19,6 +20,11 @@ export default function Project({ params }: Props) {
   const projectId = params.id;
   const [project, setProject] = useState<any>(null);
   const [projectData, setProjectData] = useState<any>(null);
+  const { allProjects } = useStore();
+  const currProject = useMemo(() => {
+    if (!projectId) return null;
+    return allProjects.find((project: any) => project?.projectId === projectId);
+  }, [allProjects, projectId]);
   const fetchProject = () => {
     if (typeof window === "undefined") return;
     const data = localStorage.getItem("allProjects");
@@ -59,20 +65,23 @@ export default function Project({ params }: Props) {
       e.preventDefault();
       e.returnValue = "";
     };
+    if (project && project.status === "Launched") {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    }
 
     window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, []);
+  }, [project?.status]);
 
   console.log(project);
   
 
   return (
     <div>
-      {project && project.status === "Launched" ? (
+      {project && currProject.status === "Launched" ? (
         <Projects projectData={project} />
       ) : (
         <ProjectForm projectId={projectId} data={project} objectData={projectData} />

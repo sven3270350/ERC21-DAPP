@@ -119,7 +119,6 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
   const currProject = useMemo(() => {
     return allProjects.find((project: any) => project?.projectId === projectId);
   }, [allProjects, projectId]);
-  
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -290,7 +289,10 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
 
   useEffect(() => {
     if (!projectId) return;
-    if (!data?.deployedTokenAddress) return;
+    if (!currProject?.deployedTokenAddress) {
+      console.log("No deployed token address");
+      return;
+    }
     const fetchTransactionLog = async () => {
       try {
         setLoading(true);
@@ -307,7 +309,11 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
       }
     };
     fetchTransactionLog();
-  }, [data?.deployedTokenAddress, projectId]);
+  }, [
+    data?.deployedTokenAddress?.contractAddress,
+    projectId,
+    currProject?.deployedTokenAddress?.contractAddress,
+  ]);
 
   useEffect(() => {
     if (!data || !data.tokendetails) return;
@@ -326,6 +332,14 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
     form.setValue("tokenB", data.poolData.liquidityToken);
     console.log(data?.poolData.liquidityToken, "data");
   }, [data]);
+
+  useEffect(() => {
+    if (!currProject) return;
+    if (currProject?.status === "Launched") {
+      router.refresh();
+      router.push(`/projects/${projectId}`);
+    }
+  }, [currProject?.status])
 
   return (
     <main className="flex flex-col justify-center items-center gap-6 py-[40px]">
