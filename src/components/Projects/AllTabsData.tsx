@@ -13,9 +13,7 @@ import { Wallet } from '@/types/wallet';
 interface AllTabsDataProps {
     selectedTab: string;
     projectData: {
-        beneficiaryDetails: {
-            wallets: Wallet[];
-        };
+        beneficiaryDetails: Wallet[];
         deployedTokenAddress: {
             contractAddress: `0x${string}`;
         }
@@ -29,12 +27,12 @@ type BalanceType = {
 }
 
 export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab, projectData }) => {
-    const wallets: Wallet[] = useMemo(() => (projectData.beneficiaryDetails.wallets.slice(0, 2).map((wallet, index) => ({
+    const wallets: Wallet[] = useMemo(() => (projectData.beneficiaryDetails.map((wallet, index) => ({
         ...wallet,
         ethBalance: wallet?.ethBalance || "0",
         tokenBalance: wallet?.tokenBalance || "0",
         estimate: wallet?.estimate || "0"
-    }))), [projectData.beneficiaryDetails.wallets]);
+    }))), [projectData.beneficiaryDetails]);
 
     const { getBalance, isLoading } = useBalance();
     const [balances, setBalances] = useState<BalanceType[]>([]);

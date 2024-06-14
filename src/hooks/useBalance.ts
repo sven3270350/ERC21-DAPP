@@ -20,6 +20,9 @@ const useBalance = () => {
       return Promise.reject("Invalid function parameters.");
     }
 
+    console.log("tokenAddress", tokenAddress);
+    console.log("address", tokenAddress);
+    console.log("address", address);
     const tokenBalance = await publicClient.readContract({
       address: tokenAddress,
       abi: erc20ABI,
