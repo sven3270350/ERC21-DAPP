@@ -3,9 +3,8 @@ import React, { useState } from "react";
 import {
   writeContract,
   prepareWriteContract,
-  watchContractEvent,
-  readContract,
 } from "@wagmi/core";
+import { publicClient } from "../../lib/viem";
 import { Address, parseUnits } from "viem";
 import {
   uniswapRouterabi,
@@ -57,7 +56,7 @@ const CreatePool: React.FC<CreatePoolProps> = ({
     );
     const tokenData = project?.tokendetails;
     const poolData = project?.poolData;
-    const tokenAddress = project?.deployedTokenAddress;
+    const tokenAddress = project?.deployedTokenAddress.contractAddress;
     const amountTokenDesired = poolData.tokenAmountA;
     const amountETHDesired = poolData?.tokenAmountB;
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from now
@@ -65,8 +64,10 @@ const CreatePool: React.FC<CreatePoolProps> = ({
     try {
       setIsCreating(true);
       const rpc = process.env.NEXT_PUBLIC_ALCHEMY_RPC;
-      const provider = new ethers.JsonRpcProvider(rpc)
+      const provider = new ethers.JsonRpcProvider(rpc);
       
+      console.log("tokenAddress", tokenAddress);
+
       setProcessState('Approving')
       const { request: approveRequest } = await prepareWriteContract({
         abi,
