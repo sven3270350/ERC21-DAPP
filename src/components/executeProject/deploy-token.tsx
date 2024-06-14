@@ -11,6 +11,7 @@ import { useSession } from "next-auth/react";
 import { ExtendedUser } from "@/types/user";
 import { saveTransaction } from "@/utils/save-transaction";
 import { useRouter } from "next/navigation";
+import { useStore } from "@/store";
 
 interface DeployTokenProps {
   projectId: string;
@@ -25,6 +26,7 @@ export const DeployToken = ({
 }: DeployTokenProps) => {
   const [isDeploying, setIsDeploying] = useState(false);
   const [deployState, setDeployState] = useState(false);
+  const {setAllProjects, allProjects} = useStore();
   const session = useSession();
   const userId = (session?.data?.user as ExtendedUser)?.id;
   const { data: walletClient } = useWalletClient();
@@ -69,7 +71,6 @@ export const DeployToken = ({
       } else {
         console.log("Transaction failed");
       }
-
       if (transaction?.contractAddress) {
         // save the contract address to the project + status
         if (!objectData) {
@@ -149,9 +150,10 @@ export const DeployToken = ({
           console.log(updatedData, "updatedData");
           
           localStorage.setItem("allProjects", JSON.stringify(updatedData));
+          setAllProjects(projectsArray);
         }
         router.refresh();
-        router.push("/dashboard")
+        // router.push("/dashboard")
       }
 
       setIsDeploying(false);
