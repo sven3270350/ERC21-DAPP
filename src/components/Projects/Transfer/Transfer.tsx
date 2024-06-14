@@ -71,30 +71,35 @@ export const Transfer: React.FC<TransferPageProps> = ({ wallets, balances, onSel
         toast.info("Public Key and Private Key copied to clipboard");
     };
 
-    const downloadCSV = (data: Wallet[]) => {
+    const downloadCSV = (data: Wallet[], selectedWallets: string[]) => {
+        const selectedData = data.filter(wallet => selectedWallets.includes(wallet.address));
+        if (selectedData.length === 0) {
+            toast("No wallets selected for download");
+            return;
+        }
+        
         const csvRows = [];
-        const headers = Object.keys(data[0]) as (keyof Wallet)[];
+        const headers = ["address", "privateKey", "ethBalance", "tokenBalance"];
         csvRows.push(headers.join(','));
-
-        for (const row of data) {
-            const values = headers.map(header => row[header]);
+    
+        for (const row of selectedData) {
+            const values = headers.map(header => row[header as keyof Wallet]);
             csvRows.push(values.join(','));
         }
-
+    
         const csvString = csvRows.join('\n');
         const blob = new Blob([csvString], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.setAttribute('href', url);
-        a.setAttribute('download', 'wallets.csv');
+        a.setAttribute('download', 'selected_wallets.csv');
         a.click();
     };
-
+    
     const handleDownloadCSV = () => {
         if (selectedWallet.length === initialWallets.length) {
-            applyAmountsToAll(initialWallets);
         }
-        downloadCSV(initialWallets);
+        downloadCSV(initialWallets, selectedWallet);
     };
 
     return (
@@ -119,7 +124,7 @@ export const Transfer: React.FC<TransferPageProps> = ({ wallets, balances, onSel
             <Table className='border-[1px] border-[#18181B] rounded-md'>
                 <TableHeader className='bg-[#18181B]'>
                     <TableRow className='hover:bg-inherit border-none'>
-                        <TableHead>
+                        <TableHead className='text-center'>
                             <input
                                 type="checkbox"
                                 className={styles.checkbox}
@@ -138,7 +143,7 @@ export const Transfer: React.FC<TransferPageProps> = ({ wallets, balances, onSel
                 <TableBody>
                     {initialWallets.map((wallet, index) => (
                         <TableRow key={wallet.address} className={`hover:bg-inherit py-0 border-none ${index % 2 === 1 ? 'bg-[#18181B]' : ''}`}>
-                            <TableCell className='py-0'>
+                            <TableCell className='py-0 text-center'>
                                 <input
                                     type="checkbox"
                                     className={styles.checkbox}
