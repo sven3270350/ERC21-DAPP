@@ -7,7 +7,7 @@ import React from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { ProjectHeadData } from "./ProjectHeadData";
 
-const Header: React.FC<{ project: any }> = ({ project }) => {
+const Header: React.FC<{ project?: any }> = () => {
   // const { isConnected, address } = useAccount();
   const router = useRouter();
   const pathname = usePathname();
@@ -23,7 +23,7 @@ const Header: React.FC<{ project: any }> = ({ project }) => {
   return (
     <div className="top-0 left-[250px] z-50 fixed bg-[#0F0F11] px-6 pt-4 w-[calc(100%-250px)]">
       <div className="flex justify-between items-center pb-3 max-w-full-xl self-stretch">
-      {!isDashboardRoute && <ProjectHeadData project={project} projectId={projectId} />}
+      {!isDashboardRoute && <ProjectHeadData projectId={projectId} />}
         <div className="flex gap-4 ml-auto">
           <button
             type="button"

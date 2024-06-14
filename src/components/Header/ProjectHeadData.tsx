@@ -4,44 +4,45 @@ import { toast } from "sonner";
 import { useStore } from "@/store";
 
 export const ProjectHeadData: React.FC<{
-  project: any;
   projectId: string | undefined;
-}> = ({ project, projectId }) => {
-  const totalAmount = project?.beneficiaryDetails?.length;
+}> = ({ projectId }) => {
   const handlePublicKeyCopy = () => {
     navigator.clipboard.writeText(
-      project?.deployedTokenAddress?.contractAddress
+      currProject?.deployedTokenAddress?.contractAddress
     );
     toast.info("Public Key copied to clipboard");
   };
   const { allProjects } = useStore();
-  
+
   const currProject = useMemo(() => {
     if (!projectId) return null;
     return allProjects.find((project: any) => project?.projectId === projectId);
   }, [allProjects, projectId]);
+  const totalAmount = currProject?.beneficiaryDetails?.length;
   console.log("currProject", currProject, allProjects, projectId);
-  
+
   return (
     <div>
       <div className="flex items-center gap-4">
         <p className="font-semibold text-[#F57C00]">
-          {project?.tokendetails?.tokenName}
+          {currProject?.tokendetails?.tokenName}
         </p>
         <span className="text-[#71717A]">|</span>
-        <div className="flex items-center gap-1">
-          <p className="text-[#71717A] text-[12px]">
-            {project?.deployedTokenAddress?.contractAddress}
-          </p>
-          <Image
-            src={"/Images/New Project/copy-01.svg"}
-            width={14}
-            height={14}
-            alt="Copy"
-            className="cursor-pointer"
-            onClick={handlePublicKeyCopy}
-          />
-        </div>
+        {currProject?.deployedTokenAddress?.contractAddress && (
+          <div className="flex items-center gap-1">
+            <p className="text-[#71717A] text-[12px]">
+              {currProject?.deployedTokenAddress?.contractAddress}
+            </p>
+            <Image
+              src={"/Images/New Project/copy-01.svg"}
+              width={14}
+              height={14}
+              alt="Copy"
+              className="cursor-pointer"
+              onClick={handlePublicKeyCopy}
+            />
+          </div>
+        )}
         <div className="text-center">
           <div className="flex items-center gap-1">
             <Image
@@ -52,7 +53,7 @@ export const ProjectHeadData: React.FC<{
               className="cursor-pointer"
             />
             <span className="text-sm text-white">
-              {project?.tokendetails?.maxSupply}
+              {currProject?.tokendetails?.maxSupply}
             </span>
           </div>
           <span className="mt-1 text-[#71717A] text-sm">MaxSupply</span>
