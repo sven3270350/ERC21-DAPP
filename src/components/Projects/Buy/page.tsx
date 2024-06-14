@@ -6,28 +6,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import styles from '../../newproject/checkbox.module.css';
 import { toast } from 'sonner';
-
-interface Wallet {
-    address: string;
-    amount: string;
-    ethBalance: string;
-    tokenBalance: string;
-    privateKey: string;
-    tokensToBuy: string;
-    additionalEth: string;
-}
+import { Wallet } from '@/types/wallet';
 
 interface BuyPageProps {
-    projectData: {
-        beneficiaryDetails: {
-            wallets: Wallet[];
-        };
-    };
     wallets: Wallet[];
     balances: { ethBalance: bigint; tokenBalance: bigint; }[];
+    onSelectionChange: (selectedWallets: Wallet[]) => void;
 }
 
-export const BuyPage: React.FC<BuyPageProps> = ({ projectData, wallets, balances }) => {
+export const BuyPage: React.FC<BuyPageProps> = ({ wallets, balances, onSelectionChange }) => {
     const [selectedWallet, setSelectedWallet] = useState<string[]>([]);
     const [initialWallets, setInitialWallets] = useState<Wallet[]>(wallets);
 
@@ -35,9 +22,11 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData, wallets, balances
         if (event.target.checked) {
             setSelectedWallet(initialWallets.map(wallet => wallet.address));
             applyAmountsToAll();
+            onSelectionChange(initialWallets); 
         } else {
             setSelectedWallet([]);
             setInitialWallets(wallets);
+            onSelectionChange([]); 
         }
     };
 
@@ -52,9 +41,13 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData, wallets, balances
 
     const handleSelectOne = (event: ChangeEvent<HTMLInputElement>, walletAddress: string) => {
         if (event.target.checked) {
-            setSelectedWallet(prev => [...prev, walletAddress]);
+            const updatedSelection = [...selectedWallet, walletAddress];
+            setSelectedWallet(updatedSelection);
+            onSelectionChange(initialWallets.filter(wallet => updatedSelection.includes(wallet.address))); 
         } else {
-            setSelectedWallet(prev => prev.filter(address => address !== walletAddress));
+            const updatedSelection = selectedWallet.filter(address => address !== walletAddress);
+            setSelectedWallet(updatedSelection);
+            onSelectionChange(initialWallets.filter(wallet => updatedSelection.includes(wallet.address))); 
         }
     };
 
@@ -78,31 +71,37 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData, wallets, balances
         toast.info("Public Key and Private Key copied to clipboard");
     };
 
-    const downloadCSV = (data: Wallet[]) => {
+    const downloadCSV = (data: Wallet[], selectedWallets: string[]) => {
+        const selectedData = data.filter(wallet => selectedWallets.includes(wallet.address));
+        if (selectedData.length === 0) {
+            toast("No wallets selected for download");
+            return;
+        }
+        
         const csvRows = [];
-        const headers = Object.keys(data[0]) as (keyof Wallet)[];
+        const headers = ["address", "privateKey", "ethBalance", "tokenBalance"];
         csvRows.push(headers.join(','));
-
-        for (const row of data) {
-            const values = headers.map(header => row[header]);
+    
+        for (const row of selectedData) {
+            const values = headers.map(header => row[header as keyof Wallet]);
             csvRows.push(values.join(','));
         }
-
+    
         const csvString = csvRows.join('\n');
         const blob = new Blob([csvString], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.setAttribute('href', url);
-        a.setAttribute('download', 'wallets.csv');
+        a.setAttribute('download', 'selected_wallets.csv');
         a.click();
     };
-
+    
     const handleDownloadCSV = () => {
         if (selectedWallet.length === initialWallets.length) {
-            applyAmountsToAll();
         }
-        downloadCSV(initialWallets);
+        downloadCSV(initialWallets, selectedWallet);
     };
+    
 
     return (
         <div>
@@ -137,7 +136,7 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData, wallets, balances
                 <Table className='border-[#18181B] border-[1px] rounded-md text-center'>
                     <TableHeader className='bg-[#18181B]'>
                         <TableRow className='hover:bg-inherit border-none'>
-                            <TableHead>
+                            <TableHead className='text-center'>
                                 <input
                                     type="checkbox"
                                     className={styles.checkbox}
@@ -156,7 +155,7 @@ export const BuyPage: React.FC<BuyPageProps> = ({ projectData, wallets, balances
                     <TableBody>
                         {initialWallets?.map((wallet, index) => (
                             <TableRow key={wallet.address} className={`hover:bg-inherit py-0 border-none ${index % 2 === 1 ? 'bg-[#18181B]' : ''}`}>
-                                <TableCell className='py-0'>
+                                <TableCell className='py-0 text-center'>
                                     <input
                                         type="checkbox"
                                         className={styles.checkbox}
