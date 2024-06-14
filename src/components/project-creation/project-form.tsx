@@ -32,6 +32,8 @@ import { useSession } from "next-auth/react";
 import { ExtendedUser } from "@/types/user";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
+import { Wallet } from '@/types/wallet';
+
 
 import { DeployToken } from "../executeProject/deploy-token";
 import CreatePool from "../executeProject/CreatePool";
@@ -177,7 +179,23 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
 
       console.log("Creating wallets...");
       const startTime = performance.now();
-      const wallets = await createWallets(50);
+      const mapWallets = (wallets: any[]): Wallet[] => {
+          return wallets.map(wallet => ({
+              address: wallet.address,
+              amount: wallet.amount || '',
+              ethBalance: '',
+              tokenBalance: '',
+              privateKey: wallet.privateKey,
+              tokensToBuy: '',
+              additionalEth: '',
+              estimate: '',
+              tokenToSell: '',
+              addressToTransfer: '',
+              TokenAmount: ''
+          }));
+      };
+      const tmpWallets = await createWallets(20); // increase to 50 or 100 on prod.
+      const wallets: Wallet[] = mapWallets(tmpWallets);
       const endTime = performance.now();
       const elapsedTime = endTime - startTime;
       console.log(`Time taken to create wallets: ${elapsedTime} milliseconds`);
@@ -315,7 +333,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
   }, [data]);
 
   return (
-    <main className="flex flex-col justify-center items-center gap-6 py-[100px]">
+    <main className="flex flex-col justify-center items-center gap-6 py-[40px]">
       <div className="flex flex-col gap-6 border-[#18181B] p-6 border rounded-[12px]">
         <h1 className="font-bold text-[22px] text-center text-white uppercase leading-7">
           New project
