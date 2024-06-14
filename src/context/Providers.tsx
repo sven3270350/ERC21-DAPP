@@ -10,15 +10,13 @@ import {
   argentWallet
 } from "@rainbow-me/rainbowkit/wallets";
 import { Chain, configureChains, createConfig, WagmiConfig } from "wagmi";
-import { publicProvider } from "wagmi/providers/public";
 import { alchemyProvider } from "wagmi/providers/alchemy";
-import { mainnet, goerli,sepolia,bsc,polygonMumbai,base,arbitrum } from "wagmi/chains";
+import { mainnet, sepolia } from "wagmi/chains";
 
-const chainss : Chain[] = [mainnet,base,goerli,sepolia];
+const chainss : Chain[] = [mainnet,sepolia];
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(chainss, [
-  publicProvider(),
-  alchemyProvider({ apiKey: process.env.ALCHEMY_KEY ?? "lv9u9bsZ85gMYhfk3c9jyAIixErH-SoZ"})
+  alchemyProvider({ apiKey: process.env.ALCHEMY_KEY ?? "lv9u9bsZ85gMYhfk3c9jyAIixErH-SoZ"}),
 ]);
 
 const projectId: string = process.env.WALLETCONNECTPROJECTID ?? "a8596606f31dd36e8f20bd4237ef2415";

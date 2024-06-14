@@ -18,7 +18,6 @@ interface SimulateTxProps {
         deployedTokenAddress: {
             contractAddress: `0x${string}`;
             pairAddress: `0x${string}`;
-
         }
     };
 }
@@ -129,7 +128,7 @@ export const SimulateTx = ({
   const getEnableTradingTx = () => {
     try {
 
-        const tokenAddress = projectData.deployedTokenAddress.contractAddress;
+        const tokenAddress = projectData.deployedTokenAddress;
 
         const tokenInterface = new Interface(abi);
 
@@ -149,7 +148,7 @@ export const SimulateTx = ({
   const getBuyTx = () => {
     try {
 
-        const tokenAddress = projectData.deployedTokenAddress.contractAddress;
+        const tokenAddress = projectData.deployedTokenAddress;
 
         const uniswapRouterInterface = new Interface(uniswapRouterabi);
         const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from now

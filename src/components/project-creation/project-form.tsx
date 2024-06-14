@@ -32,6 +32,8 @@ import { useSession } from "next-auth/react";
 import { ExtendedUser } from "@/types/user";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
+import { Wallet } from '@/types/wallet';
+
 
 import { DeployToken } from "../executeProject/deploy-token";
 import CreatePool from "../executeProject/CreatePool";
@@ -177,7 +179,23 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
 
       console.log("Creating wallets...");
       const startTime = performance.now();
-      const wallets = await createWallets(50);
+      const mapWallets = (wallets: any[]): Wallet[] => {
+          return wallets.map(wallet => ({
+              address: wallet.address,
+              amount: wallet.amount || '',
+              ethBalance: '',
+              tokenBalance: '',
+              privateKey: wallet.privateKey,
+              tokensToBuy: '',
+              additionalEth: '',
+              estimate: '',
+              tokenToSell: '',
+              addressToTransfer: '',
+              TokenAmount: ''
+          }));
+      };
+      const tmpWallets = await createWallets(20); // increase to 50 or 100 on prod.
+      const wallets: Wallet[] = mapWallets(tmpWallets);
       const endTime = performance.now();
       const elapsedTime = endTime - startTime;
       console.log(`Time taken to create wallets: ${elapsedTime} milliseconds`);

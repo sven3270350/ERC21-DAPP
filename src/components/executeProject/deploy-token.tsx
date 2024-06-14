@@ -80,8 +80,11 @@ export const DeployToken = ({
           ...objectData,
         };
         projectData[projectId].status = "In Progress";
-        projectData[projectId].deployedTokenAddress =
-          transaction?.contractAddress;
+        projectData[projectId].deployedTokenAddress = {
+            contractAddress: transaction?.contractAddress,
+            pairAddress: ''
+        }
+          ;
         console.log(projectData, "data");
         if (!userId) {
           console.error("User not found");
@@ -133,7 +136,10 @@ export const DeployToken = ({
           projectsArray[projectIndex] = {
             ...project,
             status: "In Progress",
-            deployedTokenAddress: transaction?.contractAddress,
+            deployedTokenAddress: {
+              contractAddress: transaction?.contractAddress,
+              pairAddress: ''
+            }
           };
           const updatedData = projectsArray.map((project: any) => {
             return {
