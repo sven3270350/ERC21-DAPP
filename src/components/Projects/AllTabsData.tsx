@@ -103,7 +103,7 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab, projectDa
             <ConnectWallet />
             <p className='border-b-[1px] border-[#27272A]'></p>
 
-            {selectedTab === "Buy" && <BuyPage projectData={projectData} wallets={wallets} balances={balances} onSelectionChange={handleSelectionChange} />} 
+            {selectedTab === "Buy" && <BuyPage wallets={wallets} balances={balances} onSelectionChange={handleSelectionChange} />} 
             {selectedTab === "Sell" && <Sell wallets={wallets} balances={balances} onSelectionChange={handleSelectionChange}/>}
             {selectedTab === "Transfer" && <Transfer wallets={wallets} balances={balances} onSelectionChange={handleSelectionChange}/>}
 

@@ -6,7 +6,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import styles from '../../newproject/checkbox.module.css';
 import { toast } from 'sonner';
-
 import { Wallet } from '@/types/wallet';
 
 interface BuyPageProps {
@@ -81,12 +80,11 @@ export const BuyPage: React.FC<BuyPageProps> = ({ wallets, balances, onSelection
         const csvRows = [];
         const headers = ["address", "privateKey", "ethBalance", "tokenBalance"];
         csvRows.push(headers.join(','));
-
         for (const row of selectedData) {
             const values = headers.map(header => row[header as keyof Wallet]);
             csvRows.push(values.join(','));
         }
-
+    
         const csvString = csvRows.join('\n');
         const blob = new Blob([csvString], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
@@ -95,13 +93,14 @@ export const BuyPage: React.FC<BuyPageProps> = ({ wallets, balances, onSelection
         a.setAttribute('download', 'selected_wallets.csv');
         a.click();
     };
-
+    
     const handleDownloadCSV = () => {
         if (selectedWallet.length === initialWallets.length) {
-            
+
         }
-        downloadCSV(initialWallets,selectedWallet);
+        downloadCSV(initialWallets, selectedWallet);
     };
+    
 
     console.log(selectedWallet);
     return (
@@ -137,7 +136,8 @@ export const BuyPage: React.FC<BuyPageProps> = ({ wallets, balances, onSelection
                 <Table className='border-[#18181B] border-[1px] rounded-md text-center'>
                     <TableHeader className='bg-[#18181B]'>
                         <TableRow className='hover:bg-inherit border-none'>
-                            <TableHead  className='text-center'>
+
+                            <TableHead className='text-center'>
                                 <input
                                     type="checkbox"
                                     className={styles.checkbox}
