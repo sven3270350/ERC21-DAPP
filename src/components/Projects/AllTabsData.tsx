@@ -6,7 +6,8 @@ import { Transfer } from './Transfer/Transfer';
 import { Sell } from './Sell/Sell';
 import { BuyPage } from './Buy/page';
 import { GrTest } from "react-icons/gr";
-import { SimulateTx } from './simulateTx';
+import { SimulateBuyTx } from './simulateBuyTx';
+import { SimulateSellTx } from './simulateSellTx';
 import useBalance from "../../hooks/useBalance";
 import { Wallet } from '@/types/wallet';
 
@@ -81,6 +82,7 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab, projectDa
 
     const handleSelectionChange = (selectedWallets: Wallet[]) => {
         setSelectedWallets(selectedWallets);
+       
     };
 
     const TabButton = () => {
@@ -110,8 +112,9 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab, projectDa
                 <Button className="bg-[#09090B] border-none text-[#F57C00] text-[12px] font-normal" onClick={handleCollectAllETH}>
                     Collect All ETH
                 </Button>
-                {selectedTab === "Buy" &&
-                  <SimulateTx projectData={projectData}/>
+                {selectedTab === "Buy" ?
+                  <SimulateBuyTx projectData={projectData} selectedWallets={selectedWallets} onSelectionChange={handleSelectionChange} />:
+                  selectedTab === "Sell" && <SimulateSellTx projectData={projectData} selectedWallets={selectedWallets}/>
                 }
 
                 <button

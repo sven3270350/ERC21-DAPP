@@ -186,7 +186,7 @@ export const Sell: React.FC<SellPageProps> = ({ wallets, balances, onSelectionCh
                                     onChange={(e) => handleTokenToSell(e, index)}
                                 />
                             </TableCell>
-                            <TableCell className='py-0 text-[#A1A1AA] text-[12px]'>{wallet?.estimate}</TableCell>
+                            <TableCell className='py-0 text-[#A1A1AA] text-[12px]'>{wallet?.ethEstimated}</TableCell>
                             <TableCell className=' py-0'>
                                 <input
                                     type="checkbox"

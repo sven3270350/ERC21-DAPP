@@ -10,4 +10,6 @@ export interface Wallet {
     tokenToSell?: string;
     addressToTransfer?: string;
     TokenAmount?: string;
+    requiredETH?: string
+    ethEstimated?: string
 }
