@@ -16,9 +16,7 @@ interface AllTabsDataProps {
         beneficiaryDetails: {
             wallets: Wallet[];
         };
-        deployedTokenAddress: {
-            contractAddress: `0x${string}`;
-        }
+        deployedTokenAddress: `0x${string}`
     };
 }
 
@@ -43,7 +41,7 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab, projectDa
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const results = await Promise.all(wallets.map(value => getBalance({ address: value.address as `0x${string}`, tokenAddress: projectData?.deployedTokenAddress?.contractAddress })));
+                const results = await Promise.all(wallets.map(value => getBalance({ address: value.address as `0x${string}`, tokenAddress: projectData?.deployedTokenAddress })));
                 setBalances(results);
             } catch (error) {
                 console.error("Error fetching balances:", error);
