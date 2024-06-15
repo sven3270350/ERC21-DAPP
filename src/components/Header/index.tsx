@@ -1,36 +1,33 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import Image from "next/image";
-import React from "react";
-import { useAccount } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { DisconnectBtn } from "./disconnect";
-import Link from "next/link";
-import { toast } from "sonner";
 import { usePathname, useRouter } from "next/navigation";
+import React from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { ProjectHeadData } from "./ProjectHeadData";
-import { useSession } from "next-auth/react";
 
-const Header: React.FC<{ project: any }> = ({ project }) => {
+const Header: React.FC<{ project?: any }> = () => {
   // const { isConnected, address } = useAccount();
   const router = useRouter();
   const pathname = usePathname();
   const { data: session } = useSession();
   const isDashboardRoute = pathname === "/dashboard" || pathname === "/newproject";
+  const projectId = pathname.split("/")[1] === "projects" ? pathname.split("/")[2] : undefined;
+  
    const handleNewProjectClick = () => {
     const newProjectId = uuidv4();
     router.push(`/newproject?projectId=${newProjectId}`);
   };
 
   return (
-    <div className="fixed top-0 left-[250px] w-[calc(100%-250px)] px-6 pt-4 bg-[#0F0F11] z-50">
-      <div className="flex justify-between items-center self-stretch pb-3 max-w-full-xl ">
-      {!isDashboardRoute && <ProjectHeadData project={project} />}
+    <div className="top-0 left-[250px] z-50 fixed bg-[#0F0F11] px-6 pt-4 w-[calc(100%-250px)]">
+      <div className="flex justify-between items-center pb-3 max-w-full-xl self-stretch">
+      {!isDashboardRoute && <ProjectHeadData projectId={projectId} />}
         <div className="flex gap-4 ml-auto">
           <button
             type="button"
-            className="flex px-4 py-2  text-[#F57C00] text-center text-sm font-bold leading-6 items-center gap-2 rounded-md border border-[#F57C00]"
+            className="flex items-center gap-2 border-[#F57C00] px-4 py-2 border rounded-md font-bold text-[#F57C00] text-center text-sm leading-6"
           >
             <Image src={"/user.svg"} alt="wallet" width={20} height={20} />
             {session?.user?.email}
@@ -38,7 +35,7 @@ const Header: React.FC<{ project: any }> = ({ project }) => {
           </button>
           <button
             onClick={handleNewProjectClick}
-            className="bg-[#F57C00] px-4 py-2 flex gap-2 items-center justify-center rounded-md text-[#000000] text-sm font-bold leading-6 tracking-[0.032px]"
+            className="flex justify-center items-center gap-2 bg-[#F57C00] px-4 py-2 rounded-md font-bold text-[#000000] text-sm leading-6 tracking-[0.032px]"
           >
             <Image src={"/plus.svg"} alt="plus" width={20} height={20} />
             <p>New Project</p>

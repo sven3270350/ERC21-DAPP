@@ -25,21 +25,21 @@ import { InputField } from "./input-field";
 import { Title } from "./title";
 import { DisconnectBtn } from "../Header/disconnect";
 import { useAccount } from "wagmi";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import ClipLoader from "react-spinners/ClipLoader";
 import { useSession } from "next-auth/react";
 import { ExtendedUser } from "@/types/user";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
-import { Wallet } from '@/types/wallet';
-
+import { Wallet } from "@/types/wallet";
 
 import { DeployToken } from "../executeProject/deploy-token";
 import CreatePool from "../executeProject/CreatePool";
 import { formatDate } from "@/utils/format-date";
 import Link from "next/link";
 import { Skeleton } from "../ui/skeleton";
+import { useStore } from "@/store";
 
 type Project = {
   tokendetails: {
@@ -115,6 +115,11 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
   const session = useSession();
   const userId = (session?.data?.user as ExtendedUser)?.id;
   const router = useRouter();
+  const { setAllProjects, allProjects } = useStore();
+  const currProject = useMemo(() => {
+    return allProjects.find((project: any) => project?.projectId === projectId);
+  }, [allProjects, projectId]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -147,18 +152,6 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
     form.setValue("tokenAmountA", "");
     form.setValue("tokenAmountB", "");
   }
-  const generateWallets = async (numWallets: number, tokenAmount: number) => {
-    try {
-      const res = await axios.post("/api/generate-wallets", {
-        numWallets,
-        tokenAmount,
-      });
-      return { data: res.data, success: true };
-    } catch (error) {
-      console.error("Error generating wallets:", error);
-      return { error, success: false };
-    }
-  };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!userId) {
@@ -180,26 +173,26 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
       console.log("Creating wallets...");
       const startTime = performance.now();
       const mapWallets = (wallets: any[]): Wallet[] => {
-          return wallets.map(wallet => ({
-              address: wallet.address,
-              amount: wallet.amount || '',
-              ethBalance: '',
-              tokenBalance: '',
-              privateKey: wallet.privateKey,
-              tokensToBuy: '',
-              additionalEth: '',
-              estimate: '',
-              tokenToSell: '',
-              addressToTransfer: '',
-              TokenAmount: ''
-          }));
+        return wallets.map((wallet) => ({
+          address: wallet.address,
+          amount: wallet.amount || "",
+          ethBalance: "",
+          tokenBalance: "",
+          privateKey: wallet.privateKey,
+          tokensToBuy: "",
+          additionalEth: "",
+          estimate: "",
+          tokenToSell: "",
+          addressToTransfer: "",
+          TokenAmount: "",
+        }));
       };
       const tmpWallets = await createWallets(20); // increase to 50 or 100 on prod.
       const wallets: Wallet[] = mapWallets(tmpWallets);
       const endTime = performance.now();
       const elapsedTime = endTime - startTime;
       console.log(`Time taken to create wallets: ${elapsedTime} milliseconds`);
-  
+
       const data = {
         tokendetails: {
           tokenName: values.tokenName,
@@ -228,6 +221,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
         },
         beneficiaryDetails: wallets,
         status: "Created",
+        projectId: `project-${projectId}`,
       };
 
       const projects: Projects = {};
@@ -266,6 +260,7 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
         }
         storedProjects.push(projects);
         localStorage.setItem("allProjects", JSON.stringify(storedProjects));
+        setAllProjects(storedProjects);
       }
       router.push(`/`);
     } catch (error) {
@@ -294,7 +289,10 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
 
   useEffect(() => {
     if (!projectId) return;
-    if (!data?.deployedTokenAddress) return;
+    if (!currProject?.deployedTokenAddress) {
+      console.log("No deployed token address");
+      return;
+    }
     const fetchTransactionLog = async () => {
       try {
         setLoading(true);
@@ -311,7 +309,11 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
       }
     };
     fetchTransactionLog();
-  }, [data?.deployedTokenAddress, projectId]);
+  }, [
+    data?.deployedTokenAddress?.contractAddress,
+    projectId,
+    currProject?.deployedTokenAddress?.contractAddress,
+  ]);
 
   useEffect(() => {
     if (!data || !data.tokendetails) return;
@@ -329,8 +331,15 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
     form.setValue("tokenAmountA", data.poolData.tokenAmountA);
     form.setValue("tokenB", data.poolData.liquidityToken);
     console.log(data?.poolData.liquidityToken, "data");
-    
   }, [data]);
+
+  useEffect(() => {
+    if (!currProject) return;
+    if (currProject?.status === "Launched") {
+      router.refresh();
+      router.push(`/projects/${projectId}`);
+    }
+  }, [currProject?.status])
 
   return (
     <main className="flex flex-col justify-center items-center gap-6 py-[40px]">
@@ -589,7 +598,9 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
                       <Select
                         disabled={data?.status === "TODO Created"}
                         onValueChange={field.onChange}
-                        value={data ? data.poolData.liquidityToken : field.value}
+                        value={
+                          data ? data.poolData.liquidityToken : field.value
+                        }
                         defaultValue={
                           data ? data.poolData.liquidityToken : field.value
                         }
@@ -632,20 +643,22 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
             >
               <button
                 type="button"
-                disabled={data?.status === "Created" || data?.status === "In Progress"}
+                disabled={
+                  data?.status === "Created" || data?.status === "In Progress"
+                }
                 onClick={cancel}
                 className={`${data?.status === "Created" || data?.status === "In Progress" ? "hidden" : ""} font-bold text-[#F57C00] text-sm leading-5`}
               >
                 Cancel
               </button>
-              {data && data?.status === "Created" ? (
+              {data && currProject?.status === "Created" ? (
                 <DeployToken
                   projectId={projectId!}
                   data={data}
                   objectData={objectData}
                 />
-              ) : data?.status === "In Progress" ? (
-                <CreatePool projectId={projectId!} objectData={objectData}/>
+              ) : currProject?.status === "In Progress" ? (
+                <CreatePool projectId={projectId!} objectData={objectData} />
               ) : (
                 <Button
                   disabled={submitting}
