@@ -1,8 +1,13 @@
-import { abi} from "@/constants/tokenABI.json";
+import { abi } from "@/constants/tokenABI.json";
 import { useAccount } from "wagmi";
-import { Address, readContract} from "@wagmi/core";
+import { Address, readContract } from "@wagmi/core";
 import { GrTest } from "react-icons/gr";
-import {uniswapRouterABI, uniswapV2RouterAddress, wethAddress, uniswapV2PairABI} from '@/constants/routerABI.json'
+import {
+  uniswapRouterABI,
+  uniswapV2RouterAddress,
+  wethAddress,
+  uniswapV2PairABI,
+} from "@/constants/routerABI.json";
 import { formatUnits, parseUnits } from "viem";
 
 import axios from "axios";
@@ -13,17 +18,16 @@ import { useEffect, useState } from "react";
 import ClipLoader from "react-spinners/ClipLoader";
 import { Button } from "../ui/button";
 
-
 interface SimulateTxProps {
-    projectData: {
-        beneficiaryDetails: {
-            wallets: Wallet[];
-        };
-        deployedTokenAddress: `0x${string}`;
-        poolAddress: `0x${string}`;
+  projectData: {
+    beneficiaryDetails: {
+      wallets: Wallet[];
     };
-    selectedWallets: Wallet[];
-    onSelectionChange: (selectedWallets: Wallet[]) => void;
+    deployedTokenAddress: `0x${string}`;
+    poolAddress: `0x${string}`;
+  };
+  selectedWallets: Wallet[];
+  onWalletUpdate: (selectedWallets: Wallet[]) => void;
 }
 
 export interface Transaction {
@@ -34,229 +38,248 @@ export interface Transaction {
 }
 
 export const SimulateBuyTx = ({
-    projectData,selectedWallets,onSelectionChange
+  projectData,
+  selectedWallets,
+  onWalletUpdate,
 }: SimulateTxProps) => {
-  const {address} = useAccount();  
-  const [isSimulating, setIsSimulating]  = useState(false);
-  const [buyWallets, setBuyWallets] = useState<Wallet[]>(selectedWallets);
-
+  console.log(selectedWallets);
+  const { address } = useAccount();
+  const [isSimulating, setIsSimulating] = useState(false);
+  const buyWallets: Wallet[] = selectedWallets;
+  console.log(buyWallets);
   const handleSimulation = async () => {
-    if(buyWallets?.length != 0){
-    try {
-      setIsSimulating(true);
-      await fetchQuotes()
-      const transactionSequence: Transaction[] = [];
-      const ethTransferTransactions = getEthTransferTxSequence();
-      transactionSequence.push(...ethTransferTransactions!);
-      const setTradingManagerTransaction = await getTradingManagerTx();
-      transactionSequence.push(setTradingManagerTransaction!);
-      const enableTradingTransaction = getEnableTradingTx();
-      transactionSequence.push(enableTradingTransaction!);
-      const buyTx = getBuyTx()
-      transactionSequence.push(...buyTx!);
-  
-      const simulationData = await simulate(transactionSequence);
-  
-      for(let i=0; i<simulationData.length; i++){
-        if(simulationData[i].transaction.status === false){
-          toast("Simulation Failed" + simulationData[i].transaction.error)
-          return;
+    if (buyWallets?.length != 0) {
+      try {
+        setIsSimulating(true);
+        await fetchQuotes();
+        const transactionSequence: Transaction[] = [];
+        const ethTransferTransactions = getEthTransferTxSequence();
+        transactionSequence.push(...ethTransferTransactions!);
+        const setTradingManagerTransaction = await getTradingManagerTx();
+        transactionSequence.push(setTradingManagerTransaction!);
+        const enableTradingTransaction = getEnableTradingTx();
+        transactionSequence.push(enableTradingTransaction!);
+        const buyTx = getBuyTx();
+        transactionSequence.push(...buyTx!);
+
+        const simulationData = await simulate(transactionSequence);
+        console.log(simulationData);
+        for (let i = 0; i < simulationData.length; i++) {
+          if (simulationData[i].transaction.status === false) {
+            toast(
+              "Simulation Failed: " +
+                simulationData[i].transaction.error_message +
+                "For: " +
+                simulationData[i].transaction.from
+            );
+            setIsSimulating(false);
+          }
         }
+
+        toast("Simulation Success: You can proceed with Buy");
+        onWalletUpdate(buyWallets!);
+        setIsSimulating(false);
+      } catch (error) {
+        console.log(error);
+        setIsSimulating(false);
       }
-  
-      toast("Simulation Success: You can proceed with Buy")
-      onSelectionChange(buyWallets!)
-      setIsSimulating(false);
-    } catch (error) {
-      console.log(error)
-      setIsSimulating(false);
+    } else {
+      toast("Please Select a Wallet");
     }
-  }else{
-    toast("Please Select a Wallet");
-  }
- 
   };
 
-  const fetchQuotes = async() => {
+  const fetchQuotes = async () => {
     try {
       const pairAddress = projectData.poolAddress;
       const result = await readContract({
         abi: uniswapV2PairABI,
         address: pairAddress,
-        functionName: 'getReserves'
-      })
-  
+        functionName: "getReserves",
+      });
+
       const reservesArray: any = result;
-  
+
       let reserveEth = parseFloat(reservesArray[0]);
       let reserveToken = parseFloat(reservesArray[1]);
-  
-      for(let i=0; i<buyWallets.length!; i++){
-          const amountToken = parseUnits(buyWallets[i].tokensToBuy, 18).toString()
-          const ethRequired = await getEthAmountForToken(reserveEth, reserveToken, amountToken);
-          reserveEth += ethRequired!;
-          reserveToken -= parseFloat(amountToken);
-          const formattedValue = formatUnits(BigInt(ethRequired!), 18);
-  
-          buyWallets[i].requiredETH = formattedValue;
+
+      for (let i = 0; i < buyWallets.length!; i++) {
+        const amountToken = parseUnits(
+          buyWallets[i].tokensToBuy!,
+          18
+        ).toString();
+        const ethRequired = await getEthAmountForToken(
+          reserveEth,
+          reserveToken,
+          amountToken
+        );
+        reserveEth += ethRequired!;
+        reserveToken -= parseFloat(amountToken);
+        const formattedValue = formatUnits(BigInt(ethRequired!), 18);
+
+        buyWallets[i].requiredETH = formattedValue;
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
- 
+  };
 
-  }
-
-  const getEthAmountForToken = async(reserveEth: number, reserveToken: number, amountOut:string) => {
+  const getEthAmountForToken = async (
+    reserveEth: number,
+    reserveToken: number,
+    amountOut: string
+  ) => {
     try {
       const result = await readContract({
-        abi:uniswapRouterABI,
+        abi: uniswapRouterABI,
         address: uniswapV2RouterAddress as Address,
-        functionName: 'getAmountIn',
-        args: [amountOut, reserveEth.toString(), reserveToken.toString()]
-    
-      })
+        functionName: "getAmountIn",
+        args: [amountOut, reserveEth.toString(), reserveToken.toString()],
+      });
       const amounts: any = result;
 
       return parseFloat(amounts);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const getEthTransferTxSequence = () => {
     try {
-      const ethTransferTransactions: Transaction[] = []
-      for(let i=0; i<buyWallets.length; i++){
-          const ethValue = parseFloat(buyWallets[i].requiredETH!) + parseFloat(formatUnits(BigInt('907946'), 9));
-          buyWallets[i].additionalEth = ethValue.toString();
-          const tx: Transaction = {
-              from: address!,
-              to: buyWallets[i].address as `0x${string}`,
-              value: (parseUnits(ethValue.toString(), 18).toString())
-          }
-           ethTransferTransactions.push(tx); 
-        }
-  
-      return ethTransferTransactions
-    } catch (error) {
-      console.log(error)
-    }
-
-  }
-
-  const getTradingManagerTx = async() => {
-    try {
-
-        const tokenAddress = projectData.deployedTokenAddress;
-
-        const tokenInterface = new Interface(abi);
-
-        const result = await readContract({
-          abi,
-          address: tokenAddress,
-          functionName: 'TRADING_MANAGER_ROLE'
-        })
-
+      const ethTransferTransactions: Transaction[] = [];
+      for (let i = 0; i < buyWallets.length; i++) {
+        const ethValue =
+          parseFloat(buyWallets[i].requiredETH!) +
+          parseFloat(formatUnits(BigInt("12000000"), 9));
+        buyWallets[i].additionalEth = ethValue.toString();
         const tx: Transaction = {
-            from: address!,
-            to: tokenAddress,
-            input: tokenInterface.encodeFunctionData('grantRole', [result, address])
-        }
+          from: address!,
+          to: buyWallets[i].address as `0x${string}`,
+          value: parseUnits(ethValue.toString(), 18).toString(),
+        };
+        ethTransferTransactions.push(tx);
+      }
 
-        return tx
-
+      return ethTransferTransactions;
     } catch (error) {
       console.log(error);
-    } 
-  }
+    }
+  };
+
+  const getTradingManagerTx = async () => {
+    try {
+      const tokenAddress = projectData.deployedTokenAddress;
+
+      const tokenInterface = new Interface(abi);
+
+      const result = await readContract({
+        abi,
+        address: tokenAddress,
+        functionName: "TRADING_MANAGER_ROLE",
+      });
+
+      const tx: Transaction = {
+        from: address!,
+        to: tokenAddress,
+        input: tokenInterface.encodeFunctionData("grantRole", [
+          result,
+          address,
+        ]),
+      };
+
+      return tx;
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const getEnableTradingTx = () => {
     try {
+      const tokenAddress = projectData.deployedTokenAddress;
 
-        const tokenAddress = projectData.deployedTokenAddress;
+      const tokenInterface = new Interface(abi);
 
-        const tokenInterface = new Interface(abi);
+      const tx: Transaction = {
+        from: address!,
+        to: tokenAddress,
+        input: tokenInterface.encodeFunctionData("setEnableTrading", [true]),
+      };
 
-        const tx: Transaction = {
-            from: address!,
-            to: tokenAddress,
-            input: tokenInterface.encodeFunctionData('setEnableTrading', [true])
-        }
-
-        return tx
-
+      return tx;
     } catch (error) {
       console.log(error);
-    } 
-  }
+    }
+  };
 
   const getBuyTx = () => {
     try {
-
-        const tokenAddress = projectData.deployedTokenAddress;
-        const uniswapRouterInterface = new Interface(uniswapRouterABI);
-        const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from now
-        const buyTranscations: Transaction[] = []
-        for(let i=0; i<buyWallets.length; i++){
-          const amountETHMax: string = buyWallets[i].requiredETH!
+      const tokenAddress = projectData.deployedTokenAddress;
+      const uniswapRouterInterface = new Interface(uniswapRouterABI);
+      const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from now
+      const buyTranscations: Transaction[] = [];
+      for (let i = 0; i < buyWallets.length; i++) {
+        const amountETHMax: string = buyWallets[i].requiredETH!;
         const tx: Transaction = {
-            from: buyWallets[i].address as `0x${string}`,
-            to: uniswapV2RouterAddress as `0x${string}`,
-            input: uniswapRouterInterface.encodeFunctionData('swapETHForExactTokens', [parseUnits(buyWallets[i].tokensToBuy,18),[wethAddress,tokenAddress],buyWallets[i].address,deadline]),
-            value: (parseUnits(amountETHMax, 18).toString())
-        }
+          from: buyWallets[i].address as `0x${string}`,
+          to: uniswapV2RouterAddress as `0x${string}`,
+          input: uniswapRouterInterface.encodeFunctionData(
+            "swapETHForExactTokens",
+            [
+              parseUnits(buyWallets[i].tokensToBuy!, 18),
+              [wethAddress, tokenAddress],
+              buyWallets[i].address,
+              deadline,
+            ]
+          ),
+          value: parseUnits(amountETHMax, 18).toString(),
+        };
         buyTranscations.push(tx);
-        }
-  
-        return buyTranscations;
+      }
+
+      return buyTranscations;
     } catch (error) {
       console.log(error);
-    } 
-  }
+    }
+  };
 
-  const simulate = async(transactionSequence: any[])=> {
+  const simulate = async (transactionSequence: any[]) => {
     try {
       const simulationResponse = await axios.post(
         `https://api.tenderly.co/api/v1/account/kai010/project/erc21bot/simulate-bundle`,
         {
-            simulations: transactionSequence.map((transaction) => ({
-              network_id: '11155111', // network to simulate on
-              save: true,
-              save_if_fails: true,
-              simulation_type: 'full',
-              ...transaction,
-            })),
+          simulations: transactionSequence.map((transaction) => ({
+            network_id: "11155111", // network to simulate on
+            save: true,
+            save_if_fails: true,
+            simulation_type: "full",
+            ...transaction,
+          })),
+        },
+        {
+          headers: {
+            "X-Access-Key": "EjuQ-40NZHjcBPrmM5TR-2YxjqKbb8QV",
           },
-          {
-            headers: {
-              'X-Access-Key': 'EjuQ-40NZHjcBPrmM5TR-2YxjqKbb8QV',
-            },
-          },
-      )
+        }
+      );
 
       return simulationResponse.data.simulation_results;
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-
-
-    };
+  };
 
   return (
     <div>
-        <Button
+      <Button
         onClick={handleSimulation}
         className="bg-[#27272A] hover:bg-[#F57C00] cursor-pointer px-4 py-2 text-[12px] flex gap-2 items-center justify-center rounded-md text-[#000000] text-sm font-bold leading-6 tracking-[0.032px]"
         disabled={isSimulating}
-    >
-        <GrTest className='text-black h-[18px] w-[18px]' />
+      >
+        <GrTest className="text-black h-[18px] w-[18px]" />
         <p>Simulate</p>
         {isSimulating && (
-            <ClipLoader color="#fff" className="color-[black]" size="16px" />
-          )}
-    </Button>
-   
+          <ClipLoader color="#fff" className="color-[black]" size="16px" />
+        )}
+      </Button>
     </div>
   );
 };
