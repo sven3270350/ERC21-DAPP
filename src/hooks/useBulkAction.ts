@@ -5,6 +5,7 @@ import { writeContract, prepareWriteContract } from "@wagmi/core";
 import { privateKeyToAccount } from 'viem/accounts'
 import bulksendABI from "../constants/bulksendABI.json";
 import { sendTransaction } from "@wagmi/core";
+import { ethers, Wallet } from "ethers";
 
 const bulkContract = ((process.env.NEXT_PUBLIC_ENVIRONMENT === "development"
   ? process.env.NEXT_PUBLIC_TEST_BULKCONTRACT_ADDRESS
@@ -20,6 +21,11 @@ type SendBulkTokendType = {
 type CollectAllETHType = {
   addresses: string[];
   privateKeys: string[];
+};
+
+type sendEthToWalletsType = {
+  wallets: string[];
+  amount: number[];
 };
 
 const useBulkAction = () => {
@@ -112,7 +118,7 @@ const useBulkAction = () => {
     setIsLoading(true);
     if (!address) {
       setIsLoading(false);
-      return "Please connect the wallet.";
+      return {status: 400, message: "Please connect the wallet."};
     }
 
     const gasPrice = await publicClient.getGasPrice() 
@@ -123,11 +129,11 @@ const useBulkAction = () => {
       const isZeroAccount = ethBalances.some(value => value === BigInt(0))
       if (isZeroAccount) {
         setIsLoading(false);
-        return "There are 0 ETH value accounts.";
+        return {status: 400, message: "There are 0 ETH value accounts."};
       }
     } catch (error) {
       setIsLoading(false);
-      return "Error while fetching onchain Data.";
+      return {status: 400, message: "Error while fetching onchain Data."};
     }
     try {
       const hashs = await Promise.all(accounts.map((value, index) => sendTransaction({
@@ -138,14 +144,143 @@ const useBulkAction = () => {
       })))
 
       setIsLoading(false);
-      return hashs;
+      return {status: 200, hash: hashs};
     } catch (error) {
       setIsLoading(false);
-      return "User rejected the request.";
+      return {status: 400, message: "User rejected the request."};
     }
   }
 
-  return { sendBulkToken, collectAllETH, isLoading };
+  const sendEthToWallets = async ({
+    wallets,
+    amount
+  }: sendEthToWalletsType) => {
+    setIsLoading(true);
+    if (!address) {
+      setIsLoading(false);
+      return {status: 400, message: "Please connect the wallet."};
+    }
+
+    if (!wallets || !amount) {
+      setIsLoading(false);
+      return {status: 400, message: "Please selected the wallets"}
+    }
+
+    const gasPrice = await publicClient.getGasPrice()
+    const ethBalance = await publicClient.getBalance({address});
+    const totalAmount = amount.reduce((partialSum, a) => partialSum + a, 0);
+    const totalGas = gasPrice * BigInt(22000) * BigInt(amount.length);
+    const payableAmount = ethBalance - BigInt(totalAmount * 10 ** 18) - totalGas;
+    if (payableAmount < 0) {
+      setIsLoading(false);
+      return {status: 400, message: `Insufficient Eth Balance. You need ${Number(BigInt(0) - payableAmount) / 10 ** 18} more Eth.`}
+    }
+    try {
+      const { request } = await prepareWriteContract({
+        abi: bulksendABI,
+        address: bulkContract,
+        functionName: "bulkSendEth",
+        value: payableAmount,
+        args: [
+          wallets,
+          amount.map((value) => BigInt(value * 10 ** 18)),
+        ],
+      });
+
+      const sendHash = await writeContract(request);
+
+      setIsLoading(false);
+      return {status: 200, hash: sendHash};
+    } catch (error) {
+      setIsLoading(false);
+      return {status: 400, message: "User rejected the request."};
+    }
+  } 
+
+  const createBundleWallet = async (poolContractAddress: `0x${string}`, projectId: string) => {
+    setIsLoading(true);
+    if (!address) {
+      setIsLoading(false);
+      return {status: 400, message: "Please connect the wallet."};
+    }
+
+    if (!poolContractAddress) {
+      setIsLoading(false);
+      return {status: 400, message: "Pool Contract Address is required"}
+    }
+
+    const gasPrice = await publicClient.getGasPrice()
+    const ethBalance = await publicClient.getBalance({address});
+    const payableAmount = ethBalance - BigInt(0.1 * 10 ** 18) - gasPrice * BigInt(21000);
+
+    if (payableAmount < 0) {
+      return {status: 400, message: "Insufficient Eth Balance."}
+    }
+
+    const allProjects = localStorage.getItem("allProjects");
+    
+    if (!allProjects) {
+      setIsLoading(false);
+      return {status: 400, message: "Please create your first project"}
+    }
+
+    let bundleWallet = JSON.parse(allProjects)[projectId].bundleWallet;
+
+    if (!bundleWallet) {
+      bundleWallet = Wallet.createRandom();
+      const projectsArray = JSON.parse(allProjects).map((obj: any) => {
+        const key = Object.keys(obj)[0];
+        const project = obj[key];
+        if (key === projectId) {
+          return {
+            ...project,
+            bundleWallet: {
+              address: bundleWallet.address,
+              privateKey: bundleWallet.privateKey
+            }
+          }
+        } else {
+          return project;
+        }
+      });
+      localStorage.setItem("allProjects", projectsArray);
+    } else {
+      setIsLoading(false);
+      return {status: 400, message: "Bundle Wallet was already created."}
+    }
+
+    
+
+    // const totalAmount = amount.reduce((partialSum, a) => partialSum + a, 0);
+    // const totalGas = gasPrice * BigInt(22000) * BigInt(amount.length);
+    // const payableAmount = ethBalance - BigInt(totalAmount * 10 ** 18) - totalGas;
+    // if (payableAmount < 0) {
+    //   setIsLoading(false);
+    //   return {status: 400, message: `Insufficient Eth Balance. You need ${Number(BigInt(0) - payableAmount) / 10 ** 18} more Eth.`}
+    // }
+    // try {
+    //   const { request } = await prepareWriteContract({
+    //     abi: bulksendABI,
+    //     address: bulkContract,
+    //     functionName: "bulkSendEth",
+    //     value: payableAmount,
+    //     args: [
+    //       wallets,
+    //       amount.map((value) => BigInt(value * 10 ** 18)),
+    //     ],
+    //   });
+
+    //   const sendHash = await writeContract(request);
+
+    //   setIsLoading(false);
+    //   return {status: 200, hash: sendHash};
+    // } catch (error) {
+    //   setIsLoading(false);
+    //   return {status: 400, message: "User rejected the request."};
+    // }
+  } 
+
+  return { sendBulkToken, collectAllETH, sendEthToWallets, isLoading };
 };
 
 export default useBulkAction;

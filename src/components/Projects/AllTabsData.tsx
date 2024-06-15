@@ -8,6 +8,7 @@ import { BuyPage } from './Buy/page';
 import { GrTest } from "react-icons/gr";
 import { SimulateTx } from './simulateTx';
 import useBalance from "../../hooks/useBalance";
+import useBulkAction from "../../hooks/useBulkAction";
 import { Wallet } from '@/types/wallet';
 
 interface AllTabsDataProps {
@@ -16,7 +17,8 @@ interface AllTabsDataProps {
         beneficiaryDetails: Wallet[];
         deployedTokenAddress: {
             contractAddress: `0x${string}`;
-        }
+        },
+        projectId: string
     };
 }
 
@@ -34,9 +36,11 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab, projectDa
         estimate: wallet?.estimate || "0"
     }))), [projectData.beneficiaryDetails]);
 
-    const { getBalance, isLoading } = useBalance();
+    const { getBalance } = useBalance();
+    const { collectAllETH, sendEthToWallets, isLoading } = useBulkAction();
     const [balances, setBalances] = useState<BalanceType[]>([]);
     const [selectedWallets, setSelectedWallets] = useState<Wallet[]>([]);
+    console.log("~~~~projectId~~~~~~", projectData.projectId)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -66,21 +70,32 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab, projectDa
         };
     
         fetchData();
-    }, [wallets, projectData?.deployedTokenAddress?.contractAddress]);
+    }, [wallets, projectData?.deployedTokenAddress?.contractAddress, isLoading]);
 
-    const handleCollectAllETH = () => {
+    const handleCollectAllETH = async () => {
         const minimalWalletData = selectedWallets.map(wallet => ({
             address: wallet.address,
             privateKey: wallet.privateKey,
             ethBalance: wallet.ethBalance,
             tokenBalance: wallet.tokenBalance,
         }));
-        console.log("Selected Wallets:", minimalWalletData);
+        const result = await collectAllETH({ addresses: minimalWalletData?.map(value => value.address), privateKeys: minimalWalletData?.map(value => value.privateKey) })
+        console.log("Collect All Eth result:", result);
     };
 
     const handleSelectionChange = (selectedWallets: Wallet[]) => {
         setSelectedWallets(selectedWallets);
     };
+
+    const handleEthToWallets = async () => {
+        const result  = await sendEthToWallets({wallets: selectedWallets?.map(value => value.address), amount: selectedWallets?.map(value => Number(value.additionalEth))})
+        console.log("~~~~~~result~~~~~~~", result)
+    }
+
+    const handleCreateBundleWallet = async () => {
+        const result  = await sendEthToWallets({wallets: selectedWallets?.map(value => value.address), amount: selectedWallets?.map(value => Number(value.additionalEth))})
+        console.log("~~~~~~result~~~~~~~", result)
+    }
 
     const TabButton = () => {
         switch (selectedTab) {
@@ -106,12 +121,28 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({ selectedTab, projectDa
 
             <p className='border-b-[1px] border-[#27272A] mt-4 mb-4'></p>
             <div className='flex gap-2 justify-end items-center'>
-                <Button className="bg-[#09090B] border-none text-[#F57C00] text-[12px] font-normal" onClick={handleCollectAllETH}>
+                <Button className="bg-[#09090B] border-none text-[#F57C00] text-[12px] font-normal" onClick={handleCollectAllETH} disabled={isLoading}>
                     Collect All ETH
                 </Button>
                 {selectedTab === "Buy" &&
                   <SimulateTx projectData={projectData}/>
                 }
+
+                {selectedTab === "Buy" && <button
+                    className="bg-[#27272A] hover:bg-[#F57C00] px-4 py-2 text-[12px] flex gap-2 items-center justify-center rounded-md text-[#000000] text-sm font-bold leading-6 tracking-[0.032px]"
+                    onClick={handleEthToWallets}
+                    disabled={isLoading}
+                >
+                    <p>Eth to Wallets</p>
+                </button>}
+
+                {selectedTab === "Buy" && <button
+                    className="bg-[#27272A] hover:bg-[#F57C00] px-4 py-2 text-[12px] flex gap-2 items-center justify-center rounded-md text-[#000000] text-sm font-bold leading-6 tracking-[0.032px]"
+                    onClick={handleCreateBundleWallet}
+                    disabled={isLoading}
+                >
+                    <p>Create Bundle Wallet</p>
+                </button>}
 
                 <button
                     className="bg-[#27272A] hover:bg-[#F57C00] px-4 py-2 text-[12px] flex gap-2 items-center justify-center rounded-md text-[#000000] text-sm font-bold leading-6 tracking-[0.032px]"
