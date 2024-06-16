@@ -92,7 +92,6 @@ export const SimulateBuyTx = ({
   const fetchQuotes = async () => {
     try {
       const pairAddress = projectData.poolAddress;
-      console.log(pairAddress);
       const result = await readContract({
         abi: uniswapV2PairABI,
         address: pairAddress,
@@ -130,15 +129,12 @@ export const SimulateBuyTx = ({
     reserveToken: number,
     amountOut: string
   ) => {
-    console.log(reserveEth);
-    console.log(reserveToken);
-    console.log(amountOut);
     try {
       const result = await readContract({
         abi: uniswapRouterABI,
         address: uniswapV2RouterAddress as Address,
         functionName: "getAmountIn",
-        args: [amountOut, reserveEth.toString(), reserveToken.toString()],
+        args: [BigInt(amountOut), BigInt(reserveEth), BigInt(reserveToken)], 
       });
       const amounts: any = result;
 
