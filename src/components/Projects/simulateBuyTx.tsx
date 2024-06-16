@@ -23,7 +23,9 @@ interface SimulateTxProps {
     beneficiaryDetails: {
       wallets: Wallet[];
     };
-    deployedTokenAddress: `0x${string}`;
+    deployedTokenAddress: {
+      contractAddress: `0x${string}`;
+    };
     poolAddress: `0x${string}`;
   };
   selectedWallets: Wallet[];
@@ -91,6 +93,7 @@ export const SimulateBuyTx = ({
   const fetchQuotes = async () => {
     try {
       const pairAddress = projectData.poolAddress;
+      console.log(pairAddress);
       const result = await readContract({
         abi: uniswapV2PairABI,
         address: pairAddress,
@@ -99,8 +102,8 @@ export const SimulateBuyTx = ({
 
       const reservesArray: any = result;
 
-      let reserveEth = parseFloat(reservesArray[0]);
-      let reserveToken = parseFloat(reservesArray[1]);
+      let reserveEth = parseFloat(reservesArray[1]);
+      let reserveToken = parseFloat(reservesArray[0]);
 
       for (let i = 0; i < buyWallets.length!; i++) {
         const amountToken = parseUnits(
@@ -128,6 +131,9 @@ export const SimulateBuyTx = ({
     reserveToken: number,
     amountOut: string
   ) => {
+    console.log(reserveEth);
+    console.log(reserveToken);
+    console.log(amountOut);
     try {
       const result = await readContract({
         abi: uniswapRouterABI,
@@ -167,8 +173,8 @@ export const SimulateBuyTx = ({
 
   const getTradingManagerTx = async () => {
     try {
-      const tokenAddress = projectData.deployedTokenAddress;
-
+      const tokenAddress = projectData.deployedTokenAddress.contractAddress;
+      console.log(tokenAddress);
       const tokenInterface = new Interface(abi);
 
       const result = await readContract({
@@ -194,7 +200,7 @@ export const SimulateBuyTx = ({
 
   const getEnableTradingTx = () => {
     try {
-      const tokenAddress = projectData.deployedTokenAddress;
+      const tokenAddress = projectData.deployedTokenAddress.contractAddress;
 
       const tokenInterface = new Interface(abi);
 
@@ -212,7 +218,7 @@ export const SimulateBuyTx = ({
 
   const getBuyTx = () => {
     try {
-      const tokenAddress = projectData.deployedTokenAddress;
+      const tokenAddress = projectData.deployedTokenAddress.contractAddress;
       const uniswapRouterInterface = new Interface(uniswapRouterABI);
       const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from now
       const buyTranscations: Transaction[] = [];

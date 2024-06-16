@@ -24,46 +24,15 @@ interface SimulateTxProps {
     beneficiaryDetails: {
       wallets: Wallet[];
     };
-    deployedTokenAddress: `0x${string}`;
+    deployedTokenAddress: {
+      contractAddress: `0x${string}`;
+    };
     poolAddress: `0x${string}`;
   };
   selectedWallets: Wallet[];
   onWalletsUpdate: (selectedWallets: Wallet[]) => void;
   onTransactionsUpdate: (transactions: Transaction[]) => void;
 }
-
-// const sellWallets: Wallet[] = [
-//   {
-//     address: "0x694a967A60b61Cb23dAA46571A137e4Fb0656076",
-//     amount: "",
-//     privateKey:
-//       "0x9aa83c8461361aba455fe89391f03c558bab1c683cf2cd79c550c930dc8b1b2d",
-//     ethBalance: "0",
-//     tokenBalance: "0",
-//     estimate: "0",
-//     tokenToSell: "10",
-//   },
-//   {
-//     address: "0x20FEE153B13d8f0A83bd9B9C2B627f830Ff957FB",
-//     amount: "",
-//     privateKey:
-//       "0x9aa83c8461361aba455fe89391f03c558bab1c683cf2cd79c550c930dc8b1b2d",
-//     ethBalance: "0",
-//     tokenBalance: "0",
-//     estimate: "0",
-//     tokenToSell: "10",
-//   },
-//   {
-//     address: "0xf4C4795c309a8e4a1AD548D82a875193980E82ff",
-//     amount: "",
-//     privateKey:
-//       "0x9aa83c8461361aba455fe89391f03c558bab1c683cf2cd79c550c930dc8b1b2d",
-//     ethBalance: "0",
-//     tokenBalance: "0",
-//     estimate: "0",
-//     tokenToSell: "10",
-//   },
-// ];
 
 export const SimulateSellTx = ({
   projectData,
@@ -145,7 +114,7 @@ export const SimulateSellTx = ({
 
   const getApproveTx = () => {
     try {
-      const tokenAddress = projectData.deployedTokenAddress;
+      const tokenAddress = projectData.deployedTokenAddress.contractAddress;
       const tokenInterface = new Interface(abi);
       const approveTranscations: Transaction[] = [];
       for (let i = 0; i < sellWallets?.length!; i++) {
@@ -168,7 +137,7 @@ export const SimulateSellTx = ({
 
   const getSellTx = () => {
     try {
-      const tokenAddress = projectData.deployedTokenAddress;
+      const tokenAddress = projectData.deployedTokenAddress.contractAddress;
       const uniswapRouterInterface = new Interface(uniswapRouterABI);
       const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from now
       const sellTranscations: Transaction[] = [];
