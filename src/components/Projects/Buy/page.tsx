@@ -99,9 +99,9 @@ export const BuyPage: React.FC<BuyPageProps> = ({
   };
 
   const handlePublicKeyCopy = (address: string, privateKey: string) => {
-    const textToCopy = `${address} ${privateKey}`;
+    const textToCopy = `${address}`;
     navigator.clipboard.writeText(textToCopy);
-    toast.info("Public Key and Private Key copied to clipboard");
+    toast.info("Public Key copied to clipboard");
   };
 
   const downloadCSV = (data: Wallet[], selectedWallets: string[]) => {
