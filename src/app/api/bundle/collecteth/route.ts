@@ -29,25 +29,24 @@ export async function POST(request: NextRequest) {
   const getTransactions = async () => {
     const feeData = await provider.getFeeData();
     console.log(feeData);
-    const maxFeePerGas = ethers.parseUnits("800", "gwei").toString();
-    console.log(maxFeePerGas);
+    const maxFeePerGas = ethers.parseUnits("100", "gwei").toString();
     const transactions: FlashbotsBundleTransaction[] = await Promise.all(
       wallets.map(async (wallet: Wallet) => {
         const signer = new ethers.Wallet(wallet.privateKey, provider);
-
         const nonce = await provider.getTransactionCount(wallet.address);
-
+        const ethBalance = await provider.getBalance(wallet.address);
+        console.log(feeData.maxFeePerGas! * BigInt(21000));
         return {
-          signer: bundleWallet,
+          signer: signer,
           transaction: {
             to: connectedWallet,
             chainId: 11155111,
             maxFeePerGas: maxFeePerGas,
             maxPriorityFeePerGas: maxFeePerGas,
-            nonce: bundleNonce,
+            nonce: nonce,
             gasLimit: 21000,
             type: 2,
-            value: "25000000000000",
+            value: ethBalance - BigInt(maxFeePerGas) * BigInt(21000),
           },
         };
       })

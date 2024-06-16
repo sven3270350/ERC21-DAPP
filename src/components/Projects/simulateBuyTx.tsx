@@ -47,6 +47,7 @@ export const SimulateBuyTx = ({
   const { address } = useAccount();
   const [isSimulating, setIsSimulating] = useState(false);
   const buyWallets: Wallet[] = selectedWallets;
+
   const handleSimulation = async () => {
     if (buyWallets?.length != 0) {
       try {
@@ -168,7 +169,6 @@ export const SimulateBuyTx = ({
   const getTradingManagerTx = async () => {
     try {
       const tokenAddress = projectData.deployedTokenAddress.contractAddress;
-      console.log(tokenAddress);
       const tokenInterface = new Interface(abi);
 
       const result = await readContract({
