@@ -10,19 +10,6 @@ import { Transaction } from "@/components//Projects/simulateBuyTx";
 import { NextRequest, NextResponse } from "next/server";
 import { Wallet } from "@/types/wallet";
 
-const transactions = [
-  {
-    from: "0x20FEE153B13d8f0A83bd9B9C2B627f830Ff957FB",
-    to: "0x694a967A60b61Cb23dAA46571A137e4Fb0656076",
-    value: "250000000000000",
-  },
-  {
-    from: "0x20FEE153B13d8f0A83bd9B9C2B627f830Ff957FB",
-    to: "0xf4C4795c309a8e4a1AD548D82a875193980E82ff",
-    value: "250000000000000",
-  },
-];
-
 export async function POST(request: NextRequest) {
   const data = await request.json();
 

@@ -1,24 +1,25 @@
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { NextResponse, NextRequest } from "next/server";
-import { FlashbotsBundleProvider } from "@flashbots/ethers-provider-bundle";
-import {uniswapRouterabi, uniswapV2RouterAddress, wethAddress} from '@/constants/routerABI.json'
+import {
+  FlashbotsBundleProvider,
+  FlashbotsBundleRawTransaction,
+  FlashbotsBundleResolution,
+  FlashbotsBundleTransaction,
+} from "@flashbots/ethers-provider-bundle";
+import {uniswapRouterABI, uniswapV2RouterAddress, wethAddress} from '@/constants/routerABI.json'
 import { ethers, Wallet } from "ethers";
+import { Wallet as WalletT } from "@/types/wallet";
 
-const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_ALCHEMY_RPC);
 
 export async function POST(request: NextRequest) {
+
   const session = await getServerSession(authOptions);
+  const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_ALCHEMY_RPC);
 
   const data = await request.json();
 
-  interface Wallet {
-    privateKey: string;
-    address: string;
-    tokenAmount: number;
-    ethAmount: number;
-  }
-  const { privateKey, tokenAddress, wallets  }: { privateKey: string, tokenAddress: string, wallets: Wallet[] } = data;
+  const { privateKey, tokenAddress, wallets  }: { privateKey: string, tokenAddress: string, wallets: WalletT[] } = data;
 
   const bundleWallet = new Wallet(privateKey, provider);
   const flashbotsProvider = await FlashbotsBundleProvider.create(
@@ -28,8 +29,12 @@ export async function POST(request: NextRequest) {
     "sepolia"
   );
 
-  const maxFeePerGas = ethers.parseUnits("100", "gwei").toString();
-  const uniswapV2Router = new ethers.Contract(uniswapV2RouterAddress, uniswapRouterabi, provider);
+  const gas = { 
+    maxFeePerGas: ethers.parseUnits("100", "gwei").toString(),
+    maxPriorityFeePerGas: ethers.parseUnits("100", "gwei").toString()
+  }
+  //await provider.getFeeData();
+  const uniswapV2Router = new ethers.Contract(uniswapV2RouterAddress, uniswapRouterABI, provider);
 
   //TODO: loop over the wallets to create buy tx
   const buyTransactions = await Promise.all(wallets.map(async (wallet, index) => {
@@ -39,7 +44,7 @@ export async function POST(request: NextRequest) {
     const deadline = Math.floor(Date.now() / 1000) + 60 * 2; // 2 minutes
 
     const data = uniswapV2Router.interface.encodeFunctionData("swapExactETHForTokens", [
-      wallet.tokenAmount,
+      BigInt(wallet.TokenAmount || 0),
       path,
       wallet.address,
       deadline
@@ -50,19 +55,19 @@ export async function POST(request: NextRequest) {
       transaction: {
         to: uniswapV2RouterAddress,
         data: data,
-        value: ethers.parseEther(wallet.ethAmount.toString()),
+        value: ethers.parseUnits(wallet?.requiredETH || "0"),
         gasLimit: 150000,
         chainId: 11155111,
-        maxFeePerGas: maxFeePerGas, 
-        maxPriorityFeePerGas: maxFeePerGas, 
-        nonce: nonce + index, 
+        maxFeePerGas: gas.maxFeePerGas, 
+        maxPriorityFeePerGas: gas.maxPriorityFeePerGas, 
+        nonce: nonce, 
         type: 2,
       },
     };
   }));
 
-
   const nonce = await provider.getTransactionCount(bundleWallet.address);
+  
   const signedEnableTradingTx = await flashbotsProvider.signBundle([
     {
       signer: bundleWallet,
@@ -72,8 +77,8 @@ export async function POST(request: NextRequest) {
         data: new ethers.Interface(["function setEnableTrading(bool)"]).encodeFunctionData("setEnableTrading", [true]),
         gasLimit: 45000,
         chainId: 11155111, // Sepolia
-        maxFeePerGas: maxFeePerGas,
-        maxPriorityFeePerGas: maxFeePerGas,
+        maxFeePerGas: gas.maxFeePerGas,
+        maxPriorityFeePerGas: gas.maxPriorityFeePerGas,
         nonce: nonce,
         type: 2,
     },
@@ -82,11 +87,11 @@ export async function POST(request: NextRequest) {
         signer: bundleWallet,
         transaction: {
           to: "0x0000000000000000000000000000000000000000",
-          value: ethers.parseEther("0.1"), // pay miner
+          value: ethers.parseEther("0.01337"), // pay miner
           gasLimit: 35000,
           chainId: 11155111,
-          maxFeePerGas: maxFeePerGas,
-          maxPriorityFeePerGas: maxFeePerGas,
+          maxFeePerGas: gas.maxFeePerGas,
+          maxPriorityFeePerGas: gas.maxPriorityFeePerGas,
           nonce: nonce + + 1,
           type: 2,
         },
@@ -121,12 +126,13 @@ export async function POST(request: NextRequest) {
   }
   console.log(signedEnableTradingTx);
 
-  // Send the bundle to Flashbots
+  // Send the bundle to Flashbots WE DONT SEND YET
   const bundleReceipt = await flashbotsProvider.sendRawBundle(
     signedEnableTradingTx,
     blockNumber + 1
   );
   console.log("Bundle Receipt:", bundleReceipt);
+  const success = (await bundleReceipt.wait()) === FlashbotsBundleResolution.BundleIncluded;
 
-  return NextResponse.json({ success: true, bundleReceipt: bundleReceipt });
+  return NextResponse.json({ success: success, bundleReceipt: bundleReceipt });
 }

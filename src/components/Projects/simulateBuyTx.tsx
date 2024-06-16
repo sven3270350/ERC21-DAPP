@@ -47,7 +47,6 @@ export const SimulateBuyTx = ({
   const { address } = useAccount();
   const [isSimulating, setIsSimulating] = useState(false);
   const buyWallets: Wallet[] = selectedWallets;
-  console.log(buyWallets);
   const handleSimulation = async () => {
     if (buyWallets?.length != 0) {
       try {

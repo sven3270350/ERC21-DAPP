@@ -19,7 +19,6 @@ export const ProjectHeadData: React.FC<{
     return allProjects.find((project: any) => project?.projectId === projectId);
   }, [allProjects, projectId]);
   const totalAmount = currProject?.beneficiaryDetails?.length;
-  console.log("currProject", currProject, allProjects, projectId);
 
   return (
     <div>

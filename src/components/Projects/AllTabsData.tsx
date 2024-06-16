@@ -88,7 +88,7 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({
 
   useEffect(() => {
     const fetchData = async () => {
-      const batchSize = 5;
+      const batchSize = 7;
       const delayBetweenBatches = 2000;
 
       let currentIndex = 0;
@@ -159,12 +159,10 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({
   };
 
   const handleSelectionChange = (selectedWallets: Wallet[]) => {
-    console.log("check");
     setSelectedWallets(selectedWallets);
   };
 
   const handleSellTransactionChange = (transactions: Transaction[]) => {
-    console.log("check");
     setSellTransactions(transactions);
   };
 
@@ -188,7 +186,6 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({
         wallets: selectedWallets,
         sellTransactions: sellTransactions?.slice(selectedWallets.length),
       });
-
       console.log(response);
       if (response.data.success) {
         toast("Sell is successful");
@@ -196,6 +193,22 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({
         toast("Sell Failed");
       }
     }
+
+    if (selectedTab === "Buy") {
+      // temporary bundle wallet pKey @Dang to update 
+      const response = await axios.post("/api/bundle/buy", {
+        privateKey: "c2625d1e9898b0037f9f04a9d728ae19dd82e3e79492fde582d3273f50cf9f4e",
+        tokenAddress: projectData?.deployedTokenAddress?.contractAddress.toString(),
+        wallets: selectedWallets as Wallet[],
+      });
+      console.log(response);
+      if (response.data.success) {
+        toast("Buy Transaction Successful!");
+      } else {
+        toast("Buy Failed: ", response.data);
+      }
+    }
+
     setIsBundling(false);
   };
 
