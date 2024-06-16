@@ -13,7 +13,7 @@ const Projects: React.FC<ProjectsProps> = ({ projects }) => {
         <div className="font-bold text-[22px] leading-7">Your Projects</div>
       </div>
       <div className="gap-4 grid grid-cols-3">
-        {projects.map((project, index) => (
+        {[...projects].reverse().map((project, index) => (
           <ProjectCard key={index} project={project} />
         ))}
       </div>
