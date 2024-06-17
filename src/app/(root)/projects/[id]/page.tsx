@@ -81,7 +81,7 @@ export default function Project({ params }: Props) {
 
   return (
     <div>
-      {project && currProject.status === "Launched" ? (
+      {project && currProject?.status === "Launched" ? (
         <Projects projectData={project} projectId={projectId} />
       ) : (
         <ProjectForm projectId={projectId} data={project} objectData={projectData} />

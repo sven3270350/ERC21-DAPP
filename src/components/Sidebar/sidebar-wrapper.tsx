@@ -6,6 +6,7 @@ import Sidebarheader from "./sidebar-header";
 import Image from "next/image";
 import { Project } from "@/types/project";
 import { useRouter } from "next/navigation";
+import { useStore } from "@/store";
 
 interface SidebarWrapperProps {
   children: React.ReactNode;
@@ -19,11 +20,12 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
   const [selectedProject, setSelectedProject] = useState<any | null>(null);
   const [isRenderable, setIsRenderable] = useState<boolean>(false);
   const [collapse, setCollapse] = useState<boolean>(false);
-  const [toggleState, setToggleState] = useState<boolean>(false);
+const [toggleState, setToggleState] = useState<boolean>(false);
   const [isMdBreakpoint, setIsMdBreakpoint] = useState<boolean>(false);
   const [activeMenu, setActiveMenu] = useState<string>("Dashboard");
   const router = useRouter();
   const [projects, setProjects] = useState<any>([]);
+  const { allProjects, setAllProjects } = useStore();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -38,6 +40,7 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
       };
     });
     setProjects(projectsArray);
+    setAllProjects(projectsArray);
   }, []);
 
   const handleMenuItemClick = (
@@ -168,7 +171,7 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
                       />
                       <span>Projects</span>
                     </div>
-                    {projects.map((project: any, index: number) => (
+                    {allProjects.map((project: any, index: number) => (
                       <MenuItem
                         key={index}
                         active={
@@ -201,7 +204,7 @@ export const SidebarWrapper: React.FC<SidebarWrapperProps> = ({
           </Sidebar>
         )}
       </div>
-      <div className="bg-[#09090B] w-full h-full text-white overflow-auto scrollbar-hide pt-24">
+      <div className="bg-[#09090B] pt-24 w-full h-full text-white overflow-auto scrollbar-hide">
         {children}
       </div>
     </div>
