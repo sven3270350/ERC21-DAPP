@@ -3,9 +3,12 @@ import React, { useState } from "react";
 import {
   writeContract,
   prepareWriteContract,
+  prepareSendTransaction,
+  sendTransaction,
 } from "@wagmi/core";
 import { publicClient } from "../../lib/viem";
 import { Address, parseUnits } from "viem";
+import { toast } from "sonner";
 import { uniswapRouterABI, uniswapV2FactoryAddress, uniswapV2FactoryABI, uniswapV2RouterAddress, wethAddress } from "@/constants/routerABI.json";
 import { abi, } from "@/constants/tokenABI.json";
 import { useAccount } from "wagmi";
@@ -121,6 +124,61 @@ const CreatePool: React.FC<CreatePoolProps> = ({
       if (receipt && receipt.status === 1) {
         console.log("Pool creation was successful!");
 
+        setProcessState("Creating Trading Wallet");
+        const bundleWallet = ethers.Wallet.createRandom();
+        const projectData = {
+          ...objectData,
+        };
+        if (projectId) {
+          projectData[projectId].bundleWallet = bundleWallet;
+          const res = await UpdateProject(projectId, projectData, userId);
+          if (res?.error) {
+            console.error(res?.error);
+            return;
+          }
+          const config = await prepareSendTransaction({
+           to: bundleWallet.address,
+           value: ethers.parseEther('0.1'),
+          })
+          const fundBundleWallet = await sendTransaction(config)
+          const fundBundleWalletResult = await provider.waitForTransaction(
+            fundBundleWallet.hash
+          );
+          if (fundBundleWalletResult?.status === 1) {
+            console.log(`Fund Wallet Transaction successful with hash: ${hash}`);
+          } else {
+            console.error(`Transaction failed with hash: ${hash}`);
+            toast.error("Fund Wallet Transaction Failed, Make sure you have 0.1Eth in the connected wallet")
+            return;
+          }
+
+          const TRADING_MANAGER_ROLE = ethers.keccak256(ethers.toUtf8Bytes("TRADING_MANAGER_ROLE"));
+          const grantRole = await prepareWriteContract({
+          address: tokenAddress as Address,
+          abi: abi,
+          functionName: 'grantRole',
+          args: [
+            TRADING_MANAGER_ROLE,
+            bundleWallet.address
+          ]
+          });
+          const grantRoleHash = await writeContract(grantRole);
+          const grantRoleResult = await provider.waitForTransaction(
+            grantRoleHash.hash
+          );
+          if (grantRoleResult?.status === 1) {
+            console.log(`Grant Role Transaction successful with hash: ${hash}`);
+          } else {
+            console.error(`Grant Role failed with hash: ${hash}`);
+            toast.error("Grant Role Transaction Failed - Make sure connected wallet is deployer")
+            return;
+          }
+          console.log("GrantRole Hash" , grantRoleHash);
+        } else {
+            console.error("Project not found");
+            return;
+        }
+
         const factoryContract = new ethers.Contract(
           uniswapV2FactoryAddress,
           uniswapV2FactoryABI,
@@ -146,7 +204,6 @@ const CreatePool: React.FC<CreatePoolProps> = ({
         );
 
         console.log(setPairReceipt);
-        const demoPoolAddres = "0x97bf5e146581ac7c633f0dfd0f382ff0213e742b"
         if (pairAddress) {
           // update db with pair address and status
           if (!objectData || !projectId) {

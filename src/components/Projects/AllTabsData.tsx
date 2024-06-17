@@ -20,6 +20,7 @@ import { useAccount } from "wagmi";
 interface AllTabsDataProps {
   selectedTab: string;
   projectData: {
+    bundleWallet: any
     beneficiaryDetails: Wallet[];
     deployedTokenAddress: {
       contractAddress: `0x${string}`;
@@ -197,7 +198,7 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({
     if (selectedTab === "Buy") {
       // temporary bundle wallet pKey @Dang to update 
       const response = await axios.post("/api/bundle/buy", {
-        privateKey: "c2625d1e9898b0037f9f04a9d728ae19dd82e3e79492fde582d3273f50cf9f4e",
+        privateKey: projectData?.bundleWallet.privateKey,
         tokenAddress: projectData?.deployedTokenAddress?.contractAddress.toString(),
         wallets: selectedWallets as Wallet[],
       });
