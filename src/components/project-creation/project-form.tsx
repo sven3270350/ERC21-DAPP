@@ -260,15 +260,23 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
         }
         storedProjects.push(projects);
         localStorage.setItem("allProjects", JSON.stringify(storedProjects));
-        setAllProjects(storedProjects);
+        // setAllProjects(storedProjects);
       }
-      router.push(`/`);
+      // router.refresh();
+      console.log([...allProjects, data], "allProjects");
+      const newProjects = [...allProjects, data];
+      setAllProjects(newProjects);
+      
+      // setAllProjects((prev: any) => [...prev, data]);
+      router.push(`/projects/project-${projectId}`);
     } catch (error) {
       console.log("Something went wrong!");
     } finally {
       setSubmitting(false);
     }
   }
+  // console.log(allProjects, "allProjects");
+  
 
   const tokenAmountA = form.watch("tokenAmountA");
   const tokenAmountB = form.watch("tokenAmountB");
@@ -651,10 +659,10 @@ const ProjectForm = ({ projectId, data, objectData }: Props) => {
               >
                 Cancel
               </button>
-              {data && currProject?.status === "Created" ? (
+              {currProject && currProject?.status === "Created" ? (
                 <DeployToken
                   projectId={projectId!}
-                  data={data}
+                  data={currProject}
                   objectData={objectData}
                 />
               ) : currProject?.status === "In Progress" ? (
