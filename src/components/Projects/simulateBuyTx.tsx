@@ -100,8 +100,14 @@ export const SimulateBuyTx = ({
 
       const reservesArray: any = result;
 
-      let reserveEth = parseFloat(reservesArray[1]);
-      let reserveToken = parseFloat(reservesArray[0]);
+      let reserveEth =
+        parseFloat(reservesArray[1]) > parseFloat(reservesArray[0])
+          ? parseFloat(reservesArray[0])
+          : parseFloat(reservesArray[1]);
+      let reserveToken =
+        parseFloat(reservesArray[1]) < parseFloat(reservesArray[0])
+          ? parseFloat(reservesArray[0])
+          : parseFloat(reservesArray[1]);
 
       for (let i = 0; i < buyWallets.length!; i++) {
         const amountToken = parseUnits(
