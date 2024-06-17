@@ -91,6 +91,39 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({
     );
   };
 
+  const getBalanceUpdate = async () => {
+    const indexes = wallets.reduce<number[]>((result, value, index) => {
+      if (selectedWallets.some(wallet => wallet.address === value.address)) {
+        result.push(index)
+      }
+      return result
+    }, [])
+    const results = await Promise.all(
+      selectedWallets.map((value) =>
+        getBalance({
+          address: value.address as `0x${string}`,
+          tokenAddress:
+            projectData?.deployedTokenAddress?.contractAddress,
+        })
+      )
+    );
+    setBalances((prev) => {
+      let i = 0;
+      return prev.map((value, index) => {
+        if (indexes.some(value => value === index)) {
+          const result = results[i]
+          i = i + 1;
+          return result
+        }
+        return value
+      })
+    })
+  }
+  
+  useEffect(() => {
+    getBalanceUpdate();
+  }, [txStatus])
+
   const getTxStatus = async (hash: string) => {
     const txStatus = await publicClient.getTransactionReceipt({ 
       hash: hash as `0x${string}`
@@ -115,12 +148,11 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({
       toast(`Transaction Hash: ${result.hash}`)
       setTimeout(async () => {
         await getTxStatus(result.hash as string)
-      }, 10000);
+      }, 13000);
     } else {
       toast(result.message)
     }
   }
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -160,7 +192,7 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({
     };
 
     fetchData();
-  }, [wallets, projectData?.deployedTokenAddress?.contractAddress, txStatus]);
+  }, [wallets, projectData?.deployedTokenAddress?.contractAddress]);
 
   const handleCollectAllETH = async () => {
     if (selectedWallets.length != 0) {
