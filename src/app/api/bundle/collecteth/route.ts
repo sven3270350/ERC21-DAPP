@@ -79,9 +79,10 @@ export async function POST(request: NextRequest) {
       signedEnableTradingTx,
       blockNumber + 1
     );
-    const success =
-      (await bundleReceipt.wait()) === FlashbotsBundleResolution.BundleIncluded;
+    // @ts-ignore: Ignore TypeScript error about 'wait' method
+    const success = (await bundleReceipt.wait()) === FlashbotsBundleResolution.BundleIncluded;
     console.log(success);
+    // @ts-ignore: Ignore TypeScript error about 'receipts' method
     const receipt = await bundleReceipt.receipts();
     console.log(receipt);
     if (success) {

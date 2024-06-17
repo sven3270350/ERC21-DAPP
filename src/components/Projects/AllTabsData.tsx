@@ -23,10 +23,10 @@ interface AllTabsDataProps {
   selectedTab: string;
   projectData: {
     bundleWallet: any
+    poolAddress: `0x${string}`;
     beneficiaryDetails: Wallet[];
     deployedTokenAddress: {
       contractAddress: `0x${string}`;
-      pairAddress: `0x${string}`;
     };
   };
 }

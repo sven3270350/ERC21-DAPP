@@ -21,9 +21,7 @@ import { Transaction } from "./simulateBuyTx";
 
 interface SimulateTxProps {
   projectData: {
-    beneficiaryDetails: {
-      wallets: Wallet[];
-    };
+    beneficiaryDetails: Wallet[];
     deployedTokenAddress: {
       contractAddress: `0x${string}`;
     };

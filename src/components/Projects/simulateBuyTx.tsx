@@ -20,9 +20,7 @@ import { Button } from "../ui/button";
 
 interface SimulateTxProps {
   projectData: {
-    beneficiaryDetails: {
-      wallets: Wallet[];
-    };
+    beneficiaryDetails: Wallet[];
     deployedTokenAddress: {
       contractAddress: `0x${string}`;
     };
