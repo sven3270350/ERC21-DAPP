@@ -219,6 +219,7 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({
     setIsBundling(true);
     if (selectedTab === "Sell") {
       const response = await axios.post("/api/bundle/sell", {
+        privateKey: "",
         wallets: selectedWallets,
         sellTransactions: sellTransactions?.slice(selectedWallets.length),
       });
@@ -231,8 +232,9 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({
     }
 
     if (selectedTab === "Buy") {
-      // temporary bundle wallet pKey @Dang to update 
+      // temporary bundle wallet pKey @Dang to update
       const response = await axios.post("/api/bundle/buy", {
+
         privateKey: projectData?.bundleWallet.privateKey,
         tokenAddress: projectData?.deployedTokenAddress?.contractAddress.toString(),
         wallets: selectedWallets as Wallet[],

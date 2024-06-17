@@ -1,8 +1,6 @@
 import { ethers } from "ethers";
-import { abi, bytecode } from "@/constants/tokenABI.json";
 import {
   FlashbotsBundleProvider,
-  FlashbotsBundleRawTransaction,
   FlashbotsBundleResolution,
   FlashbotsBundleTransaction,
 } from "@flashbots/ethers-provider-bundle";
@@ -13,16 +11,11 @@ import { Wallet } from "@/types/wallet";
 export async function POST(request: NextRequest) {
   const data = await request.json();
 
-  const { wallets, sellTransactions } = data;
+  const { privateKey, wallets, sellTransactions } = data;
 
   const rpc = process.env.NEXT_PUBLIC_ALCHEMY_RPC;
-  const pkey =
-    "b62692c615c7a80b84dd8d082570ba78c6a4b4f0af15189caa4547f893f6ccf5";
   const provider = new ethers.JsonRpcProvider(rpc);
-  const bundleWallet = new ethers.Wallet(pkey, provider);
-  const bundleWalletNonce = await provider.getTransactionCount(
-    bundleWallet.address
-  );
+  const bundleWallet = new ethers.Wallet(privateKey, provider);
 
   const flashbotsProvider = await FlashbotsBundleProvider.create(
     provider,
@@ -38,9 +31,7 @@ export async function POST(request: NextRequest) {
       const nonce = await provider.getTransactionCount(wallet.address);
       nonceMap.set(wallet.address.toLowerCase(), nonce);
     }
-    const block = await provider.getBlock("latest");
     const maxFeePerGas = ethers.parseUnits("100", "gwei").toString();
-    const PRIORITY_FEE = BigInt(block?.baseFeePerGas || 0);
 
     const transactions: FlashbotsBundleTransaction[] = await Promise.all(
       sellTransactions.map(async (tx: Transaction) => {
@@ -94,6 +85,28 @@ export async function POST(request: NextRequest) {
         success: false,
         simulationError: simulation.error.message,
       });
+    } else if (simulation?.firstRevert) {
+      console.log(
+        `Simulation Reverted: ${blockNumber} ${JSON.stringify(
+          simulation?.firstRevert,
+          (key, value) =>
+            typeof value === "bigint" ? value.toString() : value,
+          2
+        )}`
+      );
+      return NextResponse.json({
+        success: false,
+        bundleReceipt: simulation?.firstRevert,
+      });
+    } else {
+      console.log(
+        `Simulation Success: ${blockNumber} ${JSON.stringify(
+          simulation,
+          (key, value) =>
+            typeof value === "bigint" ? value.toString() : value,
+          2
+        )}`
+      );
     }
     console.log(simulation);
     const bundleReceipt = await flashbotsProvider.sendRawBundle(
