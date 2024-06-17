@@ -28,6 +28,8 @@ export interface Project {
     liquidityAmount: number;
     liquidityToken: string;
   };
+  bundleWallet: string;
+  poolAddress: string;
   status: string;
   beneficiaryDetails: {
     numWallets: number;

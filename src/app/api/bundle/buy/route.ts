@@ -46,18 +46,19 @@ export async function POST(request: NextRequest) {
     const deadline = Math.floor(Date.now() / 1000) + 60 * 2; // 2 minutes
 
     const data = uniswapV2Router.interface.encodeFunctionData("swapExactETHForTokens", [
-      BigInt(wallet.TokenAmount || 0),
+      BigInt(wallet.tokensToBuy || 0), // minOutputToken
       path,
       wallet.address,
       deadline
     ]);
 
+    console.log("amount in ETH to buy: ", ethers.parseEther(wallet.requiredETH!));
     return {
       signer: walletSigner,
       transaction: {
         to: uniswapV2RouterAddress,
         data: data,
-        value: ethers.parseUnits(wallet?.requiredETH || "0"),
+        value: ethers.parseEther(wallet?.requiredETH || "0").toString(),
         gasLimit: 150000,
         chainId: 11155111,
         maxFeePerGas: gas.maxFeePerGas, 
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
   }));
 
   const nonce = await provider.getTransactionCount(bundleWallet.address);
-  
+
   const signedEnableTradingTx = await flashbotsProvider.signBundle([
     {
       signer: bundleWallet,
@@ -77,7 +78,7 @@ export async function POST(request: NextRequest) {
       {
         to: tokenAddress,
         data: new ethers.Interface(["function setEnableTrading(bool)"]).encodeFunctionData("setEnableTrading", [true]),
-        gasLimit: 45000,
+        gasLimit: 50000,
         chainId: 11155111, // Sepolia
         maxFeePerGas: gas.maxFeePerGas,
         maxPriorityFeePerGas: gas.maxPriorityFeePerGas,
@@ -111,12 +112,21 @@ export async function POST(request: NextRequest) {
   if ('firstRevert' in simulation && simulation.firstRevert) {
     console.log(
         `Simulation Reverted: ${blockNumber} ${JSON.stringify(
-            simulation?.firstRevert,
+            simulation,
           (key, value) => (typeof value === "bigint" ? value.toString() : value),
           2
         )}`
       );
     return NextResponse.json({ success: false, bundleReceipt: simulation?.firstRevert });
+    } else if ('error' in simulation && simulation.error) {
+      console.log(
+        `Simulation Success: ${blockNumber} ${JSON.stringify(
+          simulation,
+          (key, value) => (typeof value === "bigint" ? value.toString() : value),
+          2
+        )}`
+      );
+      return NextResponse.json({ success: false, bundleReceipt: simulation?.error.message });
     } else {
     console.log(
       `Simulation Success: ${blockNumber} ${JSON.stringify(
@@ -128,7 +138,7 @@ export async function POST(request: NextRequest) {
   }
   console.log(signedEnableTradingTx);
 
-  // Send the bundle to Flashbots WE DONT SEND YET
+  // Send the bundle to Flashbots
   const bundleReceipt = await flashbotsProvider.sendRawBundle(
     signedEnableTradingTx,
     blockNumber + 1

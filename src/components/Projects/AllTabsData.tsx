@@ -264,18 +264,20 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({
     }
 
     if (selectedTab === "Buy") {
-      // temporary bundle wallet pKey @Dang to update
-      const response = await axios.post("/api/bundle/buy", {
-
-        privateKey: projectData?.bundleWallet.privateKey,
-        tokenAddress: projectData?.deployedTokenAddress?.contractAddress.toString(),
-        wallets: selectedWallets as Wallet[],
-      });
-      console.log(response);
-      if (response.data.success) {
-        toast("Buy Transaction Successful!");
-      } else {
-        toast("Buy Failed: ", response.data);
+      try {
+        const response = await axios.post("/api/bundle/buy", {
+          privateKey: projectData?.bundleWallet.privateKey,
+          tokenAddress: projectData?.deployedTokenAddress?.contractAddress.toString(),
+          wallets: selectedWallets as Wallet[],
+        });
+        console.log(response);
+        if (response.data.success) {
+          toast("Buy Transaction Successful!");
+        } else {
+          toast("Buy Failed: " + JSON.stringify(response.data));
+        }
+      } catch {
+        //catch
       }
     }
 

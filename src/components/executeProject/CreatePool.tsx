@@ -125,7 +125,9 @@ const CreatePool: React.FC<CreatePoolProps> = ({
         console.log("Pool creation was successful!");
 
         setProcessState("Creating Trading Wallet");
-        const bundleWallet = ethers.Wallet.createRandom();
+        const bundleWalletTmp = ethers.Wallet.createRandom();
+        const bundleWallet = {address: bundleWalletTmp.address, privateKey: bundleWalletTmp.privateKey};
+
         const projectData = {
           ...objectData,
         };
@@ -254,6 +256,7 @@ const CreatePool: React.FC<CreatePoolProps> = ({
               ...project,
               status: "Launched",
               poolAddress: pairAddress,
+              bundleWallet: bundleWallet,
             };
             const updatedData = projectsArray.map((project: any) => {
               return {

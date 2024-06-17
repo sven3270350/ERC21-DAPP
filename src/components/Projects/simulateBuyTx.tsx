@@ -154,7 +154,7 @@ export const SimulateBuyTx = ({
       for (let i = 0; i < buyWallets.length; i++) {
         const ethValue =
           parseFloat(buyWallets[i].requiredETH!) +
-          parseFloat(formatUnits(BigInt("12000000"), 9));
+          parseFloat(formatUnits(BigInt("15000000"), 9));
         buyWallets[i].additionalEth = ethValue.toString();
         const tx: Transaction = {
           from: address!,
