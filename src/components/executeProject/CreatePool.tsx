@@ -167,13 +167,13 @@ const CreatePool: React.FC<CreatePoolProps> = ({
             grantRoleHash.hash
           );
           if (grantRoleResult?.status === 1) {
-            console.log(`Grant Role Transaction successful with hash: ${hash}`);
+            console.log(`Grant Role Transaction successful with hash: ${grantRoleHash.hash}`);
           } else {
-            console.error(`Grant Role failed with hash: ${hash}`);
+            console.error(`Grant Role failed`);
             toast.error("Grant Role Transaction Failed - Make sure connected wallet is deployer")
             return;
           }
-          console.log("GrantRole Hash" , grantRoleHash);
+          console.log("GrantRole Hash" , grantRoleHash.hash);
         } else {
             console.error("Project not found");
             return;
