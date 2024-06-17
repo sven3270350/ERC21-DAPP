@@ -213,9 +213,7 @@ export const AllTabsData: React.FC<AllTabsDataProps> = ({
         return "Action";
     }
   };
-
-  console.log("~~~~selected Wallets~~~~~", selectedWallets);
-
+  
   const handleBundleTx = async () => {
     setIsBundling(true);
     if (selectedTab === "Sell") {
